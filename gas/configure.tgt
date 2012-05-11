@@ -13,7 +13,7 @@
 #   em		emulation; identifies the config/te-* files
 
 # Optional output shell variables; these are not always set:
-#   arch	the default architecture; sets DEFAULT_ARCH on some systems 
+#   arch	the default architecture; sets DEFAULT_ARCH on some systems
 #   endian	"big" or "little"; used on bi-endian systems
 
 cpu_type=
@@ -42,8 +42,8 @@ case ${cpu} in
   hppa*)		cpu_type=hppa ;;
   i[3-7]86)		cpu_type=i386 arch=i386;;
   ia64)			cpu_type=ia64 ;;
-  ip2k)			cpu_type=ip2k endian=big ;; 
-  iq2000)		cpu_type=iq2000 endian=big ;; 
+  ip2k)			cpu_type=ip2k endian=big ;;
+  iq2000)		cpu_type=iq2000 endian=big ;;
   lm32)			cpu_type=lm32 ;;
   m32c)			cpu_type=m32c endian=little ;;
   m32r)			cpu_type=m32r endian=big ;;
@@ -53,6 +53,7 @@ case ${cpu} in
   m680[012346]0)	cpu_type=m68k ;;
   m6811|m6812|m68hc12)	cpu_type=m68hc11 ;;
   m683??)		cpu_type=m68k ;;
+  mapip2)			cpu_type=mapip2 endian=little ;;
   mep)			cpu_type=mep endian=little ;;
   microblaze*)		cpu_type=microblaze ;;
   mips*el)		cpu_type=mips endian=little ;;
@@ -265,6 +266,8 @@ case ${generic_target} in
   m68k-*-netbsd*)			fmt=aout em=nbsd bfd_gas=yes ;;
   m68k-*-openbsd*)			fmt=aout em=nbsd bfd_gas=yes ;;
   m68k-*-psos*)				fmt=elf em=psos;;
+
+  mapip2-*-*)				fmt=elf ;;
 
   mep-*-elf)				fmt=elf ;;
 

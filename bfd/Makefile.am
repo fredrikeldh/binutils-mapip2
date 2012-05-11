@@ -106,6 +106,7 @@ ALL_MACHINES = \
 	cpu-m68hc12.lo \
 	cpu-m68k.lo \
 	cpu-m88k.lo \
+	cpu-mapip2.lo \
 	cpu-mcore.lo \
 	cpu-mep.lo \
 	cpu-microblaze.lo \
@@ -181,6 +182,7 @@ ALL_MACHINES_CFILES = \
 	cpu-m68hc12.c \
 	cpu-m68k.c \
 	cpu-m88k.c \
+	cpu-mapip2.c \
 	cpu-mcore.c \
 	cpu-mep.c \
 	cpu-microblaze.c \
@@ -357,6 +359,7 @@ BFD32_BACKENDS = \
 	m68knetbsd.lo \
 	m88kmach3.lo \
 	m88kopenbsd.lo \
+	mapip2.lo \
 	mach-o.lo \
 	mach-o-i386.lo \
 	mipsbsd.lo \
@@ -541,6 +544,7 @@ BFD32_BACKENDS_CFILES = \
 	m68knetbsd.c \
 	m88kmach3.c \
 	m88kopenbsd.c \
+	mapip2.c \
 	mach-o.c \
 	mach-o-i386.c \
 	mipsbsd.c \

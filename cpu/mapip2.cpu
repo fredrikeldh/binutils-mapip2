@@ -1,0 +1,168 @@
+; Mapip family.  -*- Scheme -*-
+; Copyright 2000, 2001, 2011 Free Software Foundation, Inc.
+; Contributed by Johan Rydberg, jrydberg@opencores.org
+;
+; This program is free software; you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation; either version 2 of the License, or
+; (at your option) any later version.
+;
+; This program is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU General Public License for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with this program; if not, write to the Free Software
+; Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
+
+(include "simplify.inc")
+
+; Mapip is the virtual processor used by MoSync,
+; a cross-platform SDK for mobile devices.
+; It is a simple 32-bit architecture with about 50 opcodes.
+; In the future we will add isa mapip32f,
+; which will have 32 64-bit floating-point registers, and opcodes to match.
+
+(define-arch
+	(name mapip)
+	(comment "Mapip")
+	(insn-lsb0? #t)
+	(machs mapip)
+	(isas mapip32)
+)
+
+; IDOC attribute for instruction documentation.
+
+(define-attr
+	(for insn)
+	(type enum)
+	(name IDOC)
+	(comment "insn kind for documentation")
+	(attrs META)
+	(values
+		(MEM - () "Memory")
+		(ALU - () "ALU")
+		(FPU - () "FPU")
+		(BR - () "Branch")
+		(MISC - () "Miscellaneous")
+	)
+)
+
+; Enum for exception vectors.
+;(define-enum
+;	(name e-exception)
+;	(comment "exception vectors")
+;	(attrs)
+;	(prefix E_)
+;	(values (("RESET") ("BUSERR" -) ("DPF" -) ("IPF" -) ("EXTINT" -) ("ALIGN" -)
+;		("ILLEGAL" -) ("PEINT" -) ("DTLBMISS" -) ("ITLBMISS" -) ("RRANGE" -)
+;		("SYSCALL" -) ("BREAK" -) ("RESERVED" -)))
+;)
+
+
+; Instruction set parameters.
+
+(define-isa
+	; Name of the ISA.
+	(name mapip32)
+
+	; Base instruction length, in bits.
+	(base-insn-bitsize 8)
+)
+
+; CPU family definitions.
+
+(define-cpu
+	; CPU names must be distinct from the architecture name and machine names.
+	; The "b" suffix stands for "base" and is the convention.
+	; The "f" suffix stands for "family" and is the convention.
+	(name mapipbf)
+	(comment "Mapip base family")
+	(endian little)
+	(word-bitsize 32)
+)
+
+; Generic machine
+(define-mach
+	(name mapip)
+	(comment "Generic Mapip cpu")
+	(cpu mapipbf)
+	(bfd-name "mapip")
+)
+
+
+; Model descriptions
+
+; Generic OpenRISC model
+(define-model
+	(name mapip-1)
+	(comment "Mapip generic model")
+	(attrs)
+	(mach mapip)
+
+	; Nothing special about this.
+	(unit u-exec "Execution Unit" () 1 1 () () () ())
+)
+
+; Hardware
+
+;  GPRs
+
+(define-keyword
+	(name gpr-names)
+	(print-name h-gpr)
+	(prefix "")
+	(values
+		(zero 0) (sp 1) (rt 2) (fr 3)
+		(d0 4) (d1 5) (d2 6) (d3 7) (d4 8) (d5 9) (d6 10) (d7 11)
+		(i0 12) (i1 13) (i2 14) (i3 15)
+		(r0 16) (r1 17) (r2 18) (r3 19) (r4 20) (r5 21) (r6 22) (r7 23)
+		(r8 24) (r9 25) (r10 26) (r11 27) (r12 28) (r13 29) (r14 30) (r15 31)
+	)
+)
+
+(define-hardware
+	(name h-gpr)
+	(comment "general purpose registers")
+	(attrs)
+	(type register WI (32))
+	(indices extern-keyword gpr-names)
+)
+
+; Instruction fields
+(define-ifield
+	(name f-opcode)
+	(comment "f-op")
+	(attrs)
+	(word-offset 0)
+	(word-length 8)
+	(start 0)
+	(length 8)
+	(mode UINT)
+)
+
+; Instruction operands
+
+(dnop rd "destination register" () h-gr f-r1)
+(dnop rs "source register" () h-gr f-r2)
+(dnop imm "signed immediate" () h-sint f-imm)
+
+; Instructions
+(define-insn
+	(name add)
+	(comment "add")
+	(attrs)
+	(syntax "add $rd, $rs")
+	(format (+ (f-op 42) rd rs))
+	(semantics (set rd (add rd rs))
+	(timing)
+)
+
+(define-insn
+	(name addi)
+	(comment "addi")
+	(syntax "add $rd, $imm")
+	(format (+ (f-op 43) rd imm))
+	(semantics (set rd (add rd imm))
+)

@@ -446,6 +446,7 @@ DESCRIPTION
 .  bfd_arch_tilegx, {* Tilera TILE-Gx *}
 .#define bfd_mach_tilepro   1
 .#define bfd_mach_tilegx    1
+.  bfd_arch_mapip2, {* MoSync Mapip2 *}
 .  bfd_arch_last
 .  };
 */
@@ -517,6 +518,7 @@ extern const bfd_arch_info_type bfd_m68hc11_arch;
 extern const bfd_arch_info_type bfd_m68hc12_arch;
 extern const bfd_arch_info_type bfd_m68k_arch;
 extern const bfd_arch_info_type bfd_m88k_arch;
+extern const bfd_arch_info_type bfd_mapip2_arch;
 extern const bfd_arch_info_type bfd_mcore_arch;
 extern const bfd_arch_info_type bfd_mep_arch;
 extern const bfd_arch_info_type bfd_mips_arch;
@@ -597,6 +599,7 @@ static const bfd_arch_info_type * const bfd_archures_list[] =
     &bfd_m68hc12_arch,
     &bfd_m68k_arch,
     &bfd_m88k_arch,
+		&bfd_mapip2_arch,
     &bfd_mcore_arch,
     &bfd_mep_arch,
     &bfd_microblaze_arch,

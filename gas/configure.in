@@ -322,6 +322,10 @@ changequote([,])dnl
 	esac
 	;;
 
+      mapip2)
+	using_cgen=yes
+	;;
+
       mep)
 	using_cgen=yes
 	;;
@@ -396,7 +400,7 @@ changequote([,])dnl
    case ${te_file} in
       vms) extra_objects="$extra_objects te-vms.o" ;;
    esac
- 
+
 # From target name and format, produce a list of supported emulations.
 
     case ${generic_target}-${fmt} in

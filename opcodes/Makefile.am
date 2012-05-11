@@ -152,6 +152,7 @@ TARGET_LIBOPCODES_CFILES = \
 	m68k-dis.c \
 	m68k-opc.c \
 	m88k-dis.c \
+	mapip2.c \
 	mcore-dis.c \
 	mep-asm.c \
 	mep-desc.c \
@@ -329,7 +330,7 @@ CGENDEPS = \
 	$(CGENDIR)/opc-opinst.scm \
 	cgen-asm.in cgen-dis.in cgen-ibld.in
 
-CGEN_CPUS = fr30 frv ip2k iq2000 lm32 m32c m32r mep mt openrisc xc16x xstormy16
+CGEN_CPUS = fr30 frv ip2k iq2000 lm32 m32c m32r mapip2 mep mt openrisc xc16x xstormy16
 
 if CGEN_MAINT
 FR30_DEPS = stamp-fr30
@@ -348,15 +349,15 @@ else
 FR30_DEPS =
 FRV_DEPS =
 IP2K_DEPS =
-IQ2000_DEPS = 
-LM32_DEPS = 
+IQ2000_DEPS =
+LM32_DEPS =
 M32C_DEPS =
 M32R_DEPS =
 MEP_DEPS =
 MT_DEPS =
-OPENRISC_DEPS = 
-XC16X_DEPS = 
-XSTORMY16_DEPS = 
+OPENRISC_DEPS =
+XC16X_DEPS =
+XSTORMY16_DEPS =
 endif
 
 run-cgen:
@@ -475,7 +476,7 @@ i386-gen.o: i386-gen.c i386-opc.h $(srcdir)/../include/opcode/i386.h \
 	config.h i386-opc.h sysdep.h
 	$(COMPILE_FOR_BUILD) -c $(srcdir)/i386-gen.c
 
-$(srcdir)/i386-tbl.h: $(srcdir)/i386-init.h 
+$(srcdir)/i386-tbl.h: $(srcdir)/i386-init.h
 	@echo $@
 
 $(srcdir)/i386-init.h: @MAINT@ i386-gen$(EXEEXT_FOR_BUILD) i386-opc.tbl i386-reg.tbl

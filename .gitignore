@@ -38,3 +38,7 @@ lost+found
 
 *.log
 *.sum
+
+/build
+configure
+Makefile.in

@@ -134,6 +134,7 @@ TARGET_CPU_CFILES = \
 	config/tc-m32r.c \
 	config/tc-m68hc11.c \
 	config/tc-m68k.c \
+	config/tc-mapip2.c \
 	config/tc-mcore.c \
 	config/tc-mep.c \
 	config/tc-microblaze.c \
