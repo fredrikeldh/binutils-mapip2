@@ -115,10 +115,10 @@ DESCRIPTION
 	should free it.
 */
 
+extern const bfd_target binary_vec;
 bfd_boolean
 bfd_check_format_matches (bfd *abfd, bfd_format format, char ***matching)
 {
-  extern const bfd_target binary_vec;
   const bfd_target * const *target;
   const bfd_target **matching_vector = NULL;
   const bfd_target *save_targ, *right_targ, *ar_right_targ, *match_targ;

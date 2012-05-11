@@ -236,9 +236,7 @@ _bfd_ecoff_set_arch_mach_hook (bfd *abfd, void * filehdr)
 }
 
 bfd_boolean
-_bfd_ecoff_no_long_sections (abfd, enable)
-     bfd *abfd;
-     int enable;
+_bfd_ecoff_no_long_sections (bfd *abfd, int enable)
 {
   (void) abfd;
   (void) enable;
@@ -1056,7 +1054,7 @@ ecoff_emit_aggregate (bfd *abfd,
 
 /* Convert the type information to string format.  */
 
-static char *
+static const char *
 ecoff_type_to_string (bfd *abfd, FDR *fdr, unsigned int indx)
 {
   union aux_ext *aux_ptr;

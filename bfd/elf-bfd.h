@@ -1728,7 +1728,7 @@ extern void _bfd_elf_swap_versym_out
 
 extern unsigned int _bfd_elf_section_from_bfd_section
   (bfd *, asection *);
-extern char *bfd_elf_string_from_elf_section
+extern const char *bfd_elf_string_from_elf_section
   (bfd *, unsigned, unsigned);
 extern Elf_Internal_Sym *bfd_elf_get_elf_syms
   (bfd *, Elf_Internal_Shdr *, size_t, size_t, Elf_Internal_Sym *, void *,
@@ -1860,7 +1860,7 @@ extern void _bfd_elf_get_symbol_info
 extern bfd_boolean _bfd_elf_is_local_label_name
   (bfd *, const char *);
 extern alent *_bfd_elf_get_lineno
-  (bfd *, asymbol *);
+  (bfd *, asymbol *) ATTRIBUTE_NORETURN;
 extern bfd_boolean _bfd_elf_set_arch_mach
   (bfd *, enum bfd_architecture, unsigned long);
 extern bfd_boolean _bfd_elf_find_nearest_line
@@ -1886,7 +1886,7 @@ extern const struct bfd_elf_special_section *_bfd_elf_get_sec_type_attr
 
 /* If the target doesn't have reloc handling written yet:  */
 extern void _bfd_elf_no_info_to_howto
-  (bfd *, arelent *, Elf_Internal_Rela *);
+  (bfd *, arelent *, Elf_Internal_Rela *) ATTRIBUTE_NORETURN;
 
 extern bfd_boolean bfd_section_from_shdr
   (bfd *, unsigned int shindex);
@@ -1981,7 +1981,7 @@ extern void _bfd_elf_init_2_index_sections
   (bfd *, struct bfd_link_info *);
 
 extern bfd_boolean _bfd_elfcore_make_pseudosection
-  (bfd *, char *, size_t, ufile_ptr);
+  (bfd *, const char *, size_t, ufile_ptr);
 extern char *_bfd_elfcore_strndup
   (bfd *, char *, size_t);
 

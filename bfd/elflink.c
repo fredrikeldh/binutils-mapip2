@@ -24,7 +24,6 @@
 #include "bfd.h"
 #include "bfdlink.h"
 #include "libbfd.h"
-#define ARCH_SIZE 0
 #include "elf-bfd.h"
 #include "safe-ctype.h"
 #include "libiberty.h"
@@ -621,7 +620,7 @@ bfd_elf_link_record_local_dynamic_symbol (struct bfd_link_info *info,
   struct elf_link_hash_table *eht;
   struct elf_strtab_hash *dynstr;
   unsigned long dynstr_index;
-  char *name;
+  const char *name;
   Elf_External_Sym_Shndx eshndx;
   char esym[sizeof (Elf64_External_Sym)];
 
@@ -3492,7 +3491,7 @@ elf_link_add_object_symbols (bfd *abfd, struct bfd_link_info *info)
     {
       asection *s;
       const char *soname = NULL;
-      char *audit = NULL;
+      const char *audit = NULL;
       struct bfd_link_needed_list *rpath = NULL, *runpath = NULL;
       int ret;
 
@@ -3550,7 +3549,8 @@ error_free_dyn:
 	      if (dyn.d_tag == DT_NEEDED)
 		{
 		  struct bfd_link_needed_list *n, **pn;
-		  char *fnm, *anm;
+		  const char *fnm;
+			char *anm;
 		  unsigned int tagv = dyn.d_un.d_val;
 
 		  amt = sizeof (struct bfd_link_needed_list);
@@ -3573,7 +3573,8 @@ error_free_dyn:
 	      if (dyn.d_tag == DT_RUNPATH)
 		{
 		  struct bfd_link_needed_list *n, **pn;
-		  char *fnm, *anm;
+		  const char *fnm;
+			char *anm;
 		  unsigned int tagv = dyn.d_un.d_val;
 
 		  amt = sizeof (struct bfd_link_needed_list);
@@ -3599,7 +3600,8 @@ error_free_dyn:
 	      if (!runpath && dyn.d_tag == DT_RPATH)
 		{
 		  struct bfd_link_needed_list *n, **pn;
-		  char *fnm, *anm;
+		  const char *fnm;
+			char *anm;
 		  unsigned int tagv = dyn.d_un.d_val;
 
 		  amt = sizeof (struct bfd_link_needed_list);
@@ -3680,7 +3682,7 @@ error_free_dyn:
 	return TRUE;
 
       /* Save the DT_AUDIT entry for the linker emulation code. */
-      elf_dt_audit (abfd) = audit; 
+      elf_dt_audit (abfd) = audit;
     }
 
   /* If this is a dynamic object, we always link against the .dynsym
@@ -3993,7 +3995,7 @@ error_free_dyn:
 		  && h->root.u.undef.abfd)
 		undef_bfd = h->root.u.undef.abfd;
 	    }
-	  
+
 	  if (ever == NULL)
 	    {
 	      if (info->default_imported_symver)
@@ -11534,7 +11536,7 @@ _bfd_elf_gc_mark_hook (asection *sec,
 	  if (sec_name && *sec_name != '\0')
 	    {
 	      bfd *i;
-	      
+
 	      for (i = info->input_bfds; i; i = i->link_next)
 		{
 		  sec = bfd_get_section_by_name (i, sec_name);
@@ -12204,7 +12206,7 @@ bfd_elf_gc_record_vtentry (bfd *abfd ATTRIBUTE_UNUSED,
 /* Map an ELF section header flag to its corresponding string.  */
 typedef struct
 {
-  char *flag_name;
+  const char *flag_name;
   flagword flag_value;
 } elf_flags_to_name_table;
 
@@ -12266,7 +12268,7 @@ bfd_elf_lookup_section_flags (struct bfd_link_info *info,
 	}
       if (tf->valid == FALSE)
 	{
-	  info->callbacks->einfo 
+	  info->callbacks->einfo
 		(_("Unrecognized INPUT_SECTION_FLAG %s\n"), tf->name);
 	  return;
 	}
@@ -12729,7 +12731,7 @@ get_dynamic_reloc_section_name (bfd *       abfd,
     return NULL;
 
   name = bfd_alloc (abfd, strlen (prefix) + strlen (old_name) + 1);
-  sprintf (name, "%s%s", prefix, old_name); 
+  sprintf (name, "%s%s", prefix, old_name);
 
   return name;
 }

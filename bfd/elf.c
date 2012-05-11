@@ -40,7 +40,6 @@ SECTION
 #include "bfd.h"
 #include "bfdlink.h"
 #include "libbfd.h"
-#define ARCH_SIZE 0
 #include "elf-bfd.h"
 #include "libiberty.h"
 #include "safe-ctype.h"
@@ -308,7 +307,7 @@ bfd_elf_get_str_section (bfd *abfd, unsigned int shindex)
   return (char *) shstrtab;
 }
 
-char *
+const char *
 bfd_elf_string_from_elf_section (bfd *abfd,
 				 unsigned int shindex,
 				 unsigned int strindex)
@@ -2527,7 +2526,7 @@ _bfd_elf_init_reloc_shdr (bfd *abfd,
   rel_hdr = bfd_zalloc (abfd, amt);
   reldata->hdr = rel_hdr;
 
-  amt = sizeof ".rela" + strlen (asect->name);      
+  amt = sizeof ".rela" + strlen (asect->name);
   name = (char *) bfd_alloc (abfd, amt);
   if (name == NULL)
     return FALSE;
@@ -4351,7 +4350,7 @@ assign_file_positions_for_load_sections (bfd *abfd,
       elf_elfheader (abfd)->e_phoff = 0;
       elf_elfheader (abfd)->e_phentsize = 0;
     }
-  
+
   elf_elfheader (abfd)->e_phnum = alloc;
 
   if (elf_tdata (abfd)->program_header_size == (bfd_size_type) -1)
@@ -5427,7 +5426,7 @@ rewrite_elf_program_header (bfd *ibfd, bfd *obfd)
        1. It is within the address space of the segment -- we use the LMA
 	  if that is set for the segment and the VMA otherwise,
        2. It is an allocated section or a NOTE section in a PT_NOTE
-	  segment.         
+	  segment.
        3. There is an output section associated with it,
        4. The section has not already been allocated to a previous segment.
        5. PT_GNU_STACK segments do not include any sections.
@@ -6147,7 +6146,7 @@ copy_elf_program_header (bfd *ibfd, bfd *obfd)
       if (map->includes_filehdr && lowest_section != NULL)
 	/* We need to keep the space used by the headers fixed.  */
 	map->header_size = lowest_section->vma - segment->p_vaddr;
-      
+
       if (!map->includes_phdrs
 	  && !map->includes_filehdr
 	  && map->p_paddr_valid)
@@ -7349,7 +7348,6 @@ _bfd_elf_get_lineno (bfd *abfd ATTRIBUTE_UNUSED,
 		     asymbol *symbol ATTRIBUTE_UNUSED)
 {
   abort ();
-  return NULL;
 }
 
 bfd_boolean
@@ -7754,7 +7752,7 @@ elfcore_make_pid (bfd *abfd)
    overwrite it.  */
 
 static bfd_boolean
-elfcore_maybe_make_sect (bfd *abfd, char *name, asection *sect)
+elfcore_maybe_make_sect (bfd *abfd, const char *name, asection *sect)
 {
   asection *sect2;
 
@@ -7780,7 +7778,7 @@ elfcore_maybe_make_sect (bfd *abfd, char *name, asection *sect)
    Both pseudosections have identical contents. */
 bfd_boolean
 _bfd_elfcore_make_pseudosection (bfd *abfd,
-				 char *name,
+				 const char *name,
 				 size_t size,
 				 ufile_ptr filepos)
 {
@@ -7896,7 +7894,7 @@ elfcore_grok_prstatus (bfd *abfd, Elf_Internal_Note *note)
 /* Create a pseudosection containing the exact contents of NOTE.  */
 static bfd_boolean
 elfcore_make_note_pseudosection (bfd *abfd,
-				 char *name,
+				 const char *name,
 				 Elf_Internal_Note *note)
 {
   return _bfd_elfcore_make_pseudosection (abfd, name,
@@ -8712,7 +8710,7 @@ static bfd_boolean
 elfcore_grok_nto_regs (bfd *abfd,
 		       Elf_Internal_Note *note,
 		       long tid,
-		       char *base)
+		       const char *base)
 {
   char buf[100];
   char *name;
@@ -9055,7 +9053,7 @@ elfcore_write_prxfpreg (bfd *abfd,
 			const void *xfpregs,
 			int size)
 {
-  char *note_name = "LINUX";
+  const char *note_name = "LINUX";
   return elfcore_write_note (abfd, buf, bufsiz,
 			     note_name, NT_PRXFPREG, xfpregs, size);
 }
@@ -9064,7 +9062,7 @@ char *
 elfcore_write_xstatereg (bfd *abfd, char *buf, int *bufsiz,
 			 const void *xfpregs, int size)
 {
-  char *note_name = "LINUX";
+  const char *note_name = "LINUX";
   return elfcore_write_note (abfd, buf, bufsiz,
 			     note_name, NT_X86_XSTATE, xfpregs, size);
 }
@@ -9076,7 +9074,7 @@ elfcore_write_ppc_vmx (bfd *abfd,
 		       const void *ppc_vmx,
 		       int size)
 {
-  char *note_name = "LINUX";
+  const char *note_name = "LINUX";
   return elfcore_write_note (abfd, buf, bufsiz,
 			     note_name, NT_PPC_VMX, ppc_vmx, size);
 }
@@ -9088,7 +9086,7 @@ elfcore_write_ppc_vsx (bfd *abfd,
                        const void *ppc_vsx,
                        int size)
 {
-  char *note_name = "LINUX";
+  const char *note_name = "LINUX";
   return elfcore_write_note (abfd, buf, bufsiz,
                              note_name, NT_PPC_VSX, ppc_vsx, size);
 }
@@ -9100,7 +9098,7 @@ elfcore_write_s390_high_gprs (bfd *abfd,
 			      const void *s390_high_gprs,
 			      int size)
 {
-  char *note_name = "LINUX";
+  const char *note_name = "LINUX";
   return elfcore_write_note (abfd, buf, bufsiz,
                              note_name, NT_S390_HIGH_GPRS,
 			     s390_high_gprs, size);
@@ -9113,7 +9111,7 @@ elfcore_write_s390_timer (bfd *abfd,
                           const void *s390_timer,
                           int size)
 {
-  char *note_name = "LINUX";
+  const char *note_name = "LINUX";
   return elfcore_write_note (abfd, buf, bufsiz,
                              note_name, NT_S390_TIMER, s390_timer, size);
 }
@@ -9125,7 +9123,7 @@ elfcore_write_s390_todcmp (bfd *abfd,
                            const void *s390_todcmp,
                            int size)
 {
-  char *note_name = "LINUX";
+  const char *note_name = "LINUX";
   return elfcore_write_note (abfd, buf, bufsiz,
                              note_name, NT_S390_TODCMP, s390_todcmp, size);
 }
@@ -9137,7 +9135,7 @@ elfcore_write_s390_todpreg (bfd *abfd,
                             const void *s390_todpreg,
                             int size)
 {
-  char *note_name = "LINUX";
+  const char *note_name = "LINUX";
   return elfcore_write_note (abfd, buf, bufsiz,
                              note_name, NT_S390_TODPREG, s390_todpreg, size);
 }
@@ -9149,7 +9147,7 @@ elfcore_write_s390_ctrs (bfd *abfd,
                          const void *s390_ctrs,
                          int size)
 {
-  char *note_name = "LINUX";
+  const char *note_name = "LINUX";
   return elfcore_write_note (abfd, buf, bufsiz,
                              note_name, NT_S390_CTRS, s390_ctrs, size);
 }
@@ -9161,7 +9159,7 @@ elfcore_write_s390_prefix (bfd *abfd,
                            const void *s390_prefix,
                            int size)
 {
-  char *note_name = "LINUX";
+  const char *note_name = "LINUX";
   return elfcore_write_note (abfd, buf, bufsiz,
                              note_name, NT_S390_PREFIX, s390_prefix, size);
 }
@@ -9173,7 +9171,7 @@ elfcore_write_arm_vfp (bfd *abfd,
 		       const void *arm_vfp,
 		       int size)
 {
-  char *note_name = "LINUX";
+  const char *note_name = "LINUX";
   return elfcore_write_note (abfd, buf, bufsiz,
 			     note_name, NT_ARM_VFP, arm_vfp, size);
 }
@@ -9576,7 +9574,7 @@ _bfd_elf_get_synthetic_symtab (bfd *abfd,
       if (p->addend != 0)
 	{
 	  char buf[30], *a;
-	  
+
 	  memcpy (names, "+0x", sizeof ("+0x") - 1);
 	  names += sizeof ("+0x") - 1;
 	  bfd_sprintf_vma (abfd, buf, p->addend);

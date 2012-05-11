@@ -39,6 +39,6 @@ lost+found
 *.log
 *.sum
 
-/build
+build
 configure
 Makefile.in
