@@ -1,0 +1,2 @@
+CONFIG_TARGET = 'mapip2'
+CONFIG_CGEN_DIR = '/c/code/cgen-1.1'

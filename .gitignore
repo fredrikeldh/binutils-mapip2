@@ -42,3 +42,4 @@ lost+found
 build
 configure
 Makefile.in
+config.rb
