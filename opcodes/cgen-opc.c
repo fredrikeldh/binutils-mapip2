@@ -19,6 +19,8 @@
    with this program; if not, write to the Free Software Foundation, Inc.,
    51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
 
+#define CGEN_INT_INSN_P 0
+
 #include "alloca-conf.h"
 #include "sysdep.h"
 #include <stdio.h>
@@ -128,7 +130,7 @@ cgen_keyword_add (CGEN_KEYWORD *kt, CGEN_KEYWORD_ENTRY *ke)
 	&& ! strchr (kt->nonalpha_chars, ke->name[i]))
       {
 	size_t idx = strlen (kt->nonalpha_chars);
-	
+
 	/* If you hit this limit, please don't just
 	   increase the size of the field, instead
 	   look for a better algorithm.  */
@@ -370,7 +372,7 @@ cgen_get_insn_value (CGEN_CPU_DESC cd, unsigned char *buf, int length)
 	 segments, and endian-convert them, one at a time. */
       int i;
 
-      /* Enforce divisibility. */ 
+      /* Enforce divisibility. */
       if ((length % insn_chunk_bitsize) != 0)
 	abort ();
 
@@ -409,7 +411,7 @@ cgen_put_insn_value (CGEN_CPU_DESC cd,
 	 segments, and endian-convert them, one at a time. */
       int i;
 
-      /* Enforce divisibility. */ 
+      /* Enforce divisibility. */
       if ((length % insn_chunk_bitsize) != 0)
 	abort ();
 

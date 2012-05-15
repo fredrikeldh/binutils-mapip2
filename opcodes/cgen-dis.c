@@ -18,6 +18,8 @@
    with this program; if not, write to the Free Software Foundation, Inc.,
    51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
 
+#define CGEN_INT_INSN_P 0
+
 #include "sysdep.h"
 #include <stdio.h>
 #include "ansidecl.h"
@@ -50,7 +52,7 @@ count_decodable_bits (const CGEN_INSN *insn)
   return bits;
 }
 
-/* Add an instruction to the hash chain.  */     
+/* Add an instruction to the hash chain.  */
 static void
 add_insn_to_hash_chain (CGEN_INSN_LIST *hentbuf,
 			const CGEN_INSN *insn,

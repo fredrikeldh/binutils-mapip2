@@ -19,6 +19,8 @@
    with this program; if not, write to the Free Software Foundation, Inc.,
    51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
 
+#define CGEN_INT_INSN_P 0
+
 #include "sysdep.h"
 #include <stdio.h>
 #include "ansidecl.h"
@@ -213,7 +215,7 @@ cgen_parse_keyword (CGEN_CPU_DESC cd ATTRIBUTE_UNUSED,
      character of the suffix ('.') is special.  */
   if (*p)
     ++p;
-  
+
   /* Allow letters, digits, and any special characters.  */
   while (((p - start) < (int) sizeof (buf))
 	 && *p

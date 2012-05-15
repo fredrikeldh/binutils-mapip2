@@ -435,7 +435,7 @@ enum cgen_hw_type { CGEN_HW_MAX };
 
 typedef struct
 {
-  char *name;
+  const char *name;
   enum cgen_hw_type type;
   /* There is currently no example where both index specs and value specs
      are required, so for now both are clumped under "asm_data".  */
@@ -480,7 +480,7 @@ extern const CGEN_HW_ENTRY * cgen_hw_lookup_by_num
 typedef struct cgen_keyword_entry
 {
   /* Name (as in register name).  */
-  char * name;
+  const char * name;
 
   /* Value (as in register number).
      The value cannot be -1 as that is used to indicate "not found".
@@ -519,24 +519,24 @@ typedef struct cgen_keyword
 {
   /* Pointer to initial [compiled in] values.  */
   CGEN_KEYWORD_ENTRY *init_entries;
-  
+
   /* Number of entries in `init_entries'.  */
   unsigned int num_init_entries;
-  
+
   /* Hash table used for name lookup.  */
   CGEN_KEYWORD_ENTRY **name_hash_table;
-  
+
   /* Hash table used for value lookup.  */
   CGEN_KEYWORD_ENTRY **value_hash_table;
-  
+
   /* Number of entries in the hash_tables.  */
   unsigned int hash_table_size;
-  
+
   /* Pointer to null keyword "" entry if present.  */
   const CGEN_KEYWORD_ENTRY *null_entry;
 
   /* String containing non-alphanumeric characters used
-     in keywords.  
+     in keywords.
      At present, the highest number of entries used is 1.  */
   char nonalpha_chars[8];
 } CGEN_KEYWORD;
@@ -547,13 +547,13 @@ typedef struct
 {
   /* Table being searched.  */
   const CGEN_KEYWORD *table;
-  
+
   /* Specification of what is being searched for.  */
   const char *spec;
-  
+
   /* Current index in hash table.  */
   unsigned int current_hash;
-  
+
   /* Current element in current hash chain.  */
   CGEN_KEYWORD_ENTRY *current_entry;
 } CGEN_KEYWORD_SEARCH;
@@ -651,7 +651,7 @@ CGEN_MAYBE_MULTI_IFLD;
 typedef struct
 {
   /* Name as it appears in the syntax string.  */
-  char *name;
+  const char *name;
 
   /* Operand type.  */
   enum cgen_operand_type type;
@@ -1361,7 +1361,7 @@ typedef struct cgen_cpu_desc
 
   /* This field could be turned into a bitfield if room for other flags is needed.  */
   unsigned int signed_overflow_ok_p;
-       
+
 } CGEN_CPU_TABLE;
 
 /* wip */

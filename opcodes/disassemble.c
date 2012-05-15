@@ -99,8 +99,7 @@
 #endif
 
 disassembler_ftype
-disassembler (abfd)
-     bfd *abfd;
+disassembler (bfd *abfd)
 {
   enum bfd_architecture a = bfd_get_arch (abfd);
   disassembler_ftype disassemble;
@@ -487,8 +486,7 @@ disassembler (abfd)
 }
 
 void
-disassembler_usage (stream)
-     FILE * stream ATTRIBUTE_UNUSED;
+disassembler_usage (FILE *stream ATTRIBUTE_UNUSED)
 {
 #ifdef ARCH_arm
   print_arm_disassembler_options (stream);

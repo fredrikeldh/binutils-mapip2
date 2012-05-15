@@ -107,6 +107,8 @@
 
 ; Hardware
 
+(dnh h-pc "program counter" (PC PROFILE) (pc) () () ())
+
 ;  GPRs
 
 (define-keyword
@@ -132,8 +134,8 @@
 
 ; Instruction fields
 (define-ifield
-	(name f-opcode)
-	(comment "f-op")
+	(name f-op)
+	(comment "f-opcode")
 	(attrs)
 	(word-offset 0)
 	(word-length 8)
@@ -142,10 +144,43 @@
 	(mode UINT)
 )
 
+(define-ifield
+	(name f-r1)
+	(comment "f-reg1")
+	(attrs)
+	(word-offset 0)
+	(word-length 8)
+	(start 0)
+	(length 8)
+	(mode UINT)
+)
+
+(define-ifield
+	(name f-r2)
+	(comment "f-reg2")
+	(attrs)
+	(word-offset 0)
+	(word-length 8)
+	(start 0)
+	(length 8)
+	(mode UINT)
+)
+
+(define-ifield
+	(name f-imm)
+	(comment "f-imm")
+	(attrs)
+	(word-offset 0)
+	(word-length 32)
+	(start 0)
+	(length 32)
+	(mode UINT)
+)
+
 ; Instruction operands
 
-(dnop rd "destination register" () h-gr f-r1)
-(dnop rs "source register" () h-gr f-r2)
+(dnop rd "destination register" () h-gpr f-r1)
+(dnop rs "source register" () h-gpr f-r2)
 (dnop imm "signed immediate" () h-sint f-imm)
 
 ; Instructions
@@ -155,8 +190,7 @@
 	(attrs)
 	(syntax "add $rd, $rs")
 	(format (+ (f-op 42) rd rs))
-	(semantics (set rd (add rd rs))
-	(timing)
+	(semantics (set rd (add rd rs)))
 )
 
 (define-insn
@@ -164,5 +198,5 @@
 	(comment "addi")
 	(syntax "add $rd, $imm")
 	(format (+ (f-op 43) rd imm))
-	(semantics (set rd (add rd imm))
+	(semantics (set rd (add rd imm)))
 )

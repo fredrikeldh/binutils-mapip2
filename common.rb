@@ -15,7 +15,7 @@ require File.expand_path(ENV['MOSYNCDIR']+'/rules/exe.rb')
 
 class ConfigHeaderTask < CopyFileTask
 	def initialize(work)
-		super(work, 'config.h', FileTask.new(work, '../config.h.example'))
+		super(work, '../config.h', FileTask.new(work, '../config.h.example'))
 	end
 end
 
@@ -25,7 +25,7 @@ module BinutilsModule
 		@PREREQUISITES = [
 			ConfigHeaderTask.new(self)
 		]
-		@EXTRA_INCLUDES = ['../include']
+		@EXTRA_INCLUDES = ['../include', '..']
 		@EXTRA_CFLAGS = ''+
 			' -Wno-declaration-after-statement'+
 			' -DARCH_SIZE=32'+
