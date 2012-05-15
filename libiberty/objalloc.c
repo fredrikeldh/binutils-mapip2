@@ -25,6 +25,9 @@ Boston, MA 02110-1301, USA.  */
 /* Get a definition for NULL.  */
 #include <stdio.h>
 
+#ifndef VMS
+#define VMS 0
+#endif
 #if VMS
 #include <stdlib.h>
 #include <unixlib.h>

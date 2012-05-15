@@ -32,6 +32,9 @@ failure.  If you use @code{xatexit} to register functions, you must use
 
 #include <stddef.h>
 
+#ifndef VMS
+#define VMS 0
+#endif
 #if VMS
 #include <stdlib.h>
 #include <unixlib.h>

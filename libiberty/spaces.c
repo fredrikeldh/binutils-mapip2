@@ -35,6 +35,9 @@ valid until at least the next call.
 #include "ansidecl.h"
 #include "libiberty.h"
 
+#ifndef VMS
+#define VMS 0
+#endif
 #if VMS
 #include <stdlib.h>
 #include <unixlib.h>

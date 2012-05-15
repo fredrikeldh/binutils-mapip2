@@ -41,6 +41,7 @@ Attempt to increase stack size limit to @var{pref} bytes if possible.
 #ifdef HAVE_SYS_RESOURCE_H
 #include <sys/resource.h>
 #endif
+#include "libiberty.h"
 
 void
 stack_limit_increase (unsigned long pref)

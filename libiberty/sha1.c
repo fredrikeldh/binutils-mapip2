@@ -30,6 +30,9 @@
 #include <stddef.h>
 #include <string.h>
 
+#ifndef USE_UNLOCKED_IO
+#define USE_UNLOCKED_IO 0
+#endif
 #if USE_UNLOCKED_IO
 # include "unlocked-io.h"
 #endif
@@ -229,6 +232,9 @@ sha1_process_bytes (const void *buffer, size_t len, struct sha1_ctx *ctx)
   /* Process available complete blocks.  */
   if (len >= 64)
     {
+#ifndef _STRING_ARCH_unaligned
+# define _STRING_ARCH_unaligned 0
+#endif
 #if !_STRING_ARCH_unaligned
 # define alignof(type) offsetof (struct { char c; type x; }, x)
 # define UNALIGNED_P(p) (((size_t) p) % alignof (sha1_uint32) != 0)

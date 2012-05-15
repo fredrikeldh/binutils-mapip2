@@ -469,8 +469,8 @@ static const char **sys_errlist;
 
 #else
 
-extern int sys_nerr;
-extern char *sys_errlist[];
+//extern int sys_nerr;
+//extern char *sys_errlist[];
 
 #endif
 
@@ -625,7 +625,7 @@ next call to @code{strerror}.
 char *
 strerror (int errnoval)
 {
-  const char *msg;
+  char *msg;
   static char buf[32];
 
 #ifndef HAVE_SYS_ERRLIST
@@ -658,7 +658,7 @@ strerror (int errnoval)
       /* In range, and a valid message.  Just return the message. */
       msg = (char *) sys_errlist[errnoval];
     }
-  
+
   return (msg);
 }
 

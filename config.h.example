@@ -369,3 +369,6 @@
 #define HAVE_host_aout_vec 0
 #define __NeXT__ 0
 #define DEBUG 0
+
+#define HAVE_LIMITS_H 1
+#define HAVE_SYS_ERRLIST 1

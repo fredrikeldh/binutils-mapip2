@@ -25,13 +25,14 @@ Boston, MA 02110-1301, USA.  */
 #include <sys/prctl.h>
 #endif
 #include "ansidecl.h"
+#include "libiberty.h"
 
 /*
 
 @deftypefn Supplemental void setproctitle (const char *@var{fmt}, ...)
 
 Set the title of a process to @var{fmt}. va args not supported for now,
-but defined for compatibility with BSD. 
+but defined for compatibility with BSD.
 
 @end deftypefn
 

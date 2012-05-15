@@ -227,6 +227,9 @@ md5_process_bytes (const void *buffer, size_t len, struct md5_ctx *ctx)
   /* Process available complete blocks.  */
   if (len > 64)
     {
+#ifndef _STRING_ARCH_unaligned
+# define _STRING_ARCH_unaligned 0
+#endif
 #if !_STRING_ARCH_unaligned
 /* To check alignment gcc has an appropriate operator.  Other
    compilers don't.  */
