@@ -53,7 +53,6 @@ work.instance_eval do
 		'setenv.c',
 		'random.c',
 		'mkstemps.c',
-		'regex.c',
 		'rename.c',
 		'snprintf.c',
 		'vfprintf.c',
@@ -77,6 +76,8 @@ work.instance_eval do
 		'lrealpath.c' => ' -Wno-shadow',
 		'physmem.c' => ' -Wno-undef',
 		'obstack.c' => ' -Wno-undef',
+		'regex.c' => ' -DHAVE_BTOWC=1 -DHAVE_UINTPTR_T=1'+
+			' -Wno-missing-prototypes -Wno-missing-declarations -Wno-undef -Wno-type-limits -Wno-shadow',
 	}
 	@NAME = 'libiberty'
 end

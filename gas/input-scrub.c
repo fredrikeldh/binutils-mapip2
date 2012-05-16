@@ -97,8 +97,8 @@ int macro_nest;
    source line numbers.  Whenever we open a file we must fill in
    physical_input_file. So if it is NULL we have not opened any files yet.  */
 
-static char *physical_input_file;
-static char *logical_input_file;
+static const char *physical_input_file;
+static const char *logical_input_file;
 
 /* 1-origin line number in a source file.  */
 /* A line ends in '\n' or eof.  */
@@ -112,8 +112,8 @@ struct input_save {
   int                 partial_size;
   char                save_source[AFTER_SIZE];
   unsigned int        buffer_length;
-  char *              physical_input_file;
-  char *              logical_input_file;
+  const char *        physical_input_file;
+  const char *        logical_input_file;
   unsigned int        physical_input_line;
   int                 logical_input_line;
   int                 sb_index;
@@ -237,7 +237,7 @@ input_scrub_end (void)
    Return start of caller's part of buffer.  */
 
 char *
-input_scrub_new_file (char *filename)
+input_scrub_new_file (const char *filename)
 {
   input_file_open (filename, !flag_no_comments);
   physical_input_file = filename[0] ? filename : _("{standard input}");
@@ -497,7 +497,7 @@ new_logical_line (char *fname, int line_number)
    up declarations like that, and it's easier to avoid it.  */
 
 void
-as_where (char **namep, unsigned int *linep)
+as_where (const char **namep, unsigned int *linep)
 {
   if (logical_input_file != NULL
       && (linep == NULL || logical_input_line >= 0))

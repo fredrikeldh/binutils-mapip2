@@ -46,13 +46,13 @@ int preprocess = 0;
 /* We use static data: the data area is not sharable.  */
 
 static FILE *f_in;
-static char *file_name;
+static const char *file_name;
 
 /* Struct for saving the state of this module for file includes.  */
 struct saved_file
   {
     FILE * f_in;
-    char * file_name;
+    const char * file_name;
     int    preprocess;
     char * app_save;
   };
@@ -116,7 +116,7 @@ input_file_pop (char *arg)
 }
 
 void
-input_file_open (char *filename, /* "" means use stdin. Must not be 0.  */
+input_file_open (const char *filename, /* "" means use stdin. Must not be 0.  */
 		 int pre)
 {
   int c;
@@ -220,7 +220,7 @@ input_file_get (char *buf, int buflen)
 
   if (feof (f_in))
     return 0;
-  
+
   size = fread (buf, sizeof (char), buflen, f_in);
   if (size < 0)
     {

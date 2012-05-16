@@ -86,6 +86,7 @@ __libc_rwlock_define (extern, _nl_state_lock attribute_hidden)
 # define BIND_TEXTDOMAIN_CODESET libintl_bind_textdomain_codeset
 #endif
 
+#ifdef _LIBC
 /* Prototypes for local functions.  */
 static void set_binding_values PARAMS ((const char *domainname,
 					const char **dirnamep,
@@ -348,9 +349,7 @@ set_binding_values (domainname, dirnamep, codesetp)
 /* Specify that the DOMAINNAME message catalog will be found
    in DIRNAME rather than in the system locale data base.  */
 char *
-BINDTEXTDOMAIN (domainname, dirname)
-     const char *domainname;
-     const char *dirname;
+BINDTEXTDOMAIN (const char *domainname, const char *dirname)
 {
   set_binding_values (domainname, &dirname, NULL);
   return (char *) dirname;
@@ -359,15 +358,12 @@ BINDTEXTDOMAIN (domainname, dirname)
 /* Specify the character encoding in which the messages from the
    DOMAINNAME message catalog will be returned.  */
 char *
-BIND_TEXTDOMAIN_CODESET (domainname, codeset)
-     const char *domainname;
-     const char *codeset;
+BIND_TEXTDOMAIN_CODESET (const char *domainname, const char *codeset)
 {
   set_binding_values (domainname, NULL, &codeset);
   return (char *) codeset;
 }
 
-#ifdef _LIBC
 /* Aliases for function names in GNU C Library.  */
 weak_alias (__bindtextdomain, bindtextdomain);
 weak_alias (__bind_textdomain_codeset, bind_textdomain_codeset);

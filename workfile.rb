@@ -7,6 +7,7 @@ MAIN_DIRS = [
 'bfd',
 'opcodes',
 'libiberty',
+#'intl',
 'gas',
 'ld',
 ]

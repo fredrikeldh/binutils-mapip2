@@ -136,6 +136,7 @@ frag_grow (unsigned int nchars)
    Make a new frag, initialising some components. Link new frag at end
    of frchain_now.  */
 
+extern struct list_info_struct *listing_tail;
 void
 frag_new (int old_frags_var_max_size
 	  /* Number of chars (already allocated on obstack frags) in
@@ -172,7 +173,6 @@ frag_new (int old_frags_var_max_size
 
 #ifndef NO_LISTING
   {
-    extern struct list_info_struct *listing_tail;
     frag_now->line = listing_tail;
   }
 #endif

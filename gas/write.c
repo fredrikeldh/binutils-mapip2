@@ -1139,7 +1139,7 @@ fix_segment (bfd *abfd ATTRIBUTE_UNUSED,
 
 static void
 install_reloc (asection *sec, arelent *reloc, fragS *fragp,
-	       char *file, unsigned int line)
+	       const char *file, unsigned int line)
 {
   char *err;
   bfd_reloc_status_type s;
@@ -1178,7 +1178,7 @@ get_frag_for_reloc (fragS *last_frag,
 		    const struct reloc_list *r)
 {
   fragS *f;
-  
+
   for (f = last_frag; f != NULL; f = f->fr_next)
     if (f->fr_address <= r->u.b.r.address
 	&& r->u.b.r.address < f->fr_address + f->fr_fix)

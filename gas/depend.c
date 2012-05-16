@@ -55,7 +55,7 @@ start_dependencies (char *filename)
 /* Noticed a new filename, so try to register it.  */
 
 void
-register_dependency (char *filename)
+register_dependency (const char *filename)
 {
   struct dependency *dep;
 

@@ -23,13 +23,13 @@
 #ifndef GAS
 #define GAS 1
 /* I think this stuff is largely out of date.  xoxorich.
- 
+
    CAPITALISED names are #defined.
    "lowercaseH" is #defined if "lowercase.h" has been #include-d.
    "lowercaseT" is a typedef of "lowercase" objects.
    "lowercaseP" is type "pointer to object of type 'lowercase'".
    "lowercaseS" is typedef struct ... lowercaseS.
-  
+
    #define DEBUG to enable all the "know" assertion tests.
    #define SUSPECT when debugging hash code.
    #define COMMON as "extern" for all modules except one, where you #define
@@ -37,6 +37,7 @@
    If TEST is #defined, then we are testing a module: #define COMMON as "".  */
 
 #include "alloca-conf.h"
+#include "config.h"
 
 /* Now, tend to the rest of the configuration.  */
 
@@ -447,13 +448,13 @@ typedef struct _pseudo_type pseudo_typeS;
   void FCN (const char *format, ...) \
     __attribute__ ((__format__ (__printf__, 1, 2)))
 #define PRINTF_WHERE_LIKE(FCN) \
-  void FCN (char *file, unsigned int line, const char *format, ...) \
+  void FCN (const char *file, unsigned int line, const char *format, ...) \
     __attribute__ ((__format__ (__printf__, 3, 4)))
 
 #else /* __GNUC__ < 2 || defined(VMS) */
 
 #define PRINTF_LIKE(FCN)	void FCN (const char *format, ...)
-#define PRINTF_WHERE_LIKE(FCN)	void FCN (char *file, \
+#define PRINTF_WHERE_LIKE(FCN)	void FCN (const char *file, \
 					  unsigned int line, \
 					  const char *format, ...)
 
@@ -466,7 +467,7 @@ PRINTF_LIKE (as_warn);
 PRINTF_WHERE_LIKE (as_bad_where);
 PRINTF_WHERE_LIKE (as_warn_where);
 
-void   as_assert (const char *, int, const char *);
+void   as_assert (const char *, int, const char *) ATTRIBUTE_NORETURN;
 void   as_abort (const char *, int, const char *) ATTRIBUTE_NORETURN;
 void   sprint_value (char *, addressT);
 int    had_errors (void);
@@ -481,7 +482,7 @@ char * vax_md_atof (int, char *, int *);
 char * input_scrub_include_file (char *, char *);
 void   input_scrub_insert_line (const char *);
 void   input_scrub_insert_file (char *);
-char * input_scrub_new_file (char *);
+char * input_scrub_new_file (const char *);
 char * input_scrub_next_buffer (char **bufp);
 int    do_scrub_chars (int (*get) (char *, int), char *, int);
 int    gen_to_words (LITTLENUM_TYPE *, int, long);
@@ -491,7 +492,7 @@ void   cond_finish_check (int);
 void   cond_exit_macro (int);
 int    seen_at_least_1_file (void);
 void   app_pop (char *);
-void   as_where (char **, unsigned int *);
+void   as_where (const char **, unsigned int *);
 void   bump_line_counters (void);
 void   do_scrub_begin (int);
 void   input_scrub_begin (void);
@@ -507,7 +508,7 @@ void   subseg_set (segT, subsegT);
 int    subseg_text_p (segT);
 int    seg_not_empty_p (segT);
 void   start_dependencies (char *);
-void   register_dependency (char *);
+void   register_dependency (const char *);
 void   print_dependencies (void);
 segT   subseg_get (const char *, int);
 

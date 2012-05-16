@@ -372,3 +372,13 @@
 
 #define HAVE_LIMITS_H 1
 #define HAVE_SYS_ERRLIST 1
+#define HAVE_DECL_MEMPCPY 1
+
+#define TARGET_ALIAS "mapip2"
+#define TARGET_BYTES_BIG_ENDIAN 0
+#define TARGET_CANONICAL "mapip2-unknown-none"
+#define TARGET_CPU "mapip2"
+#define TARGET_OS "none"
+#define HAVE_WCTYPE_H 1
+#define HAVE_LIBINTL_H 1
+#define HAVE_WCHAR_H 1

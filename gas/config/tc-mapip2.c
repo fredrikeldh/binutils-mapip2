@@ -6,13 +6,32 @@
 #include "opcodes/mapip2-opc.h"
 #include "cgen.h"
 
+typedef struct mapip2_insn
+{
+  const CGEN_INSN *	insn;
+  const CGEN_INSN *	orig_insn;
+  CGEN_FIELDS		fields;
+#if CGEN_INT_INSN_P
+  CGEN_INSN_INT         buffer [1];
+#define INSN_VALUE(buf) (*(buf))
+#else
+  unsigned char         buffer [CGEN_MAX_INSN_SIZE];
+#define INSN_VALUE(buf) (buf)
+#endif
+  char *		addr;
+  fragS *		frag;
+  int                   num_fixups;
+  fixS *                fixups [GAS_CGEN_MAX_FIXUPS];
+  int                   indices [MAX_OPERAND_INSTANCES];
+} mapip2_insn;
+
 //******************************************************************************
 // special characters
 //******************************************************************************
 
 /* This array holds the chars that always start a comment.  If the
 	pre-processor is disabled, these aren't very useful.  */
-const char comment_chars[] = "#";
+const char mapip2_comment_chars[] = "#";
 
 /* This array holds the chars that only start a comment at the beginning of
 	a line.  If the line seems to have the form '# 123 filename'
@@ -63,7 +82,7 @@ size_t md_longopts_size = sizeof (md_longopts);
  *	Invocation line includes a switch not recognized by the base assembler.
  *	See if it's a processor-specific option.
  */
-int md_parse_option(int o, char* arg ATTRIBUTE_UNUSED)
+int md_parse_option(int o, const char* arg ATTRIBUTE_UNUSED)
 {
 	switch(o) {
 	case OPTION_DATASIZE:
@@ -119,7 +138,6 @@ char* md_atof(int type, char* litP, int* sizeP)
 
 void md_assemble (char * str)
 {
-	static int last_insn_had_delay_slot = 0;
 	mapip2_insn insn;
 	char* errmsg;
 
@@ -138,6 +156,148 @@ void md_assemble (char * str)
 	/* Doesn't really matter what we pass for RELAX_P here.  */
 	gas_cgen_finish_insn (insn.insn, insn.buffer,
 		CGEN_FIELDS_BITSIZE(& insn.fields), 1, NULL);
-
-	last_insn_had_delay_slot = CGEN_INSN_ATTR_VALUE(insn.insn, CGEN_INSN_DELAY_SLOT);
 }
+
+
+/* Return the bfd reloc type for OPERAND of INSN at fixup FIXP.
+   Returns BFD_RELOC_NONE if no reloc type can be found.
+   *FIXP may be modified if desired.  */
+
+bfd_reloc_code_real_type
+md_cgen_lookup_reloc (const CGEN_INSN * insn ATTRIBUTE_UNUSED,
+	const CGEN_OPERAND * operand,
+	fixS * fixP)
+{
+	switch (operand->type)
+	{
+	case MAPIP2_OPERAND_IMM:
+		fixP->fx_pcrel = 0;
+		return BFD_RELOC_32;
+
+	default: /* avoid -Wall warning */
+		return BFD_RELOC_NONE;
+	}
+}
+
+/* *fragP has been relaxed to its final size, and now needs to have
+   the bytes inside it modified to conform to the new size.
+
+   Called after relaxation is finished.
+   fragP->fr_type == rs_machine_dependent.
+   fragP->fr_subtype is the subtype of what the address relaxed to.  */
+
+void
+md_convert_frag (bfd *   abfd ATTRIBUTE_UNUSED,
+		 segT    sec  ATTRIBUTE_UNUSED,
+		 fragS * fragP ATTRIBUTE_UNUSED)
+{
+	/* FIXME */
+}
+
+valueT
+md_section_align (segT segment, valueT size)
+{
+	int align = bfd_get_section_alignment (stdoutput, segment);
+	return ((size + (1 << align) - 1) & (-1 << align));
+}
+
+bfd_boolean
+mapip2_fix_adjustable (fixS * fixP)
+{
+	/* We need the symbol name for the VTABLE entries.  */
+	if (fixP->fx_r_type == BFD_RELOC_VTABLE_INHERIT
+			|| fixP->fx_r_type == BFD_RELOC_VTABLE_ENTRY)
+		return 0;
+
+	return 1;
+}
+
+/* The location from which a PC relative jump should be calculated,
+   given a PC relative reloc.  */
+
+long
+md_pcrel_from_section (fixS * fixP, segT sec)
+{
+	if (fixP->fx_addsy != (symbolS *) NULL
+			&& (! S_IS_DEFINED (fixP->fx_addsy)
+		|| S_GET_SEGMENT (fixP->fx_addsy) != sec))
+		/* The symbol is undefined (or is defined but not in this section).
+			Let the linker figure it out.  */
+		return 0;
+
+	return (fixP->fx_frag->fr_address + fixP->fx_where) & ~1;
+}
+
+/* Interface to relax_segment.  */
+
+/* FIXME: Look through this.  */
+
+const relax_typeS md_relax_table[] =
+{
+/* The fields are:
+   1) most positive reach of this state,
+   2) most negative reach of this state,
+   3) how many bytes this mode will add to the size of the current frag
+   4) which index into the table to try if we can't fit into this one.  */
+
+  /* The first entry must be unused because an `rlx_more' value of zero ends
+     each list.  */
+  {1, 1, 0, 0},
+};
+
+
+/* Return an initial guess of the length by which a fragment must grow to
+	hold a branch to reach its destination.
+	Also updates fr_type/fr_subtype as necessary.
+
+	Called just before doing relaxation.
+	Any symbol that is now undefined will not become defined.
+	The guess for fr_var is ACTUALLY the growth beyond fr_fix.
+	Whatever we do to grow fr_fix or fr_var contributes to our returned value.
+	Although it may not be explicit in the frag, pretend fr_var starts with a
+	0 value.  */
+
+int
+md_estimate_size_before_relax (fragS * fragP, segT segment)
+{
+	/* The only thing we have to handle here are symbols outside of the
+		current segment.  They may be undefined or in a different segment in
+		which case linker scripts may place them anywhere.
+		However, we can't finish the fragment here and emit the reloc as insn
+		alignment requirements may move the insn about.  */
+
+	if (S_GET_SEGMENT (fragP->fr_symbol) != segment)
+	{
+		/* The symbol is undefined in this segment.
+			Change the relaxation subtype to the max allowable and leave
+			all further handling to md_convert_frag.  */
+		fragP->fr_subtype = 2;
+
+		{
+			const CGEN_INSN * insn;
+			int i;
+
+			/* Update the recorded insn.
+				 Fortunately we don't have to look very far.
+				 FIXME: Change this to record in the instruction the next higher
+				 relaxable insn to use.  */
+			for (i = 0, insn = fragP->fr_cgen.insn; i < 4; i++, insn++)
+			{
+				if ((strcmp (CGEN_INSN_MNEMONIC (insn),
+					CGEN_INSN_MNEMONIC (fragP->fr_cgen.insn))
+					== 0)
+					&& CGEN_INSN_ATTR_VALUE (insn, CGEN_INSN_RELAXED))
+					break;
+			}
+			if (i == 4)
+				abort ();
+
+			fragP->fr_cgen.insn = insn;
+			return 2;
+		}
+	}
+
+	return md_relax_table[fragP->fr_subtype].rlx_length;
+}
+
+unsigned long mapip2_machine = 0; /* default */

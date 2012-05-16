@@ -628,7 +628,7 @@ free_macro (macro_entry *macro)
 const char *
 define_macro (int idx, sb *in, sb *label,
 	      int (*get_line) (sb *),
-	      char *file, unsigned int line,
+	      const char *file, unsigned int line,
 	      const char **namep)
 {
   macro_entry *macro;
@@ -1349,7 +1349,7 @@ expand_irp (int irpc, int idx, sb *in, sb *out, int (*get_line) (sb *))
 
 		  if (irpc)
 		    in_quotes = ! in_quotes;
-	  
+
 		  nxt = sb_skip_white (idx + 1, in);
 		  if (nxt >= in->len)
 		    {

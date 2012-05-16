@@ -210,7 +210,7 @@ do_scrub_begin (int m68k_mri ATTRIBUTE_UNUSED)
 /* Saved state of the scrubber.  */
 static int state;
 static int old_state;
-static char *out_string;
+static const char *out_string;
 static char out_buf[20];
 static int add_newlines;
 static char *saved_input;
@@ -228,7 +228,7 @@ struct app_save
 {
   int          state;
   int          old_state;
-  char *       out_string;
+  const char * out_string;
   char         out_buf[sizeof (out_buf)];
   int          add_newlines;
   char *       saved_input;
@@ -683,7 +683,7 @@ do_scrub_chars (int (*get) (char *, int), char *tostart, int tolen)
 	case 16:
 	  /* We have seen an 'a' at the start of a symbol, look for an 'f'.  */
 	  ch = GET ();
-	  if (ch == 'f' || ch == 'F') 
+	  if (ch == 'f' || ch == 'F')
 	    {
 	      state = 17;
 	      PUT (ch);
@@ -1329,12 +1329,12 @@ do_scrub_chars (int (*get) (char *, int), char *tostart, int tolen)
 
 #ifdef TC_Z80
 	  /* "af'" is a symbol containing '\''.  */
-	  if (state == 3 && (ch == 'a' || ch == 'A')) 
+	  if (state == 3 && (ch == 'a' || ch == 'A'))
 	    {
 	      state = 16;
 	      PUT (ch);
 	      ch = GET ();
-	      if (ch == 'f' || ch == 'F') 
+	      if (ch == 'f' || ch == 'F')
 		{
 		  state = 17;
 		  PUT (ch);
@@ -1343,7 +1343,7 @@ do_scrub_chars (int (*get) (char *, int), char *tostart, int tolen)
 	      else
 		{
 		  state = 9;
-		  if (!IS_SYMBOL_COMPONENT (ch)) 
+		  if (!IS_SYMBOL_COMPONENT (ch))
 		    {
 		      if (ch != EOF)
 			UNGET (ch);

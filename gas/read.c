@@ -167,7 +167,7 @@ int target_big_endian = TARGET_BYTES_BIG_ENDIAN;
 /* Variables for handling include file directory table.  */
 
 /* Table of pointers to directories to search for .include's.  */
-char **include_dirs;
+const char **include_dirs;
 
 /* How many are in the table.  */
 int include_dir_count;
@@ -586,7 +586,7 @@ try_macro (char term, const char *line)
 /* We read the file, putting things into a web that represents what we
    have been reading.  */
 void
-read_a_source_file (char *name)
+read_a_source_file (const char *name)
 {
   char c;
   char *s;		/* String of symbol, '\0' appended.  */
@@ -2179,7 +2179,8 @@ s_gnu_attribute (int ignored ATTRIBUTE_UNUSED)
 void
 s_irp (int irpc)
 {
-  char *file, *eol;
+  const char *file;
+	char *eol;
   unsigned int line;
   sb s;
   const char *err;
@@ -2527,7 +2528,8 @@ get_macro_line_sb (sb *line)
 void
 s_macro (int ignore ATTRIBUTE_UNUSED)
 {
-  char *file, *eol;
+  const char *file;
+	char *eol;
   unsigned int line;
   sb s;
   const char *err;
@@ -3047,6 +3049,7 @@ end_repeat (int extra)
     buffer_limit = input_scrub_next_buffer (&input_line_pointer);
 }
 
+extern struct list_info_struct *listing_tail;
 static void
 assign_symbol (char *name, int mode)
 {
@@ -3076,7 +3079,6 @@ assign_symbol (char *name, int mode)
 	 for this symbol.  */
       if (listing & LISTING_SYMBOLS)
 	{
-	  extern struct list_info_struct *listing_tail;
 	  fragS *dummy_frag = (fragS *) xcalloc (1, sizeof (fragS));
 	  dummy_frag->line = listing_tail;
 	  dummy_frag->fr_symbol = symbolP;
@@ -3606,7 +3608,7 @@ demand_empty_rest_of_line (void)
 		 *input_line_pointer);
       ignore_rest_of_line ();
     }
-  
+
   /* Return pointing just after end-of-line.  */
   know (is_end_of_line[(unsigned char) input_line_pointer[-1]]);
 }
@@ -5720,7 +5722,7 @@ add_include_dir (char *path)
 
   if (include_dir_count == 0)
     {
-      include_dirs = (char **) xmalloc (2 * sizeof (*include_dirs));
+      include_dirs = (const char **) xmalloc (2 * sizeof (*include_dirs));
       include_dirs[0] = ".";	/* Current dir.  */
       include_dir_count = 2;
     }
@@ -5728,7 +5730,7 @@ add_include_dir (char *path)
     {
       include_dir_count++;
       include_dirs =
-	(char **) realloc (include_dirs,
+	(const char **) realloc (include_dirs,
 			   include_dir_count * sizeof (*include_dirs));
     }
 

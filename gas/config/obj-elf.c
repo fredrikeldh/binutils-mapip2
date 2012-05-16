@@ -1777,7 +1777,7 @@ obj_elf_ident (int ignore ATTRIBUTE_UNUSED)
 void
 obj_elf_init_stab_section (segT seg)
 {
-  char *file;
+  const char *file;
   char *p;
   char *stabstr_name;
   unsigned int stroff;
@@ -2089,7 +2089,7 @@ elf_adjust_symtab (void)
   list.elt_count = NULL;
   list.indexes = hash_new ();
   bfd_map_over_sections (stdoutput, build_group_lists, &list);
-  
+
   /* Make the SHT_GROUP sections that describe each section group.  We
      can't set up the section contents here yet, because elf section
      indices have yet to be calculated.  elf.c:set_group_contents does

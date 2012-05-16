@@ -25,6 +25,7 @@
 
 #include <stdlib.h>
 #include <locale.h>
+#include "gettextP.h"
 
 #if defined _WIN32 || defined __WIN32__
 # undef WIN32   /* avoid warning on mingw32 */

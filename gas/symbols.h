@@ -18,6 +18,8 @@
    along with GAS; see the file COPYING.  If not, write to the Free
    Software Foundation, 51 Franklin Street - Fifth Floor, Boston, MA
    02110-1301, USA.  */
+#ifndef GAS_SYMBOLS_H
+#define GAS_SYMBOLS_H
 
 extern struct obstack notes;	/* eg FixS live here.  */
 
@@ -214,3 +216,5 @@ void symbol_set_obj (symbolS *, OBJ_SYMFIELD_TYPE *);
 TC_SYMFIELD_TYPE *symbol_get_tc (symbolS *);
 void symbol_set_tc (symbolS *, TC_SYMFIELD_TYPE *);
 #endif
+
+#endif	//GAS_SYMBOLS_H

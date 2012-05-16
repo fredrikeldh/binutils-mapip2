@@ -57,7 +57,7 @@ extern const char EXP_CHARS[], FLT_CHARS[];
 struct expr_symbol_line {
   struct expr_symbol_line *next;
   symbolS *sym;
-  char *file;
+  const char *file;
   unsigned int line;
 };
 
@@ -124,7 +124,7 @@ make_expr_symbol (expressionS *expressionP)
    the symbol.  */
 
 int
-expr_symbol_where (symbolS *sym, char **pfile, unsigned int *pline)
+expr_symbol_where (symbolS *sym, const char **pfile, unsigned int *pline)
 {
   register struct expr_symbol_line *l;
 

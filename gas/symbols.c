@@ -84,6 +84,7 @@ static void print_binary (FILE *, const char *, expressionS *);
    set, and you are certain that this symbol won't be wanted in the
    output file, you can call symbol_create.  */
 
+extern int symbol_table_frozen;
 symbolS *
 symbol_new (const char *name, segT segment, valueT valu, fragS *frag)
 {
@@ -91,7 +92,6 @@ symbol_new (const char *name, segT segment, valueT valu, fragS *frag)
 
   /* Link to end of symbol chain.  */
   {
-    extern int symbol_table_frozen;
     if (symbol_table_frozen)
       abort ();
   }
@@ -946,7 +946,7 @@ use_complex_relocs_for (symbolS * symp)
 
       if (  (S_IS_COMMON (symp->sy_value.X_add_symbol)
 	   || S_IS_LOCAL (symp->sy_value.X_add_symbol))
-	  && 
+	  &&
 	    (S_IS_COMMON (symp->sy_value.X_op_symbol)
 	   || S_IS_LOCAL (symp->sy_value.X_op_symbol))
 
@@ -956,7 +956,7 @@ use_complex_relocs_for (symbolS * symp)
 	  && S_GET_SEGMENT (symp->sy_value.X_op_symbol) != expr_section)
 	return 0;
       break;
-      
+
     default:
       break;
     }
@@ -967,7 +967,7 @@ use_complex_relocs_for (symbolS * symp)
 static void
 report_op_error (symbolS *symp, symbolS *left, operatorT op, symbolS *right)
 {
-  char *file;
+  const char *file;
   unsigned int line;
   segT seg_left = left ? S_GET_SEGMENT (left) : 0;
   segT seg_right = S_GET_SEGMENT (right);
@@ -1110,7 +1110,7 @@ resolve_symbol_value (symbolS *symp)
 	  if (symp->bsym->flags & BSF_SRELC)
 	    relc_symbol->bsym->flags |= BSF_SRELC;
 	  else
-	    relc_symbol->bsym->flags |= BSF_RELC;	  
+	    relc_symbol->bsym->flags |= BSF_RELC;
 	  /* symp->bsym->flags |= BSF_RELC; */
 	  copy_symbol_attributes (symp, relc_symbol);
 	  symp->sy_value.X_op = O_symbol;
@@ -1374,7 +1374,7 @@ resolve_symbol_value (symbolS *symp)
 		 already issued a warning about using a bad symbol.  */
 	      if (seg_right == absolute_section && finalize_syms)
 		{
-		  char *file;
+		  const char *file;
 		  unsigned int line;
 
 		  if (expr_symbol_where (symp, &file, &line))
@@ -1883,7 +1883,7 @@ decode_local_label_name (char *s)
   char *symbol_decode;
   int label_number;
   int instance_number;
-  char *type;
+  const char *type;
   const char *message_format;
   int lindex = 0;
 
@@ -2217,7 +2217,7 @@ S_SET_EXTERNAL (symbolS *s)
     }
   if (s->bsym->flags & BSF_SECTION_SYM)
     {
-      char * file;
+      const char * file;
       unsigned int line;
 
       /* Do not reassign section symbols.  */
@@ -3113,10 +3113,10 @@ symbol_relc_make_expr (expressionS * exp)
   gas_assert (exp != NULL);
 
   /* Match known operators -> fill in opstr, arity, operands[] and fall
-     through to construct subexpression fragments; may instead return 
+     through to construct subexpression fragments; may instead return
      string directly for leaf nodes.  */
 
-  /* See expr.h for the meaning of all these enums.  Many operators 
+  /* See expr.h for the meaning of all these enums.  Many operators
      have an unnatural arity (X_add_number implicitly added).  The
      conversion logic expands them to explicit "+" subexpressions.   */
 
@@ -3131,10 +3131,10 @@ symbol_relc_make_expr (expressionS * exp)
       return symbol_relc_make_value (exp->X_add_number);
 
     case O_symbol:
-      if (exp->X_add_number) 
-	{ 
-	  arity = 2; 
-	  opstr = "+"; 
+      if (exp->X_add_number)
+	{
+	  arity = 2;
+	  opstr = "+";
 	  operands[0] = symbol_relc_make_sym (exp->X_add_symbol);
 	  operands[1] = symbol_relc_make_value (exp->X_add_number);
 	  break;
@@ -3160,7 +3160,7 @@ symbol_relc_make_expr (expressionS * exp)
           operands[0] = symbol_relc_make_sym (exp->X_add_symbol);	\
         }								\
       break
-      
+
 #define HANDLE_XADD_OPT2(str_) 						\
       if (exp->X_add_number)						\
         {								\
@@ -3217,16 +3217,16 @@ symbol_relc_make_expr (expressionS * exp)
   else
     {
       /* Allocate new string; include inter-operand padding gaps etc.  */
-      concat_string = xmalloc (strlen (opstr) 
+      concat_string = xmalloc (strlen (opstr)
 			       + 1
 			       + (arity >= 1 ? (strlen (operands[0]) + 1 ) : 0)
 			       + (arity >= 2 ? (strlen (operands[1]) + 1 ) : 0)
 			       + (arity >= 3 ? (strlen (operands[2]) + 0 ) : 0)
 			       + 1);
       gas_assert (concat_string != NULL);
-      
+
       /* Format the thing.  */
-      sprintf (concat_string, 
+      sprintf (concat_string,
 	       (arity == 0 ? "%s" :
 		arity == 1 ? "%s:%s" :
 		arity == 2 ? "%s:%s:%s" :

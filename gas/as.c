@@ -25,9 +25,9 @@
    Understands command arguments.
    Has a few routines that don't fit in other modules because they
    are shared.
-  
+
   			bugs
-  
+
    : initialisers
   	Since no-one else says they will support them in future: I
    don't support them now.  */
@@ -365,7 +365,7 @@ Options:\n\
   --listing-cont-lines    set the maximum number of continuation lines used\n\
                           for the output data column of the listing\n"));
   fprintf (stream, _("\
-  @FILE                   read options from FILE\n")); 
+  @FILE                   read options from FILE\n"));
 
   md_show_usage (stream);
 
@@ -384,6 +384,9 @@ Options:\n\
    check for new machine-dep cmdline options in
    md_parse_option definitions in config/tc-*.c.  */
 
+extern const char *md_shortopts;
+extern struct option md_longopts[];
+extern size_t md_longopts_size;
 static void
 parse_args (int * pargc, char *** pargv)
 {
@@ -391,12 +394,12 @@ parse_args (int * pargc, char *** pargv)
   int new_argc;
   char ** old_argv;
   char ** new_argv;
+	static char empty_buf[] = "";
   /* Starting the short option string with '-' is for programs that
      expect options and other ARGV-elements in any order and that care about
      the ordering of the two.  We describe each non-option ARGV-element
      as if it were the argument of an option with character code 1.  */
   char *shortopts;
-  extern const char *md_shortopts;
   static const char std_shortopts[] =
   {
     '-', 'J',
@@ -418,8 +421,6 @@ parse_args (int * pargc, char *** pargv)
     '\0'
   };
   struct option *longopts;
-  extern struct option md_longopts[];
-  extern size_t md_longopts_size;
   /* Codes used for the long options with no short synonyms.  */
   enum option_values
     {
@@ -457,7 +458,7 @@ parse_args (int * pargc, char *** pargv)
     /* When you add options here, check that they do
        not collide with OPTION_MD_BASE.  See as.h.  */
     };
-  
+
   static const struct option std_longopts[] =
   {
     /* Note: commas are placed at the start of the line rather than
@@ -592,7 +593,7 @@ parse_args (int * pargc, char *** pargv)
 
 	case 1:			/* File name.  */
 	  if (!strcmp (optarg, "-"))
-	    optarg = "";
+	    optarg = empty_buf;
 	  new_argv[new_argc++] = optarg;
 	  new_argv[new_argc] = NULL;
 	  break;
@@ -1136,8 +1137,10 @@ main (int argc, char ** argv)
 #if defined (HAVE_SETLOCALE)
   setlocale (LC_CTYPE, "");
 #endif
+#if !defined(PACKAGE) || !defined(LOCALEDIR)
   bindtextdomain (PACKAGE, LOCALEDIR);
   textdomain (PACKAGE);
+#endif
 
   if (debug_memory)
     chunksize = 64;
@@ -1154,7 +1157,8 @@ main (int argc, char ** argv)
   START_PROGRESS (myname, 0);
 
 #ifndef OBJ_DEFAULT_OUTPUT_FILE_NAME
-#define OBJ_DEFAULT_OUTPUT_FILE_NAME "a.out"
+	static char aout_buf[] = "a.out";
+#define OBJ_DEFAULT_OUTPUT_FILE_NAME aout_buf
 #endif
 
   out_file_name = OBJ_DEFAULT_OUTPUT_FILE_NAME;
@@ -1255,7 +1259,7 @@ main (int argc, char ** argv)
       gnustack = subseg_new (".note.GNU-stack", 0);
       bfd_set_section_flags (stdoutput, gnustack,
 			     SEC_READONLY | (flag_execstack ? SEC_CODE : 0));
-                                                                             
+
     }
 #endif
 
@@ -1263,7 +1267,7 @@ main (int argc, char ** argv)
      assembly debugging or on behalf of the compiler, emit it now.  */
   dwarf2_finish ();
 
-  /* If we constructed dwarf2 .eh_frame info, either via .cfi 
+  /* If we constructed dwarf2 .eh_frame info, either via .cfi
      directives from the user or by the backend, emit it now.  */
   cfi_finish ();
 

@@ -364,7 +364,7 @@ dwarf2_where (struct dwarf2_line_info *line)
 {
   if (debug_type == DEBUG_DWARF2)
     {
-      char *filename;
+      const char *filename;
       as_where (&filename, &line->line);
       line->filenum = get_filenum (filename, 0);
       line->column = 0;
