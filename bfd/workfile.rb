@@ -2,9 +2,25 @@
 
 require File.expand_path('../common.rb')
 
+class XXTask < FileTask
+	def initialize(work, name, src, xx, replacement)
+		super(work, name)
+		@prerequisites = [FileTask.new(work, src)]
+		@src = src
+		@xx = xx
+		@replacement = replacement
+	end
+	def execute
+		sh "sed -e s/#{@xx}/#{@replacement}/g < #{@src} > #{@NAME}"
+	end
+end
+
 work = BinutilsLibWork.new
 work.instance_eval do
 	@SOURCES = []
+	@PREREQUISITES = [
+		XXTask.new(self, 'elf32-target.h', 'elfxx-target.h', 'NN', '32'),
+	]
 	@EXTRA_SOURCEFILES = [
 		"#{CONFIG_TARGET}.c",
 		"cpu-#{CONFIG_TARGET}.c",
@@ -24,6 +40,7 @@ work.instance_eval do
 		'ecoff.c',
 		'ecofflink.c',
 		'elf.c',
+		'elf32.c',
 		'elf-attrs.c',
 		'elf-eh-frame.c',
 		'elf-strtab.c',

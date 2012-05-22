@@ -103,6 +103,17 @@ void md_show_usage(FILE* stream)
 
 void md_begin(void)
 {
+	/* Initialize the `cgen' interface.  */
+
+	/* Set the machine number and endian.  */
+	gas_cgen_cpu_desc = mapip2_cgen_cpu_open (CGEN_CPU_OPEN_MACHS, 0,
+		CGEN_CPU_OPEN_ENDIAN,
+		CGEN_ENDIAN_BIG,
+		CGEN_CPU_OPEN_END);
+	mapip2_cgen_init_asm (gas_cgen_cpu_desc);
+
+	/* This is a callback from cgen to gas to parse operands.  */
+	cgen_set_parse_operand_fn (gas_cgen_cpu_desc, gas_cgen_parse_operand);
 }
 
 void md_number_to_chars(char* buf, valueT val, int n)

@@ -2,61 +2,17 @@
 #include "bfd.h"
 #include "libbfd.h"
 #include "libiberty.h"
+#include "elf-bfd.h"
 
+#define MAPIP_BIN 0
+
+#if MAPIP_BIN
 static const bfd_target* mapip2_object_p(bfd *abfd);
 
 static bfd_boolean mapip2_mkobject(bfd *abfd);
 static bfd_boolean mapip2_write_object_contents(bfd *abfd);
 
 // this target describes the mapip2 bytecode file format.
-
-const bfd_target mapip2_vec =
-{
-	"mapip2",
-	bfd_target_unknown_flavour,
-	BFD_ENDIAN_LITTLE,
-	BFD_ENDIAN_LITTLE,
-	(EXEC_P |
-		WP_TEXT ),
-	/* section flags */
-	(SEC_HAS_CONTENTS | SEC_ALLOC | SEC_LOAD | SEC_CODE | SEC_DATA),
-	'_',				/* Symbol leading char.  */
-	' ',				/* AR_pad_char.  */
-	16,				/* AR_max_namelen.  */
-	0,				/* match priority.  */
-
-	bfd_getb64, bfd_getb_signed_64, bfd_putb64,
-	bfd_getb32, bfd_getb_signed_32, bfd_putb32,
-	bfd_getb16, bfd_getb_signed_16, bfd_putb16,	/* Data.  */
-	bfd_getb64, bfd_getb_signed_64, bfd_putb64,
-	bfd_getb32, bfd_getb_signed_32, bfd_putb32,
-	bfd_getb16, bfd_getb_signed_16, bfd_putb16,	/* Headers.  */
-
-	/* bfd_check_format.  */
-	{_bfd_dummy_target,	/* bfd_unknown */
-		mapip2_object_p,	/* bfd_object */
-		bfd_generic_archive_p,	/* bfd_archive */
-		_bfd_dummy_target},	/* bfd_core */
-
-	{bfd_false, mapip2_mkobject,		/* bfd_set_format.  */
-		_bfd_generic_mkarchive, bfd_false},
-	{bfd_false, mapip2_write_object_contents,/* bfd_write_contents.  */
-		_bfd_write_archive_contents, bfd_false},
-
-	BFD_JUMP_TABLE_GENERIC (_bfd_generic),
-	BFD_JUMP_TABLE_COPY (_bfd_generic),
-	BFD_JUMP_TABLE_CORE (_bfd_nocore),
-	BFD_JUMP_TABLE_ARCHIVE (_bfd_noarchive),
-	BFD_JUMP_TABLE_SYMBOLS (_bfd_nosymbols),
-	BFD_JUMP_TABLE_RELOCS (_bfd_norelocs),
-	BFD_JUMP_TABLE_WRITE (_bfd_generic),
-	BFD_JUMP_TABLE_LINK (_bfd_nolink),
-	BFD_JUMP_TABLE_DYNAMIC (_bfd_nodynamic),
-
-	NULL,
-
-	NULL
-};
 
 // return mapip2_vec if abfd is a valid mapip2 object file.
 static const bfd_target* mapip2_object_p(bfd* abfd ATTRIBUTE_UNUSED) {
@@ -151,3 +107,41 @@ static bfd_boolean mapip2_write_object_contents(bfd* abfd) {
 
 	return success;
 }
+#endif	//MAPIP_BIN
+
+static reloc_howto_type *
+mapip2_reloc_type_lookup (bfd * abfd ATTRIBUTE_UNUSED,
+	bfd_reloc_code_real_type code)
+{
+	return NULL;
+}
+
+static reloc_howto_type *
+mapip2_reloc_name_lookup (bfd *abfd ATTRIBUTE_UNUSED,
+	const char *r_name)
+{
+	return NULL;
+}
+
+#define TARGET_LITTLE_SYM mapip2_vec
+#define TARGET_LITTLE_NAME "elf32-mapip2"
+
+#define ELF_ARCH			bfd_arch_mapip2
+#define ELF_MACHINE_CODE		0//EM_MAPIP2
+#define ELF_MAXPAGESIZE			0x1000
+
+#define elf_info_to_howto_rel		NULL
+//#define elf_info_to_howto		openrisc_info_to_howto_rela
+//#define elf_backend_relocate_section	openrisc_elf_relocate_section
+//#define elf_backend_gc_mark_hook	openrisc_elf_gc_mark_hook
+//#define elf_backend_check_relocs	openrisc_elf_check_relocs
+
+#define elf_backend_can_gc_sections	1
+#define elf_backend_rela_normal		1
+
+#define bfd_elf32_bfd_reloc_type_lookup mapip2_reloc_type_lookup
+#define bfd_elf32_bfd_reloc_name_lookup mapip2_reloc_name_lookup
+
+//#define elf_backend_object_p                openrisc_elf_object_p
+//#define elf_backend_final_write_processing  openrisc_elf_final_write_processing
+#include "elf32-target.h"
