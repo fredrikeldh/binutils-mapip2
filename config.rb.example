@@ -1,2 +1,6 @@
 CONFIG_TARGET = 'mapip2'
 CONFIG_CGEN_DIR = '/c/code/cgen-1.1'
+def CONFIG_RUN_FUNCTION
+	cd 'c:/mosync/build/debug_4.6.1/'
+	sh 'gas.exe matime.s'
+end

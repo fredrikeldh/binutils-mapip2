@@ -132,6 +132,13 @@
 	(indices extern-keyword gpr-names)
 )
 
+(define-attr
+  (for operand)
+  (type boolean)
+  (name HASH-PREFIX)
+  (comment "immediates have an optional '#' prefix")
+)
+
 ; Instruction fields
 (define-ifield
 	(name f-op)
@@ -181,14 +188,23 @@
 
 (dnop rd "destination register" () h-gpr f-r1)
 (dnop rs "source register" () h-gpr f-r2)
-(dnop imm "signed immediate" () h-sint f-imm)
+;(dnop imm "signed immediate" (HASH-PREFIX) h-sint f-imm)
+
+(define-operand
+  (name imm)
+  (comment "signed immediate")
+  (attrs)
+  (type h-sint)
+  (index f-imm)
+  (handlers (parse "mp2imm"))
+)
 
 ; Instructions
 (define-insn
 	(name add)
 	(comment "add")
 	(attrs)
-	(syntax "add $rd, $rs")
+	(syntax "add $rd,$rs")
 	(format (+ (f-op 42) rd rs))
 	(semantics (set rd (add rd rs)))
 )
@@ -196,7 +212,34 @@
 (define-insn
 	(name addi)
 	(comment "addi")
-	(syntax "add $rd, $imm")
+	(syntax "add $rd,$imm")
 	(format (+ (f-op 43) rd imm))
 	(semantics (set rd (add rd imm)))
+)
+
+(define-insn
+	(name subi)
+	(comment "subi")
+	(attrs)
+	(syntax "sub $rd,$imm")
+	(format (+ (f-op 45) rd imm))
+	(semantics (set rd (sub rd imm)))
+)
+
+(define-insn
+	(name sub)
+	(comment "sub")
+	(attrs)
+	(syntax "sub $rd,$rs")
+	(format (+ (f-op 44) rd rs))
+	(semantics (set rd (sub rd rs)))
+)
+
+(define-insn
+	(name push)
+	(comment "push")
+	(syntax "push $rd,$rs")
+	(format (+ (f-op 1) rd rs))
+	; fixme
+	(semantics (set rd (add rd rs)))
 )

@@ -9,7 +9,7 @@ MAIN_DIRS = [
 'libiberty',
 #'intl',
 'gas',
-'ld',
+#'ld',
 ]
 
 target :default do
@@ -19,6 +19,10 @@ end
 target :clean do
 	verbose_rm_rf('build')
 	Work.invoke_subdirs(MAIN_DIRS, 'clean')
+end
+
+target :run => :default do
+	CONFIG_RUN_FUNCTION()
 end
 
 Targets.invoke

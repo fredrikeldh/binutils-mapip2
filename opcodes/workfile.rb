@@ -42,7 +42,7 @@ work.instance_eval do
 		# if any of the files are missing or out-of-date.
 		return postfixes.collect {|p| CgenTask.new(self, "#{CONFIG_TARGET}-#{p}", cmd, [
 			FileTask.new(self, cpuFile),
-			#FileTask.new(self, opcFile),
+			FileTask.new(self, opcFile),
 			])}
 	end
 

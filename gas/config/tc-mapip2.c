@@ -31,7 +31,7 @@ typedef struct mapip2_insn
 
 /* This array holds the chars that always start a comment.  If the
 	pre-processor is disabled, these aren't very useful.  */
-const char mapip2_comment_chars[] = "#";
+const char mapip2_comment_chars[] = "//";
 
 /* This array holds the chars that only start a comment at the beginning of
 	a line.  If the line seems to have the form '# 123 filename'
@@ -41,7 +41,7 @@ const char mapip2_comment_chars[] = "#";
 	#NO_APP at the beginning of its output.  */
 /* Also note that comments started like this one will always
 	work if '/' isn't otherwise defined.  */
-const char line_comment_chars[] = "#";
+const char line_comment_chars[] = "//";
 
 const char line_separator_chars[] = ";";
 
