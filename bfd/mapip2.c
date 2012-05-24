@@ -109,10 +109,29 @@ static bfd_boolean mapip2_write_object_contents(bfd* abfd) {
 }
 #endif	//MAPIP_BIN
 
-static reloc_howto_type *
+#define MAPIP_HOWTO_TYPE(type, size, bitsize, pc_relative, complain, mask) \
+	HOWTO(BFD_RELOC_##type, 0, size, bitsize, pc_relative, 0, complain, bfd_elf_generic_reloc, "R_MAPIP2_" #type, FALSE, 0, mask, FALSE),
+
+#define MAPIP_HOWTOS(m) \
+	m(NONE, 0, 0, FALSE, complain_overflow_dont, 0)\
+	m(32, 4, 32, FALSE, complain_overflow_signed, 0xffffffff)\
+	m(32_PCREL, 4, 32, TRUE, complain_overflow_signed, 0xffffffff)\
+
+
+static reloc_howto_type elf_mapip_howto_table[] =
+{
+MAPIP_HOWTOS(MAPIP_HOWTO_TYPE)
+};
+
+static reloc_howto_type*
 mapip2_reloc_type_lookup (bfd * abfd ATTRIBUTE_UNUSED,
 	bfd_reloc_code_real_type code)
 {
+	for(size_t i=0; i<ARRAY_SIZE(elf_mapip_howto_table); i++) {
+		reloc_howto_type* howto = &elf_mapip_howto_table[i];
+		if(code == howto->type)
+			return howto;
+	}
 	return NULL;
 }
 
@@ -120,6 +139,11 @@ static reloc_howto_type *
 mapip2_reloc_name_lookup (bfd *abfd ATTRIBUTE_UNUSED,
 	const char *r_name)
 {
+	for(size_t i=0; i<ARRAY_SIZE(elf_mapip_howto_table); i++) {
+		reloc_howto_type* howto = &elf_mapip_howto_table[i];
+		if(strcasecmp (howto->name, r_name) == 0)
+			return howto;
+	}
 	return NULL;
 }
 

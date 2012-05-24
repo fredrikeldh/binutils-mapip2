@@ -182,12 +182,19 @@ md_cgen_lookup_reloc (const CGEN_INSN * insn ATTRIBUTE_UNUSED,
 	switch (operand->type)
 	{
 	case MAPIP2_OPERAND_IMM:
+	case MAPIP2_OPERAND_AIADDR:
+	case MAPIP2_OPERAND_RIADDR:
 		fixP->fx_pcrel = 0;
 		return BFD_RELOC_32;
 
-	default: /* avoid -Wall warning */
+	case MAPIP2_OPERAND_PC:
+	case MAPIP2_OPERAND_RD:
+	case MAPIP2_OPERAND_RS:
+	case MAPIP2_OPERAND_SIMM:
+	case MAPIP2_OPERAND_MAX:
 		return BFD_RELOC_NONE;
 	}
+	abort();
 }
 
 /* *fragP has been relaxed to its final size, and now needs to have
