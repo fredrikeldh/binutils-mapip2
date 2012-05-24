@@ -136,7 +136,7 @@
   (for operand)
   (type boolean)
   (name HASH-PREFIX)
-  (comment "immediates have an optional '#' prefix")
+  (comment "immediates have a required '#' prefix")
 )
 
 ; Instruction fields
@@ -184,55 +184,150 @@
 	(mode UINT)
 )
 
+(define-ifield
+	(name f-aaddr)
+	(comment "absolute address")
+	(attrs ABS-ADDR)
+	(word-offset 0)
+	(word-length 32)
+	(start 0)
+	(length 32)
+	(mode UINT)
+)
+
+(define-ifield
+	(name f-raddr)
+	(comment "pc-relative address")
+	(attrs PCREL-ADDR)
+	(word-offset 0)
+	(word-length 32)
+	(start 0)
+	(length 32)
+	(mode UINT)
+)
+
+
 ; Instruction operands
 
 (dnop rd "destination register" () h-gpr f-r1)
 (dnop rs "source register" () h-gpr f-r2)
-;(dnop imm "signed immediate" (HASH-PREFIX) h-sint f-imm)
+(dnop simm "signed immediate" () h-sint f-imm)
+(dnop aiaddr "absolute instruction address" (RELAX) h-iaddr f-aaddr)
+(dnop riaddr "pc-relative instruction address" (RELAX) h-iaddr f-raddr)
 
 (define-operand
   (name imm)
-  (comment "signed immediate")
+  (comment "hash signed immediate")
   (attrs)
   (type h-sint)
   (index f-imm)
   (handlers (parse "mp2imm"))
 )
 
+
+; Instruction classes
+
+(define-pmacro (define-arith-insn xname xopcode-reg xopcode-imm)
+  "Define an arithmetic instruction pair."
+	; register version
+	(begin
+		(define-insn
+			(name xname)
+			(comment (.str xname))
+			(syntax (.str xname " $rd,$rs"))
+			(format (+ (f-op xopcode-reg) rd rs))
+			(semantics (set rd (xname rd rs)))
+		)
+		; immediate version
+		(define-insn
+			(name (.sym xname "i"))
+			(comment (.str xname "i"))
+			(syntax (.str xname " $rd,$imm"))
+			(format (+ (f-op xopcode-imm) rd imm))
+			(semantics (set rd (xname rd imm)))
+		)
+	)
+)
+
+(define-pmacro (define-jc-insn xcond xopcode)
+  "Define an conditional jump instruction."
+	; register version
+	(define-insn
+		(name (.sym jc "_" xcond))
+		(comment (.str jc "_" xcond))
+		(syntax (.str jc " " xcond ",$rd,$rs,$imm"))
+		(format (+ (f-op xopcode) rd rs imm))
+		(semantics (if (xcond rd rs) (set pc imm)))
+	)
+)
+
+; todo: fix all opcode values.
 ; Instructions
+
 (define-insn
-	(name add)
-	(comment "add")
-	(attrs)
-	(syntax "add $rd,$rs")
-	(format (+ (f-op 42) rd rs))
-	(semantics (set rd (add rd rs)))
+	(name calli)
+	(comment "call immediate")
+	(syntax "call &${aiaddr}")
+	(format (+ (f-op 61) aiaddr))
+	(semantics (sequence ()
+		; save return address
+		(set (reg rt) (add (reg pc) 4))
+		; jump
+		(set pc aiaddr)
+		))
 )
 
 (define-insn
-	(name addi)
-	(comment "addi")
-	(syntax "add $rd,$imm")
-	(format (+ (f-op 43) rd imm))
-	(semantics (set rd (add rd imm)))
+	(name callr)
+	(comment "call reg")
+	(syntax "call $rd")
+	(format (+ (f-op 62) rd))
+	(semantics (sequence ()
+		; save return address
+		(set (reg rt) (add (reg pc) 4))
+		; jump
+		(set pc rd)
+		))
+)
+
+(define-jc-insn eq 8)
+(define-jc-insn ne 9)
+(define-jc-insn ge 10)
+(define-jc-insn gt 11)
+(define-jc-insn le 12)
+(define-jc-insn lt 13)
+(define-jc-insn ltu 14)
+(define-jc-insn geu 15)
+(define-jc-insn gtu 16)
+(define-jc-insn leu 17)
+
+(define-arith-insn div 38 39)
+(define-arith-insn mul 40 41)
+(define-arith-insn add 42 43)
+(define-arith-insn sub 44 45)
+(define-arith-insn and 46 47)
+(define-arith-insn or 48 49)
+(define-arith-insn xor 50 51)
+(define-arith-insn sll 52 53)
+(define-arith-insn sra 54 55)
+(define-arith-insn srl 56 57)
+
+(define-insn
+	(name not)
+	(comment "not")
+	(attrs)
+	(syntax "not $rd,$rs")
+	(format (+ (f-op 58) rd rs))
+	(semantics (set rd (not rs)))
 )
 
 (define-insn
-	(name subi)
-	(comment "subi")
+	(name neg)
+	(comment "neg")
 	(attrs)
-	(syntax "sub $rd,$imm")
-	(format (+ (f-op 45) rd imm))
-	(semantics (set rd (sub rd imm)))
-)
-
-(define-insn
-	(name sub)
-	(comment "sub")
-	(attrs)
-	(syntax "sub $rd,$rs")
-	(format (+ (f-op 44) rd rs))
-	(semantics (set rd (sub rd rs)))
+	(syntax "neg $rd,$rs")
+	(format (+ (f-op 59) rd rs))
+	(semantics (set rd (neg rs)))
 )
 
 (define-insn
@@ -240,6 +335,83 @@
 	(comment "push")
 	(syntax "push $rd,$rs")
 	(format (+ (f-op 1) rd rs))
-	; fixme
+	; todo: fixme
 	(semantics (set rd (add rd rs)))
+)
+
+(define-insn
+	(name pop)
+	(comment "pop")
+	(syntax "pop $rd,$rs")
+	(format (+ (f-op 0) rd rs))
+	; todo: fixme
+	(semantics (set rd (add rd rs)))
+)
+
+(define-insn
+	(name ret)
+	(comment "ret")
+	(syntax "ret")
+	(format (+ (f-op 60)))
+	(semantics (set pc (reg rt)))
+)
+
+(define-insn
+	(name ldw)
+	(comment "ldw")
+	(attrs)
+	(syntax "ld $rd,[$rs,$simm]")
+	(format (+ (f-op 2) rd rs simm))
+	(semantics (set rd (mem SI (add rs simm))))
+)
+
+(define-insn
+	(name ldr)
+	(comment "ldr")
+	(attrs)
+	(syntax "ld $rd,$rs")
+	(format (+ (f-op 3) rd rs))
+	(semantics (set rd rs))
+)
+
+(define-insn
+	(name stw)
+	(comment "stw")
+	(attrs)
+	(syntax "ld [$rd,$simm],$rs")
+	(format (+ (f-op 4) rd rs simm))
+	(semantics (set (mem SI (add rd simm)) rs))
+)
+
+(define-normal-macro-insn
+	stw0 "stw0" ()
+	"ld [$rd],$rs"
+	(emit stw rd rs (simm 0))
+)
+
+(define-insn
+	(name ldi)
+	(comment "ldi")
+	(attrs)
+	(syntax "ld $rd,$imm")
+	(format (+ (f-op 5) rd imm))
+	(semantics (set rd imm))
+)
+
+(define-insn
+	(name jpi)
+	(comment "jpi")
+	(attrs)
+	(syntax "jp $imm")
+	(format (+ (f-op 6) imm))
+	(semantics (set pc imm))
+)
+
+(define-insn
+	(name jpr)
+	(comment "jpr")
+	(attrs)
+	(syntax "jp $rd")
+	(format (+ (f-op 7) rd))
+	(semantics (set pc rd))
 )

@@ -31,6 +31,10 @@ parse_mp2imm (CGEN_CPU_DESC cd,
 {
   if (**strp == '#')
     ++*strp;
+	else
+	{
+		_("expected '#' before integer");
+	}
 
   return cgen_parse_signed_integer (cd, strp, opindex, valuep);
 }
