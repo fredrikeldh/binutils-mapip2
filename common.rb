@@ -4,6 +4,27 @@ require "#{File.dirname(__FILE__)}/config.rb"
 require File.expand_path(ENV['MOSYNCDIR']+'/rules/native_lib.rb')
 require File.expand_path(ENV['MOSYNCDIR']+'/rules/exe.rb')
 
+class GenTask < FileTask
+	def initialize(work, src)
+		@src = src
+		@dst = src.ext('.c')
+		super(work, @dst)
+		@prerequisites << FileTask.new(work, @src)
+	end
+end
+
+class YaccTask < GenTask
+	def execute
+		sh "bison -y -o #{@dst} #{@src}"
+	end
+end
+
+class FlexTask < GenTask
+	def execute
+		sh "flex -o #{@dst} #{@src}"
+	end
+end
+
 #class ConfigHeaderTask < MemoryGeneratedFileTask
 #	def initialize
 #		io = StringIO.new

@@ -23,6 +23,7 @@
 #include "plugin-api.h"
 /* For ARRAY_SIZE macro only - we don't link the library itself.  */
 #include "libiberty.h"
+#include <inttypes.h>
 
 extern enum ld_plugin_status onload (struct ld_plugin_tv *tv);
 static enum ld_plugin_status onclaim_file (const struct ld_plugin_input_file *file,
@@ -212,7 +213,7 @@ parse_symdefstr (const char *str, struct ld_plugin_symbol *sym)
   /* Finally we'll use sscanf to parse the numeric fields, then
      we'll split out the strings which we need to allocate separate
      storage for anyway so that we can add nul termination.  */
-  n = sscanf (colon2 + 1, "%i:%i:%lli", &sym->def, &sym->visibility, &size);
+  n = sscanf (colon2 + 1, "%i:%i:%" SCNi64, &sym->def, &sym->visibility, &size);
   if (n != 3)
     return LDPS_ERR;
 
@@ -449,7 +450,7 @@ parse_tv_tag (struct ld_plugin_tv *tv)
 
 /* Record any useful information in transfer vector entry and display
    it in human-readable form using the plugin API message() callback.  */
-enum ld_plugin_status
+static enum ld_plugin_status
 parse_and_dump_tv_tag (size_t n, struct ld_plugin_tv *tv)
 {
   enum ld_plugin_status rv = parse_tv_tag (tv);

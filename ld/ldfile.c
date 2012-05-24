@@ -48,12 +48,12 @@ enum bfd_architecture ldfile_output_architecture;
 search_dirs_type * search_head;
 
 #ifdef VMS
-static char * slash = "";
+static const char * slash = "";
 #else
 #if defined (_WIN32) && ! defined (__CYGWIN32__)
-static char * slash = "\\";
+static const char * slash = "\\";
 #else
-static char * slash = "/";
+static const char * slash = "/";
 #endif
 #endif
 

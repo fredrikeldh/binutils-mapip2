@@ -2632,7 +2632,7 @@ pe_create_import_fixup (arelent *rel, asection *s, bfd_vma addend)
       && need_import_table == 1)
     {
       extern char * pe_data_import_dll;
-      char * symname = pe_data_import_dll ? pe_data_import_dll : "unknown";
+      const char * symname = pe_data_import_dll ? pe_data_import_dll : "unknown";
 
       b = make_import_fixup_entry (name, fixup_name, symname,
 				   link_info.output_bfd);

@@ -82,7 +82,7 @@ typedef struct name_list {
 name_list;
 
 typedef enum {sort_none, sort_ascending, sort_descending} sort_order;
-  
+
 /* A wildcard specification.  */
 
 typedef enum {
@@ -156,10 +156,10 @@ typedef struct {
      Normally these optimizations are disabled by default but some targets
      prefer to enable them by default.  So this field is a tri-state variable.
      The values are:
-     
+
      zero: Enable the optimizations (either from --relax being specified on
        the command line or the backend's before_allocation emulation function.
-       
+
      positive: The user has requested that these optimizations be disabled.
        (Via the --no-relax command line option).
 
@@ -303,7 +303,7 @@ typedef struct {
   /* The rpath separation character.  Usually ':'.  */
   char rpath_separator;
 
-  char *map_filename;
+  const char *map_filename;
   FILE *map_file;
 
   unsigned int split_by_reloc;

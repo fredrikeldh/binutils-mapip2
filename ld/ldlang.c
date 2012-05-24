@@ -2896,7 +2896,7 @@ get_target (const bfd_target *target, void *data)
 /* Like strcpy() but convert to lower case as well.  */
 
 static void
-stricpy (char *dest, char *src)
+stricpy (char *dest, const char *src)
 {
   char c;
 
@@ -2910,7 +2910,7 @@ stricpy (char *dest, char *src)
    from haystack.  */
 
 static void
-strcut (char *haystack, char *needle)
+strcut (char *haystack, const char *needle)
 {
   haystack = strstr (haystack, needle);
 
@@ -2929,7 +2929,7 @@ strcut (char *haystack, char *needle)
    Return a value indicating how "similar" they are.  */
 
 static int
-name_compare (char *first, char *second)
+name_compare (const char *first, const char *second)
 {
   char *copy1;
   char *copy2;
@@ -3014,10 +3014,10 @@ closest_target_match (const bfd_target *target, void *data)
 
 /* Return the BFD target format of the first input file.  */
 
-static char *
+static const char *
 get_first_input_target (void)
 {
-  char *target = NULL;
+  const char *target = NULL;
 
   LANG_FOR_EACH_INPUT_STATEMENT (s)
     {
@@ -8053,9 +8053,10 @@ lang_append_dynamic_list_cpp_new (void)
 /* Scan a space and/or comma separated string of features.  */
 
 void
-lang_ld_feature (char *str)
+lang_ld_feature (const char *str)
 {
-  char *p, *q;
+  const char *p;
+	char *q;
 
   p = str;
   while (*p)
@@ -8065,7 +8066,7 @@ lang_ld_feature (char *str)
 	++p;
       if (!*p)
 	break;
-      q = p + 1;
+      q = (char*)p + 1;	//FIXME: UNSAFE
       while (*q && *q != ',' && !ISSPACE (*q))
 	++q;
       sep = *q;

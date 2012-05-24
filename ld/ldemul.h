@@ -27,9 +27,9 @@
 struct option;
 
 extern void ldemul_hll
-  (char *);
+  (const char *);
 extern void ldemul_syslib
-  (char *);
+  (const char *);
 extern void ldemul_after_parse
   (void);
 extern void ldemul_before_parse
@@ -45,7 +45,7 @@ extern void ldemul_set_output_arch
 extern char *ldemul_choose_target
   (int, char**);
 extern void ldemul_choose_mode
-  (char *);
+  (const char *);
 extern void ldemul_list_emulations
   (FILE *);
 extern void ldemul_list_emulation_options
@@ -103,10 +103,10 @@ typedef struct ld_emulation_xfer_struct {
   void   (*before_parse) (void);
 
   /* Handle the SYSLIB (low level library) script command.  */
-  void   (*syslib) (char *);
+  void   (*syslib) (const char *);
 
   /* Handle the HLL (high level library) script command.  */
-  void   (*hll) (char *);
+  void   (*hll) (const char *);
 
   /* Run after parsing the command line and script file.  */
   void   (*after_parse) (void);

@@ -59,7 +59,7 @@ exp_print_token (token_code_type code, int infix_p)
   static const struct
   {
     token_code_type code;
-    char * name;
+    const char * name;
   }
   table[] =
   {
@@ -305,7 +305,7 @@ fold_binary (etree_type *tree)
       /* Check to see if the user has overridden the default
 	 value.  */
       segment_name = tree->binary.rhs->name.name;
-      for (seg = segments; seg; seg = seg->next) 
+      for (seg = segments; seg; seg = seg->next)
 	if (strcmp (seg->name, segment_name) == 0)
 	  {
 	    if (!seg->used
@@ -680,7 +680,7 @@ fold_name (etree_type *tree)
 		       / bfd_octets_per_byte (link_info.output_bfd));
 	      else
 		val = (bfd_vma)1 << os->bfd_section->alignment_power;
-	      
+
 	      new_number (val);
 	    }
 	}
@@ -689,11 +689,11 @@ fold_name (etree_type *tree)
     case LENGTH:
       {
         lang_memory_region_type *mem;
-        
-        mem = lang_memory_region_lookup (tree->name.name, FALSE);  
-        if (mem != NULL) 
+
+        mem = lang_memory_region_lookup (tree->name.name, FALSE);
+        if (mem != NULL)
           new_number (mem->length);
-        else          
+        else
           einfo (_("%F%S: undefined MEMORY region `%s'"
 		   " referenced in expression\n"), tree->name.name);
       }
@@ -703,11 +703,11 @@ fold_name (etree_type *tree)
       if (expld.phase != lang_first_phase_enum)
 	{
 	  lang_memory_region_type *mem;
-        
-	  mem = lang_memory_region_lookup (tree->name.name, FALSE);  
-	  if (mem != NULL) 
+
+	  mem = lang_memory_region_lookup (tree->name.name, FALSE);
+	  if (mem != NULL)
 	    new_rel_from_abs (mem->origin);
-	  else          
+	  else
 	    einfo (_("%F%S: undefined MEMORY region `%s'"
 		     " referenced in expression\n"), tree->name.name);
 	}
@@ -1180,7 +1180,7 @@ exp_print_tree (etree_type *tree)
 }
 
 bfd_vma
-exp_get_vma (etree_type *tree, bfd_vma def, char *name)
+exp_get_vma (etree_type *tree, bfd_vma def, const char *name)
 {
   if (tree != NULL)
     {
@@ -1194,13 +1194,13 @@ exp_get_vma (etree_type *tree, bfd_vma def, char *name)
 }
 
 int
-exp_get_value_int (etree_type *tree, int def, char *name)
+exp_get_value_int (etree_type *tree, int def, const char *name)
 {
   return exp_get_vma (tree, def, name);
 }
 
 fill_type *
-exp_get_fill (etree_type *tree, fill_type *def, char *name)
+exp_get_fill (etree_type *tree, fill_type *def, const char *name)
 {
   fill_type *fill;
   size_t len;
@@ -1258,7 +1258,7 @@ exp_get_fill (etree_type *tree, fill_type *def, char *name)
 }
 
 bfd_vma
-exp_get_abs_int (etree_type *tree, int def, char *name)
+exp_get_abs_int (etree_type *tree, int def, const char *name)
 {
   if (tree != NULL)
     {

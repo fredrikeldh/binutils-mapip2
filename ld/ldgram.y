@@ -51,7 +51,7 @@ static enum section_type sectype;
 static lang_memory_region_type *region;
 
 bfd_boolean ldgram_had_keep = FALSE;
-char *ldgram_vers_current_lang = NULL;
+const char *ldgram_vers_current_lang = NULL;
 
 #define ERROR_NAME_MAX 20
 static char *error_names[ERROR_NAME_MAX];
@@ -67,7 +67,7 @@ static int error_index;
       char *str;
     } bigint;
   fill_type *fill;
-  char *name;
+  const char *name;
   const char *cname;
   struct wildcard_spec wildcard;
   struct wildcard_list *wildcard_list;
@@ -624,11 +624,13 @@ input_section_spec_no_keep:
 			}
         |	sect_flags '[' file_NAME_list ']'
 			{
-			  struct wildcard_spec tmp;
+#if 0
+				struct wildcard_spec tmp;
 			  tmp.name = NULL;
 			  tmp.exclude_name_list = NULL;
 			  tmp.sorted = none;
 			  tmp.section_flag_list = $1;
+#endif
 			  lang_add_wild (NULL, $3, ldgram_had_keep);
 			}
 	|	wildcard_spec '(' file_NAME_list ')'
@@ -1443,8 +1445,7 @@ opt_semicolon:
 
 %%
 void
-yyerror(arg)
-     const char *arg;
+yyerror(const char *arg)
 {
   if (ldfile_assumed_script)
     einfo (_("%P:%s: file format not recognized; treating as linker script\n"),

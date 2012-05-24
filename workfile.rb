@@ -9,7 +9,7 @@ MAIN_DIRS = [
 'libiberty',
 #'intl',
 'gas',
-#'ld',
+'ld',
 ]
 
 target :default do

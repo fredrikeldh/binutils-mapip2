@@ -73,7 +73,7 @@ static int vers_node_nesting = 0;
 
 static int yy_input (char *, int);
 static void comment (void);
-static void lex_warn_invalid (char *where, char *what);
+static void lex_warn_invalid (const char *where, const char *what);
 
 /* STATES
 	EXPRESSION	definitely in an expression
@@ -674,7 +674,7 @@ comment (void)
    in context WHERE.  */
 
 static void
-lex_warn_invalid (char *where, char *what)
+lex_warn_invalid (const char *where, const char *what)
 {
   char buf[5];
 

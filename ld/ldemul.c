@@ -37,13 +37,13 @@
 static ld_emulation_xfer_type *ld_emulation;
 
 void
-ldemul_hll (char *name)
+ldemul_hll (const char *name)
 {
   ld_emulation->hll (name);
 }
 
 void
-ldemul_syslib (char *name)
+ldemul_syslib (const char *name)
 {
   ld_emulation->syslib (name);
 }
@@ -274,7 +274,7 @@ hll_default (char *ignore ATTRIBUTE_UNUSED)
 ld_emulation_xfer_type *ld_emulations[] = { EMULATION_LIST };
 
 void
-ldemul_choose_mode (char *target)
+ldemul_choose_mode (const char *target)
 {
   ld_emulation_xfer_type **eptr = ld_emulations;
   /* Ignore "gld" prefix.  */
