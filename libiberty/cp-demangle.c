@@ -26,7 +26,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA. 
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
 /* This code implements a demangler for the g++ V3 ABI.  The ABI is
@@ -427,10 +427,10 @@ static struct demangle_component *d_substitution (struct d_info *, int);
 
 static void d_growable_string_init (struct d_growable_string *, size_t);
 
-static inline void
+static void
 d_growable_string_resize (struct d_growable_string *, size_t);
 
-static inline void
+static void
 d_growable_string_append_buffer (struct d_growable_string *,
                                  const char *, size_t);
 static void
@@ -439,20 +439,20 @@ d_growable_string_callback_adapter (const char *, size_t, void *);
 static void
 d_print_init (struct d_print_info *, demangle_callbackref, void *);
 
-static inline void d_print_error (struct d_print_info *);
+static void d_print_error (struct d_print_info *);
 
-static inline int d_print_saw_error (struct d_print_info *);
+static int d_print_saw_error (struct d_print_info *);
 
-static inline void d_print_flush (struct d_print_info *);
+static void d_print_flush (struct d_print_info *);
 
-static inline void d_append_char (struct d_print_info *, char);
+static void d_append_char (struct d_print_info *, char);
 
-static inline void d_append_buffer (struct d_print_info *,
+static void d_append_buffer (struct d_print_info *,
                                     const char *, size_t);
 
-static inline void d_append_string (struct d_print_info *, const char *);
+static void d_append_string (struct d_print_info *, const char *);
 
-static inline char d_last_char (struct d_print_info *);
+static char d_last_char (struct d_print_info *);
 
 static void
 d_print_comp (struct d_print_info *, int, const struct demangle_component *);
@@ -1384,7 +1384,7 @@ d_prefix (struct d_info *di)
 /* <unqualified-name> ::= <operator-name>
                       ::= <ctor-dtor-name>
                       ::= <source-name>
-		      ::= <local-source-name> 
+		      ::= <local-source-name>
 
     <local-source-name>	::= L <source-name> <discriminator>
 */
@@ -2207,13 +2207,13 @@ cplus_demangle_type (struct d_info *di)
 	  if (ret && d_next_char (di) != 'E')
 	    ret = NULL;
 	  break;
-	  
+
 	case 'p':
 	  /* Pack expansion.  */
 	  ret = d_make_comp (di, DEMANGLE_COMPONENT_PACK_EXPANSION,
 			     cplus_demangle_type (di), NULL);
 	  break;
-	  
+
 	case 'f':
 	  /* 32-bit decimal floating point */
 	  ret = d_make_builtin_type (di, &cplus_demangle_builtin_types[26]);
@@ -3290,7 +3290,7 @@ d_growable_string_init (struct d_growable_string *dgs, size_t estimate)
 
 /* Grow a growable string to a given size.  */
 
-static inline void
+static void
 d_growable_string_resize (struct d_growable_string *dgs, size_t need)
 {
   size_t newalc;
@@ -3322,7 +3322,7 @@ d_growable_string_resize (struct d_growable_string *dgs, size_t need)
 
 /* Append a buffer to a growable string.  */
 
-static inline void
+static void
 d_growable_string_append_buffer (struct d_growable_string *dgs,
                                  const char *s, size_t l)
 {
@@ -3371,13 +3371,13 @@ d_print_init (struct d_print_info *dpi, demangle_callbackref callback,
 
 /* Indicate that an error occurred during printing, and test for error.  */
 
-static inline void
+static void
 d_print_error (struct d_print_info *dpi)
 {
   dpi->demangle_failure = 1;
 }
 
-static inline int
+static int
 d_print_saw_error (struct d_print_info *dpi)
 {
   return dpi->demangle_failure != 0;
@@ -3385,7 +3385,7 @@ d_print_saw_error (struct d_print_info *dpi)
 
 /* Flush buffered characters to the callback.  */
 
-static inline void
+static void
 d_print_flush (struct d_print_info *dpi)
 {
   dpi->buf[dpi->len] = '\0';
@@ -3396,7 +3396,7 @@ d_print_flush (struct d_print_info *dpi)
 
 /* Append characters and buffers for printing.  */
 
-static inline void
+static void
 d_append_char (struct d_print_info *dpi, char c)
 {
   if (dpi->len == sizeof (dpi->buf) - 1)
@@ -3406,7 +3406,7 @@ d_append_char (struct d_print_info *dpi, char c)
   dpi->last_char = c;
 }
 
-static inline void
+static void
 d_append_buffer (struct d_print_info *dpi, const char *s, size_t l)
 {
   size_t i;
@@ -3415,13 +3415,13 @@ d_append_buffer (struct d_print_info *dpi, const char *s, size_t l)
     d_append_char (dpi, s[i]);
 }
 
-static inline void
+static void
 d_append_string (struct d_print_info *dpi, const char *s)
 {
   d_append_buffer (dpi, s, strlen (s));
 }
 
-static inline void
+static void
 d_append_num (struct d_print_info *dpi, long l)
 {
   char buf[25];
@@ -3429,7 +3429,7 @@ d_append_num (struct d_print_info *dpi, long l)
   d_append_string (dpi, buf);
 }
 
-static inline char
+static char
 d_last_char (struct d_print_info *dpi)
 {
   return dpi->last_char;
@@ -3527,7 +3527,7 @@ d_lookup_template_argument (struct d_print_info *dpi,
       d_print_error (dpi);
       return NULL;
     }
-	
+
   return d_index_template_argument
     (d_right (dpi->templates->template_decl),
      dc->u.s_number.number);
@@ -3553,7 +3553,7 @@ d_find_pack (struct d_print_info *dpi,
 
     case DEMANGLE_COMPONENT_PACK_EXPANSION:
       return NULL;
-      
+
     case DEMANGLE_COMPONENT_LAMBDA:
     case DEMANGLE_COMPONENT_NAME:
     case DEMANGLE_COMPONENT_OPERATOR:
@@ -5215,7 +5215,7 @@ cplus_demangle_v3_callback (const char *mangled, int options,
   return d_demangle_callback (mangled, options, callback, opaque);
 }
 
-/* Demangle a Java symbol.  Java uses a subset of the V3 ABI C++ mangling 
+/* Demangle a Java symbol.  Java uses a subset of the V3 ABI C++ mangling
    conventions, but the output formatting is a little different.
    This instructs the C++ demangler not to emit pointer characters ("*"), to
    use Java's namespace separator symbol ("." instead of "::"), and to output
@@ -5379,7 +5379,7 @@ print_usage (FILE* fp, int exit_value)
 }
 
 /* Option specification for getopt_long.  */
-static const struct option long_options[] = 
+static const struct option long_options[] =
 {
   { "help",	 no_argument, NULL, 'h' },
   { "no-params", no_argument, NULL, 'p' },
@@ -5403,7 +5403,7 @@ main (int argc, char *argv[])
   program_name = argv[0];
 
   /* Parse options.  */
-  do 
+  do
     {
       opt_char = getopt_long (argc, argv, "hpv", long_options, NULL);
       switch (opt_char)
@@ -5427,7 +5427,7 @@ main (int argc, char *argv[])
     }
   while (opt_char != -1);
 
-  if (optind == argc) 
+  if (optind == argc)
     /* No command line arguments were provided.  Filter stdin.  */
     {
       dyn_string_t mangled = dyn_string_new (3);
