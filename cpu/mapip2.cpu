@@ -49,17 +49,6 @@
 	)
 )
 
-; Enum for exception vectors.
-;(define-enum
-;	(name e-exception)
-;	(comment "exception vectors")
-;	(attrs)
-;	(prefix E_)
-;	(values (("RESET") ("BUSERR" -) ("DPF" -) ("IPF" -) ("EXTINT" -) ("ALIGN" -)
-;		("ILLEGAL" -) ("PEINT" -) ("DTLBMISS" -) ("ITLBMISS" -) ("RRANGE" -)
-;		("SYSCALL" -) ("BREAK" -) ("RESERVED" -)))
-;)
-
 
 ; Instruction set parameters.
 
@@ -116,11 +105,11 @@
 	(print-name h-gpr)
 	(prefix "")
 	(values
-		(zero 0) (sp 1) (rt 2) (fr 3)
-		(d0 4) (d1 5) (d2 6) (d3 7) (d4 8) (d5 9) (d6 10) (d7 11)
-		(i0 12) (i1 13) (i2 14) (i3 15)
-		(r0 16) (r1 17) (r2 18) (r3 19) (r4 20) (r5 21) (r6 22) (r7 23)
-		(r8 24) (r9 25) (r10 26) (r11 27) (r12 28) (r13 29) (r14 30) (r15 31)
+		(zr 0) (sp 1) (ra 2) (fp 3)
+		(s0 4) (s1 5) (s2 6) (s3 7) (s4 8) (s5 9) (s6 10) (s7 11)
+		(p0 12) (p1 13) (p2 14) (p3 15)
+		(g0 16) (g1 17) (g2 18) (g3 19) (g4 20) (g5 21) (g6 22) (g7 23)
+		(g8 24) (g9 25) (g10 26) (g11 27) (g12 28) (g13 29) (r0 30) (r1 31)
 	)
 )
 
@@ -255,7 +244,7 @@
 	(define-insn
 		(name (.sym jc "_" xcond))
 		(comment (.str jc "_" xcond))
-		(syntax (.str jc " " xcond ",$rd,$rs,$imm"))
+		(syntax (.str jc " " xcond ",$rd,$rs,#$imm"))
 		(format (+ (f-op xopcode) rd rs imm))
 		(semantics (if (xcond rd rs) (set pc imm)))
 	)
