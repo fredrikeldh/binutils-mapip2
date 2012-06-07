@@ -55,6 +55,7 @@
 # define DLL_EXPORTED
 #endif
 
+extern char *libintl_gettext (const char *__msgid);
 
 DLL_EXPORTED
 char *
@@ -64,6 +65,7 @@ gettext (msgid)
   return libintl_gettext (msgid);
 }
 
+extern char *libintl_dgettext (const char *__domainname, const char *__msgid);
 
 DLL_EXPORTED
 char *
@@ -74,6 +76,8 @@ dgettext (domainname, msgid)
   return libintl_dgettext (domainname, msgid);
 }
 
+extern char *libintl_dcgettext (const char *__domainname, const char *__msgid,
+				int __category);
 
 DLL_EXPORTED
 char *
@@ -85,6 +89,8 @@ dcgettext (domainname, msgid, category)
   return libintl_dcgettext (domainname, msgid, category);
 }
 
+extern char *libintl_ngettext (const char *__msgid1, const char *__msgid2,
+			       unsigned long int __n);
 
 DLL_EXPORTED
 char *
@@ -96,6 +102,8 @@ ngettext (msgid1, msgid2, n)
   return libintl_ngettext (msgid1, msgid2, n);
 }
 
+extern char *libintl_dngettext (const char *__domainname, const char *__msgid1,
+				const char *__msgid2, unsigned long int __n);
 
 DLL_EXPORTED
 char *
@@ -108,6 +116,9 @@ dngettext (domainname, msgid1, msgid2, n)
   return libintl_dngettext (domainname, msgid1, msgid2, n);
 }
 
+extern char *libintl_dcngettext (const char *__domainname,
+				 const char *__msgid1, const char *__msgid2,
+				 unsigned long int __n, int __category);
 
 DLL_EXPORTED
 char *
@@ -121,6 +132,7 @@ dcngettext (domainname, msgid1, msgid2, n, category)
   return libintl_dcngettext (domainname, msgid1, msgid2, n, category);
 }
 
+extern char *libintl_textdomain (const char *__domainname);
 
 DLL_EXPORTED
 char *
@@ -130,6 +142,8 @@ textdomain (domainname)
   return libintl_textdomain (domainname);
 }
 
+extern char *libintl_bindtextdomain (const char *__domainname,
+				     const char *__dirname);
 
 DLL_EXPORTED
 char *
@@ -140,6 +154,8 @@ bindtextdomain (domainname, dirname)
   return libintl_bindtextdomain (domainname, dirname);
 }
 
+extern char *libintl_bind_textdomain_codeset (const char *__domainname,
+					      const char *__codeset);
 
 DLL_EXPORTED
 char *

@@ -1,13 +1,15 @@
 #!/usr/bin/ruby
 
 require File.expand_path(ENV['MOSYNCDIR']+'/rules/exe.rb')
-require './config.rb'
+require File.expand_path('./config.rb')
 
-MAIN_DIRS = [
+intl = []
+intl << 'intl' if(HOST != :win32)
+
+MAIN_DIRS = intl + [
 'bfd',
 'opcodes',
 'libiberty',
-#'intl',
 'gas',
 'ld',
 ]

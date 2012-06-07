@@ -60,4 +60,8 @@ end
 
 class BinutilsExeWork < ExeWork
 	include BinutilsModule
+	def initialize
+		super
+		@INSTALLDIR = CONFIG_INSTALLDIR if(CONFIG_INSTALLDIR)
+	end
 end

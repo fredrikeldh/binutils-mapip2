@@ -22,6 +22,7 @@ work.instance_eval do
 	@SPECIFIC_CFLAGS = {
 		'cgen.c' => ' -Wno-old-style-definition',
 		#'itbl-ops.c' => ' -Wno-nested-externs',
+		'listing.c' => ' -Wno-missing-format-attribute',
 	}
 	@LOCAL_LIBS = [
 		'bfd',
@@ -29,10 +30,14 @@ work.instance_eval do
 		'libiberty',
 	]
 	@LIBRARIES = [
-		'intl',
 		'z',
 	]
-	@NAME = 'gas'
+	if(HOST == :win32)
+		@LIBRARIES << 'intl'
+	else
+		@LOCAL_LIBS << 'intl'
+	end
+	@NAME = 'as'
 end
 
 work.invoke

@@ -50,6 +50,12 @@
 # define DCNGETTEXT libintl_dcngettext
 #endif
 
+extern char *libintl_ngettext (const char *__msgid1, const char *__msgid2,
+			       unsigned long int __n);
+extern char *libintl_dcngettext (const char *__domainname,
+				 const char *__msgid1, const char *__msgid2,
+				 unsigned long int __n, int __category);
+
 /* Look up MSGID in the current default message catalog for the current
    LC_MESSAGES locale.  If not found, returns MSGID itself (the default
    text).  */

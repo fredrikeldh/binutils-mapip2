@@ -1048,7 +1048,7 @@ PREFIX(print_partial_compiled_pattern) (UCHAR_T *start, UCHAR_T *end)
           PREFIX(extract_number_and_incr) (&mcnt, &p);
 	  p1 = p + mcnt;
           PREFIX(extract_number_and_incr) (&mcnt2, &p);
-	  printf ("/jump_n to %d, %d times", p1 - start, mcnt2);
+	  printf ("/jump_n to %ld, %d times", p1 - start, mcnt2);
           break;
 
         case set_number_at:
@@ -1334,6 +1334,7 @@ re_set_syntax (reg_syntax_t syntax)
 # endif /* DEBUG */
   return ret;
 }
+#undef _LIBC
 # ifdef _LIBC
 weak_alias (__re_set_syntax, re_set_syntax)
 # endif
@@ -5894,6 +5895,7 @@ byte_re_match_2_internal (struct re_pattern_buffer *bufp,
      fails at this starting point in the input data.  */
   for (;;)
     {
+#define _LIBC
 #ifdef _LIBC
       DEBUG_PRINT2 ("\n%p: ", p);
 #else

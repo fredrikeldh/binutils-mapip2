@@ -105,6 +105,10 @@
    ALIAS_1 '\0' CANONICAL_1 '\0' ... ALIAS_n '\0' CANONICAL_n '\0' '\0'  */
 static const char * volatile charset_aliases;
 
+#ifndef LIBDIR
+#define LIBDIR "."
+#endif
+
 /* Return a pointer to the contents of the charset.alias file.  */
 static const char *
 get_charset_aliases ()

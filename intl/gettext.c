@@ -48,6 +48,12 @@
 # define DCGETTEXT libintl_dcgettext
 #endif
 
+# define LC_MESSAGES 1729
+
+extern char *libintl_gettext (const char *__msgid);
+extern char *libintl_dcgettext (const char *__domainname, const char *__msgid,
+				int __category);
+
 /* Look up MSGID in the current default message catalog for the current
    LC_MESSAGES locale.  If not found, returns MSGID itself (the default
    text).  */

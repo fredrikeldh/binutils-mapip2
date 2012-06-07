@@ -40,6 +40,7 @@
 #include "obstack.h"
 #include "ecoff.h"
 #include "dw2gencfi.h"
+#include <errno.h>
 
 #ifndef TC_START_LABEL
 #define TC_START_LABEL(x,y,z) (x == ':')

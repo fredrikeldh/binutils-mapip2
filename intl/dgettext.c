@@ -44,6 +44,10 @@
 # define DCGETTEXT libintl_dcgettext
 #endif
 
+extern char* libintl_dgettext(const char *domainname, const char *msgid);
+extern char *libintl_dcgettext (const char *__domainname, const char *__msgid,
+				int __category);
+
 /* Look up MSGID in the DOMAINNAME message catalog of the current
    LC_MESSAGES locale.  */
 char *

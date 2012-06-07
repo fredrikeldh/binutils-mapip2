@@ -220,7 +220,7 @@ md_section_align (segT segment, valueT size)
 }
 
 bfd_boolean
-mapip2_fix_adjustable (fixS * fixP)
+mapip2_fix_adjustable (struct fix* fixP)
 {
 	/* We need the symbol name for the VTABLE entries.  */
 	if (fixP->fx_r_type == BFD_RELOC_VTABLE_INHERIT

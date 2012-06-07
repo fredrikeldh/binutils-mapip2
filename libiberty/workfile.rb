@@ -78,6 +78,7 @@ work.instance_eval do
 		'obstack.c' => ' -Wno-undef',
 		'regex.c' => ' -DHAVE_BTOWC=1 -DHAVE_UINTPTR_T=1'+
 			' -Wno-missing-prototypes -Wno-missing-declarations -Wno-undef -Wno-type-limits -Wno-shadow',
+		'vasprintf.c' => ' -Wno-missing-format-attribute',
 	}
 	@NAME = 'libiberty'
 end

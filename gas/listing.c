@@ -98,6 +98,7 @@
 #include "bfdver.h"
 #include <time.h>
 #include <stdarg.h>
+#include <errno.h>
 
 #ifndef NO_LISTING
 

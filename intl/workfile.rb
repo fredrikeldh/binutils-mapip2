@@ -8,6 +8,7 @@ work.instance_eval do
 	@IGNORED_FILES = [
 	]
 	@EXTRA_CFLAGS << ' -DHAVE_CONFIG_H=1'+
+		' -Wno-deprecated-declarations'+
 		' -Wno-undef -Wno-old-style-definition -Wno-shadow -Wno-strict-prototypes -Wno-nested-externs'+
 		' -DLOCALEDIR=\".\"'+
 		' -DIN_LIBINTL=1'

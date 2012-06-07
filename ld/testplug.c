@@ -186,7 +186,7 @@ static enum ld_plugin_status
 parse_symdefstr (const char *str, struct ld_plugin_symbol *sym)
 {
   int n;
-  long long size;
+  int64_t size;
   const char *colon1, *colon2, *colon5;
 
   /* Locate the colons separating the first two strings.  */

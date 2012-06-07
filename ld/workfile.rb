@@ -40,9 +40,13 @@ work.instance_eval do
 		'libiberty',
 	]
 	@LIBRARIES = [
-		'intl',
 		'z',
 	]
+	if(HOST == :win32)
+		@LIBRARIES << 'intl'
+	else
+		@LOCAL_LIBS << 'intl'
+	end
 	@NAME = 'ld'
 end
 

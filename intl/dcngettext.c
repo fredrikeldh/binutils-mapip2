@@ -41,6 +41,10 @@
 # define DCIGETTEXT libintl_dcigettext
 #endif
 
+extern char *libintl_dcngettext (const char *__domainname,
+				 const char *__msgid1, const char *__msgid2,
+				 unsigned long int __n, int __category);
+
 /* Look up MSGID in the DOMAINNAME message catalog for the current CATEGORY
    locale.  */
 char *

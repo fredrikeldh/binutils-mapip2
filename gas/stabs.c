@@ -24,6 +24,7 @@
 #include "obstack.h"
 #include "subsegs.h"
 #include "ecoff.h"
+#include <errno.h>
 
 /* We need this, despite the apparent object format dependency, since
    it defines stab types, which all object formats can use now.  */

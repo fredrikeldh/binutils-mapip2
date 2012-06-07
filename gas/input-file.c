@@ -28,6 +28,7 @@
 #include "as.h"
 #include "input-file.h"
 #include "safe-ctype.h"
+#include <errno.h>
 
 static int input_file_get (char *, int);
 
