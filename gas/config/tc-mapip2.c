@@ -184,13 +184,13 @@ md_cgen_lookup_reloc (const CGEN_INSN * insn ATTRIBUTE_UNUSED,
 	case MAPIP2_OPERAND_IMM:
 	case MAPIP2_OPERAND_AIADDR:
 	case MAPIP2_OPERAND_RIADDR:
+	case MAPIP2_OPERAND_SIMM:
 		fixP->fx_pcrel = 0;
 		return BFD_RELOC_32;
 
 	case MAPIP2_OPERAND_PC:
 	case MAPIP2_OPERAND_RD:
 	case MAPIP2_OPERAND_RS:
-	case MAPIP2_OPERAND_SIMM:
 	case MAPIP2_OPERAND_MAX:
 		return BFD_RELOC_NONE;
 	}

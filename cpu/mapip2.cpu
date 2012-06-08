@@ -216,16 +216,16 @@
 
 ; Instruction classes
 
-(define-pmacro (define-arith-insn xname xopcode-reg xopcode-imm)
-  "Define an arithmetic instruction pair."
-	; register version
+(define-pmacro (define-arith-insn-custom xname xrtx xopcode-reg xopcode-imm)
+	"Define an arithmetic instruction pair (custom rtx)."
 	(begin
+		; register version
 		(define-insn
 			(name xname)
 			(comment (.str xname))
 			(syntax (.str xname " $rd,$rs"))
 			(format (+ (f-op xopcode-reg) rd rs))
-			(semantics (set rd (xname rd rs)))
+			(semantics (set rd (xrtx rd rs)))
 		)
 		; immediate version
 		(define-insn
@@ -233,13 +233,18 @@
 			(comment (.str xname "i"))
 			(syntax (.str xname " $rd,$imm"))
 			(format (+ (f-op xopcode-imm) rd imm))
-			(semantics (set rd (xname rd imm)))
+			(semantics (set rd (xrtx rd imm)))
 		)
 	)
 )
 
+(define-pmacro (define-arith-insn xname xopcode-reg xopcode-imm)
+	"Define an arithmetic instruction pair."
+	(define-arith-insn-custom xname xname xopcode-reg xopcode-imm)
+)
+
 (define-pmacro (define-jc-insn xcond xopcode)
-  "Define an conditional jump instruction."
+	"Define an conditional jump instruction."
 	; register version
 	(define-insn
 		(name (.sym jc "_" xcond))
@@ -291,6 +296,7 @@
 (define-jc-insn leu 17)
 
 (define-arith-insn div 38 39)
+(define-arith-insn-custom divu udiv 58 59)
 (define-arith-insn mul 40 41)
 (define-arith-insn add 42 43)
 (define-arith-insn sub 44 45)
@@ -354,6 +360,30 @@
 	(semantics (set rd (mem SI (add rs simm))))
 )
 
+(define-normal-macro-insn
+	lwdi "lwdi" ()
+	"ld $rd,[&$simm]"
+	(emit ldw rd (rs 0) simm)
+)
+
+(define-insn
+	(name ldb)
+	(comment "ldb")
+	(attrs)
+	(syntax "ld.b $rd,[$rs,$simm]")
+	(format (+ (f-op 70) rd rs simm))
+	(semantics (set rd (mem QI (add rs simm))))
+)
+
+(define-insn
+	(name ldh)
+	(comment "ldh")
+	(attrs)
+	(syntax "ld.h $rd,[$rs,$simm]")
+	(format (+ (f-op 71) rd rs simm))
+	(semantics (set rd (mem HI (add rs simm))))
+)
+
 (define-insn
 	(name ldr)
 	(comment "ldr")
@@ -372,10 +402,34 @@
 	(semantics (set (mem SI (add rd simm)) rs))
 )
 
+(define-insn
+	(name sth)
+	(comment "sth")
+	(attrs)
+	(syntax "ld.h [$rd,$simm],$rs")
+	(format (+ (f-op 72) rd rs simm))
+	(semantics (set (mem HI (add rd simm)) rs))
+)
+
+(define-insn
+	(name stb)
+	(comment "stb")
+	(attrs)
+	(syntax "ld.b [$rd,$simm],$rs")
+	(format (+ (f-op 73) rd rs simm))
+	(semantics (set (mem QI (add rd simm)) rs))
+)
+
 (define-normal-macro-insn
 	stw0 "stw0" ()
 	"ld [$rd],$rs"
 	(emit stw rd rs (simm 0))
+)
+
+(define-normal-macro-insn
+	stwi "stwi" ()
+	"ld [&$simm],$rs"
+	(emit stw (rd 0) rs simm)
 )
 
 (define-insn
