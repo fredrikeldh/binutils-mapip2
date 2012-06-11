@@ -16,6 +16,7 @@ class CgenTask < FileTask
 		sh "sed -e \"/ -- assembler routines/ r #{CONFIG_TARGET}-dis.in1\" cgen-dis.in"+
 			" | sed -e \"s/@ARCH@/#{CONFIG_TARGET.upcase}/g\" -e \"s/@arch@/#{CONFIG_TARGET}/g\""+
 			" -e \"s/@prefix@/#{CONFIG_TARGET}/\" > #{CONFIG_TARGET}-dis.c"
+		sh "rm -f tmp-*"
 	end
 end
 

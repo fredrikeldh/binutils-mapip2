@@ -203,6 +203,7 @@
 (dnop simm "signed immediate" () h-sint f-imm)
 (dnop aiaddr "absolute instruction address" (RELAX) h-iaddr f-aaddr)
 (dnop riaddr "pc-relative instruction address" (RELAX) h-iaddr f-raddr)
+(dnop adaddr "absolute data address" (RELAX) h-addr f-aaddr)
 
 (define-operand
   (name imm)
@@ -212,7 +213,6 @@
   (index f-imm)
   (handlers (parse "mp2imm"))
 )
-
 
 ; Instruction classes
 
@@ -238,6 +238,84 @@
 	)
 )
 
+(define-pmacro (define-ld-insn xname xsuffix xmode xopcode)
+	"Define a load-from-memory instruction."
+	(begin
+		(define-insn
+			(name xname)
+			(comment (.str xname))
+			(attrs)
+			(syntax (.str "ld" xsuffix " $rd,[$rs,$adaddr]"))
+			(format (+ (f-op xopcode) rd rs adaddr))
+			(semantics (set rd (mem xmode (add rs adaddr))))
+		)
+		(define-normal-macro-insn
+			(.sym xname "0") (.str xname "0") ()
+			(.str "ld" xsuffix " $rd,[$rs]")
+			(emit xname rd rs (adaddr 0))
+		)
+		(define-normal-macro-insn
+			(.sym xname "i") (.str xname "i") ()
+			(.str "ld" xsuffix " $rd,[&$adaddr]")
+			(emit xname rd (rs 0) adaddr)
+		)
+;  unknown operand: (add adaddr simm)
+;		(define-normal-macro-insn
+;			(.sym xname "i2") (.str xname "i2") ()
+;			"ld $rd,[$adaddr+$simm]"
+;			(emit xname rd (rs 0) (add adaddr simm))
+;		)
+		; temporary instruction until I figure out how do deal with symbol+offset operands.
+		(define-insn
+			(name (.sym xname "i2"))
+			(comment (.str xname "i2"))
+			(attrs)
+			(syntax (.str "ld" xsuffix " $rd,[&$adaddr+$simm]"))
+			(format (+ (f-op xopcode) rd rs adaddr simm))
+			(semantics (set rd (mem xmode (add adaddr simm))))
+		)
+	)
+)
+(define-ld-insn ldw "" SI 70)
+(define-ld-insn ldb ".b" QI 71)
+(define-ld-insn ldh ".h" HI 72)
+
+(define-pmacro (define-st-insn xname xsuffix xmode xopcode)
+	"Define a store-to-memory instruction."
+	(begin
+		(define-insn
+			(name xname)
+			(comment (.str xname))
+			(attrs)
+			(syntax (.str "ld" xsuffix " [$rd,$adaddr],$rs"))
+			(format (+ (f-op xopcode) rd rs adaddr))
+			(semantics (set (mem xmode (add rs adaddr)) rd))
+		)
+		(define-normal-macro-insn
+			(.sym xname "0") (.str xname "0") ()
+			(.str "ld" xsuffix " [$rd],$rs")
+			(emit xname rd rs (adaddr 0))
+		)
+		(define-normal-macro-insn
+			(.sym xname "i") (.str xname "i") ()
+			(.str "ld" xsuffix " [&$adaddr],$rs")
+			(emit xname rd (rs 0) adaddr)
+		)
+		; temporary instruction until I figure out how do deal with symbol+offset operands.
+		(define-insn
+			(name (.sym xname "i2"))
+			(comment (.str xname "i2"))
+			(attrs)
+			(syntax (.str "ld" xsuffix " [&$adaddr+$simm],$rs"))
+			(format (+ (f-op xopcode) rd rs adaddr simm))
+			(semantics (set rd (mem xmode (add adaddr simm))))
+		)
+	)
+)
+(define-st-insn stw "" SI 0)
+(define-st-insn stb ".b" QI 1)
+(define-st-insn sth ".h" HI 2)
+
 (define-pmacro (define-arith-insn xname xopcode-reg xopcode-imm)
 	"Define an arithmetic instruction pair."
 	(define-arith-insn-custom xname xname xopcode-reg xopcode-imm)
@@ -245,14 +323,23 @@
 
 (define-pmacro (define-jc-insn xcond xopcode)
 	"Define an conditional jump instruction."
-	; register version
+	; plain immediate
+	(begin
 	(define-insn
 		(name (.sym jc "_" xcond))
 		(comment (.str jc "_" xcond))
-		(syntax (.str jc " " xcond ",$rd,$rs,#$imm"))
+		(syntax (.str jc " " xcond ",$rd,$rs,[#$imm]"))
 		(format (+ (f-op xopcode) rd rs imm))
 		(semantics (if (xcond rd rs) (set pc imm)))
 	)
+	; with offset
+	(define-insn
+		(name (.sym jc "_2" xcond))
+		(comment (.str jc "_2" xcond))
+		(syntax (.str jc " " xcond ",$rd,$rs,$simm,[#$imm]"))
+		(format (+ (f-op xopcode) rd rs aiaddr))
+		(semantics (if (xcond rd rs) (set pc simm)))
+	))
 )
 
 ; todo: fix all opcode values.
@@ -326,6 +413,24 @@
 )
 
 (define-insn
+	(name xh)
+	(comment "xh")
+	(attrs)
+	(syntax "xh $rd,$rs")
+	(format (+ (f-op 60) rd rs))
+	(semantics (set SI rd (reg HI rs)))
+)
+
+(define-insn
+	(name xb)
+	(comment "xb")
+	(attrs)
+	(syntax "xb $rd,$rs")
+	(format (+ (f-op 61) rd rs))
+	(semantics (set SI rd (reg QI rs)))
+)
+
+(define-insn
 	(name push)
 	(comment "push")
 	(syntax "push $rd,$rs")
@@ -352,84 +457,12 @@
 )
 
 (define-insn
-	(name ldw)
-	(comment "ldw")
-	(attrs)
-	(syntax "ld $rd,[$rs,$simm]")
-	(format (+ (f-op 2) rd rs simm))
-	(semantics (set rd (mem SI (add rs simm))))
-)
-
-(define-normal-macro-insn
-	lwdi "lwdi" ()
-	"ld $rd,[&$simm]"
-	(emit ldw rd (rs 0) simm)
-)
-
-(define-insn
-	(name ldb)
-	(comment "ldb")
-	(attrs)
-	(syntax "ld.b $rd,[$rs,$simm]")
-	(format (+ (f-op 70) rd rs simm))
-	(semantics (set rd (mem QI (add rs simm))))
-)
-
-(define-insn
-	(name ldh)
-	(comment "ldh")
-	(attrs)
-	(syntax "ld.h $rd,[$rs,$simm]")
-	(format (+ (f-op 71) rd rs simm))
-	(semantics (set rd (mem HI (add rs simm))))
-)
-
-(define-insn
 	(name ldr)
 	(comment "ldr")
 	(attrs)
 	(syntax "ld $rd,$rs")
 	(format (+ (f-op 3) rd rs))
 	(semantics (set rd rs))
-)
-
-(define-insn
-	(name stw)
-	(comment "stw")
-	(attrs)
-	(syntax "ld [$rd,$simm],$rs")
-	(format (+ (f-op 4) rd rs simm))
-	(semantics (set (mem SI (add rd simm)) rs))
-)
-
-(define-insn
-	(name sth)
-	(comment "sth")
-	(attrs)
-	(syntax "ld.h [$rd,$simm],$rs")
-	(format (+ (f-op 72) rd rs simm))
-	(semantics (set (mem HI (add rd simm)) rs))
-)
-
-(define-insn
-	(name stb)
-	(comment "stb")
-	(attrs)
-	(syntax "ld.b [$rd,$simm],$rs")
-	(format (+ (f-op 73) rd rs simm))
-	(semantics (set (mem QI (add rd simm)) rs))
-)
-
-(define-normal-macro-insn
-	stw0 "stw0" ()
-	"ld [$rd],$rs"
-	(emit stw rd rs (simm 0))
-)
-
-(define-normal-macro-insn
-	stwi "stwi" ()
-	"ld [&$simm],$rs"
-	(emit stw (rd 0) rs simm)
 )
 
 (define-insn
