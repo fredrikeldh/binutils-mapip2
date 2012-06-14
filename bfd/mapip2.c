@@ -3,6 +3,7 @@
 #include "libbfd.h"
 #include "libiberty.h"
 #include "elf-bfd.h"
+#include <assert.h>
 
 #define MAPIP_BIN 0
 
@@ -109,13 +110,14 @@ static bfd_boolean mapip2_write_object_contents(bfd* abfd) {
 }
 #endif	//MAPIP_BIN
 
+// size is not in bytes. see reloc.c:877.
 #define MAPIP_HOWTO_TYPE(type, size, bitsize, pc_relative, complain, mask) \
 	HOWTO(BFD_RELOC_##type, 0, size, bitsize, pc_relative, 0, complain, bfd_elf_generic_reloc, "R_MAPIP2_" #type, FALSE, 0, mask, FALSE),
 
 #define MAPIP_HOWTOS(m) \
 	m(NONE, 0, 0, FALSE, complain_overflow_dont, 0)\
-	m(32, 4, 32, FALSE, complain_overflow_signed, 0xffffffff)\
-	m(32_PCREL, 4, 32, TRUE, complain_overflow_signed, 0xffffffff)\
+	m(32_PCREL, 2, 32, TRUE, complain_overflow_signed, 0xffffffff)\
+	m(32, 2, 32, FALSE, complain_overflow_signed, 0xffffffff)\
 
 
 static reloc_howto_type elf_mapip_howto_table[] =
@@ -147,6 +149,18 @@ mapip2_reloc_name_lookup (bfd *abfd ATTRIBUTE_UNUSED,
 	return NULL;
 }
 
+static void
+mapip2_info_to_howto_rela (bfd * abfd ATTRIBUTE_UNUSED,
+	arelent * cache_ptr,
+	Elf_Internal_Rela * dst)
+{
+  unsigned int r_type;
+
+  r_type = ELF32_R_TYPE (dst->r_info);
+  assert (r_type < ARRAY_SIZE(elf_mapip_howto_table));
+  cache_ptr->howto = & elf_mapip_howto_table[r_type];
+}
+
 #define TARGET_LITTLE_SYM mapip2_vec
 #define TARGET_LITTLE_NAME "elf32-mapip2"
 
@@ -155,7 +169,7 @@ mapip2_reloc_name_lookup (bfd *abfd ATTRIBUTE_UNUSED,
 #define ELF_MAXPAGESIZE			0x1000
 
 #define elf_info_to_howto_rel		NULL
-//#define elf_info_to_howto		openrisc_info_to_howto_rela
+#define elf_info_to_howto		mapip2_info_to_howto_rela
 //#define elf_backend_relocate_section	openrisc_elf_relocate_section
 //#define elf_backend_gc_mark_hook	openrisc_elf_gc_mark_hook
 //#define elf_backend_check_relocs	openrisc_elf_check_relocs

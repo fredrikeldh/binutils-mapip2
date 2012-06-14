@@ -3,7 +3,7 @@
 /deffilep.h
 /ld-new
 /ld.1
-#/ldemul-list.h
+/ldemul-list.h
 /ldgram.c
 #/ldgram.h
 /ldlex.c

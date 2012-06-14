@@ -65,7 +65,7 @@ fi
 if test x"$LDEMUL_GET_SCRIPT" != xgld"$EMULATION_NAME"_get_script; then
 fragment <<EOF
 
-static char *
+static const char *
 gld${EMULATION_NAME}_get_script (int *isfile)
 EOF
 

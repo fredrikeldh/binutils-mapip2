@@ -69,7 +69,7 @@ work.instance_eval do
 	@SPECIFIC_CFLAGS = {
 		'ecofflink.c' => ' -Wno-old-style-definition',
 		'archures.c' => " \"-DSELECT_ARCHITECTURES=&bfd_#{CONFIG_TARGET}_arch\"",
-		'targets.c' => " \"-DSELECT_VECS=&#{CONFIG_TARGET}_vec\"",
+		'targets.c' => " \"-DSELECT_VECS=&#{CONFIG_TARGET}_vec\" -DHAVE_#{CONFIG_TARGET}_vec",
 		'dwarf2.c' => ' -DDEBUGDIR=\"./debug\"',
 		'bfd.c' => ' -Wno-missing-format-attribute',
 	}

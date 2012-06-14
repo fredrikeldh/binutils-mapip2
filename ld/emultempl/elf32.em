@@ -1438,7 +1438,7 @@ if test x"$LDEMUL_BEFORE_ALLOCATION" != xgld"$EMULATION_NAME"_before_allocation;
 fragment <<EOF
 
 /* used by before_allocation and handle_option. */
-static void 
+static void
 gld${EMULATION_NAME}_append_to_separated_string (char **to, char *op_arg)
 {
   if (*to == NULL)
@@ -1506,7 +1506,7 @@ gld${EMULATION_NAME}_before_allocation (void)
       {
 	const char *audit_libs = elf_dt_audit (abfd);
 
-	/* If the input bfd contains an audit entry, we need to add it as 
+	/* If the input bfd contains an audit entry, we need to add it as
 	   a dep audit entry.  */
 	if (audit_libs && *audit_libs != '\0')
 	  {
@@ -1975,7 +1975,7 @@ fi
 if test x"$LDEMUL_GET_SCRIPT" != xgld"$EMULATION_NAME"_get_script; then
 fragment <<EOF
 
-static char *
+static const char *
 gld${EMULATION_NAME}_get_script (int *isfile)
 EOF
 
@@ -2203,7 +2203,7 @@ EOF
 if test x"$GENERATE_SHLIB_SCRIPT" = xyes; then
 fragment <<EOF
     case OPTION_AUDIT:
-  	gld${EMULATION_NAME}_append_to_separated_string (&audit, optarg); 
+	gld${EMULATION_NAME}_append_to_separated_string (&audit, optarg);
 	break;
 
     case 'P':

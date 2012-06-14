@@ -104,7 +104,7 @@ ldemul_create_output_section_statements (void)
     ld_emulation->create_output_section_statements ();
 }
 
-char *
+const char *
 ldemul_get_script (int *isfile)
 {
   return ld_emulation->get_script (isfile);
@@ -174,7 +174,7 @@ ldemul_recognized_file (lang_input_statement_type *entry)
   return FALSE;
 }
 
-char *
+const char *
 ldemul_choose_target (int argc, char **argv)
 {
   return ld_emulation->choose_target (argc, argv);
@@ -183,10 +183,10 @@ ldemul_choose_target (int argc, char **argv)
 
 /* The default choose_target function.  */
 
-char *
+const char *
 ldemul_default_target (int argc ATTRIBUTE_UNUSED, char **argv ATTRIBUTE_UNUSED)
 {
-  char *from_outside = getenv (TARGET_ENVIRON);
+  const char *from_outside = getenv (TARGET_ENVIRON);
   if (from_outside != (char *) NULL)
     return from_outside;
   return ld_emulation->target_name;
@@ -260,13 +260,13 @@ set_output_arch_default (void)
 }
 
 void
-syslib_default (char *ignore ATTRIBUTE_UNUSED)
+syslib_default (const char *ignore ATTRIBUTE_UNUSED)
 {
   info_msg (_("%S SYSLIB ignored\n"));
 }
 
 void
-hll_default (char *ignore ATTRIBUTE_UNUSED)
+hll_default (const char *ignore ATTRIBUTE_UNUSED)
 {
   info_msg (_("%S HLL ignored\n"));
 }
@@ -277,6 +277,8 @@ void
 ldemul_choose_mode (const char *target)
 {
   ld_emulation_xfer_type **eptr = ld_emulations;
+	if(target) {
+
   /* Ignore "gld" prefix.  */
   if (target[0] == 'g' && target[1] == 'l' && target[2] == 'd')
     target += 3;
@@ -289,6 +291,9 @@ ldemul_choose_mode (const char *target)
 	}
     }
   einfo (_("%P: unrecognised emulation mode: %s\n"), target);
+	} else {
+		einfo(_("NULL target!\n"));
+	}
   einfo (_("Supported emulations: "));
   ldemul_list_emulations (stderr);
   einfo ("%F\n");

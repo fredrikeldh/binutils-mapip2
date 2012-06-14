@@ -29,7 +29,7 @@ extern int ld_canon_sysroot_len;
 extern FILE *saved_script_handle;
 extern FILE *previous_script_handle;
 extern bfd_boolean force_make_executable;
-extern char *default_target;
+extern const char *default_target;
 extern bfd_boolean trace_files;
 extern bfd_boolean trace_file_tries;
 extern bfd_boolean version_printed;

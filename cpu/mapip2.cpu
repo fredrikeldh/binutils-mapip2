@@ -352,7 +352,7 @@
 	(format (+ (f-op 61) aiaddr))
 	(semantics (sequence ()
 		; save return address
-		(set (reg rt) (add (reg pc) 4))
+		(set (reg ra) (add (reg pc) 4))
 		; jump
 		(set pc aiaddr)
 		))
@@ -365,7 +365,7 @@
 	(format (+ (f-op 62) rd))
 	(semantics (sequence ()
 		; save return address
-		(set (reg rt) (add (reg pc) 4))
+		(set (reg ra) (add (reg pc) 4))
 		; jump
 		(set pc rd)
 		))
@@ -453,7 +453,7 @@
 	(comment "ret")
 	(syntax "ret")
 	(format (+ (f-op 60)))
-	(semantics (set pc (reg rt)))
+	(semantics (set pc (reg ra)))
 )
 
 (define-insn

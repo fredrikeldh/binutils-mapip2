@@ -69,7 +69,7 @@ FILE *saved_script_handle = NULL;
 FILE *previous_script_handle = NULL;
 bfd_boolean force_make_executable = FALSE;
 
-char *default_target;
+const char *default_target;
 const char *output_filename = "a.out";
 
 /* Name this program was invoked by.  */
@@ -118,7 +118,7 @@ sort_type sort_section;
 
 static const char *get_sysroot
   (int, char **);
-static char *get_emulation
+static const char *get_emulation
   (int, char **);
 static bfd_boolean add_archive_element
   (struct bfd_link_info *, bfd *, const char *, bfd **);
@@ -188,7 +188,7 @@ ld_cleanup (void)
 int
 main (int argc, char **argv)
 {
-  char *emulation;
+  const char *emulation;
   long start_time = get_run_time ();
 
 #if defined (HAVE_SETLOCALE) && defined (HAVE_LC_MESSAGES)
@@ -320,7 +320,7 @@ main (int argc, char **argv)
   if (saved_script_handle == NULL)
     {
       int isfile;
-      char *s = ldemul_get_script (&isfile);
+      const char *s = ldemul_get_script (&isfile);
 
       if (isfile)
 	ldfile_open_default_command_file (s);
@@ -559,10 +559,10 @@ get_sysroot (int argc, char **argv)
 /* We need to find any explicitly given emulation in order to initialize the
    state that's needed by the lex&yacc argument parser (parse_args).  */
 
-static char *
+static const char *
 get_emulation (int argc, char **argv)
 {
-  char *emulation;
+  const char *emulation;
   int i;
 
   emulation = getenv (EMULATION_ENVIRON);

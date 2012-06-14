@@ -42,7 +42,7 @@ extern void ldemul_before_allocation
   (void);
 extern void ldemul_set_output_arch
   (void);
-extern char *ldemul_choose_target
+extern const char *ldemul_choose_target
   (int, char**);
 extern void ldemul_choose_mode
   (const char *);
@@ -50,7 +50,7 @@ extern void ldemul_list_emulations
   (FILE *);
 extern void ldemul_list_emulation_options
   (FILE *);
-extern char *ldemul_get_script
+extern const char *ldemul_get_script
   (int *isfile);
 extern void ldemul_finish
   (void);
@@ -72,7 +72,7 @@ extern bfd_boolean ldemul_recognized_file
   (struct lang_input_statement_struct *);
 extern bfd_boolean ldemul_open_dynamic_archive
   (const char *, struct search_dirs *, struct lang_input_statement_struct *);
-extern char *ldemul_default_target
+extern const char *ldemul_default_target
   (int, char**);
 extern void after_parse_default
   (void);
@@ -89,9 +89,9 @@ extern void finish_default
 extern void set_output_arch_default
   (void);
 extern void syslib_default
-  (char*);
+  (const char*);
 extern void hll_default
-  (char*);
+  (const char*);
 extern int  ldemul_find_potential_libraries
   (char *, struct lang_input_statement_struct *);
 extern struct bfd_elf_version_expr *ldemul_new_vers_pattern
@@ -121,19 +121,19 @@ typedef struct ld_emulation_xfer_struct {
   void   (*set_output_arch) (void);
 
   /* Decide which target name to use.  */
-  char * (*choose_target) (int, char**);
+  const char * (*choose_target) (int, char**);
 
   /* Run before allocating output sections.  */
   void   (*before_allocation) (void);
 
   /* Return the appropriate linker script.  */
-  char * (*get_script) (int *isfile);
+  const char * (*get_script) (int *isfile);
 
   /* The name of this emulation.  */
-  char *emulation_name;
+  const char *emulation_name;
 
   /* The output format.  */
-  char *target_name;
+  const char *target_name;
 
   /* Run after assigning values from the script.  */
   void	(*finish) (void);
