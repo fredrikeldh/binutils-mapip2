@@ -5,3 +5,4 @@ def CONFIG_RUN_FUNCTION
 	cd 'c:/mosync/build/debug_4.6.1/'
 	sh 'gas.exe matime.s'
 end
+CONFIG_MOSYNC_SOURCE_DIR = '/c/code/mosync-master'

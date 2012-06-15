@@ -20,6 +20,17 @@ class CgenTask < FileTask
 	end
 end
 
+class GenOpcodesTask < FileTask
+	def initialize(work)
+		super(work, '../cpu/mapip2-opcodes.inc')
+		@gen = "#{CONFIG_MOSYNC_SOURCE_DIR}/runtimes/cpp/core/gen-opcodes.rb"
+		prerequisites << FileTask.new(work, @gen)
+	end
+	def execute
+		sh "ruby #{@gen} cgen #{@NAME}"
+	end
+end
+
 work = BinutilsLibWork.new
 work.instance_eval do
 	def cgenTasks(work, target)
@@ -46,6 +57,10 @@ work.instance_eval do
 			FileTask.new(self, opcFile),
 			])}
 	end
+
+	@PREREQUISITES = [
+		GenOpcodesTask.new(self)
+	]
 
 	@SOURCES = []
 	@EXTRA_INCLUDES << '..'

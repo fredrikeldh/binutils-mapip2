@@ -44,3 +44,4 @@ configure
 Makefile.in
 config.rb
 /opcodes/mapip2-*
+/cpu/mapip2-opcodes.inc
