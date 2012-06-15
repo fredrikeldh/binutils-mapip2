@@ -276,9 +276,6 @@
 		)
 	)
 )
-(define-ld-insn ldw "" SI 70)
-(define-ld-insn ldb ".b" QI 71)
-(define-ld-insn ldh ".h" HI 72)
 
 (define-pmacro (define-st-insn xname xsuffix xmode xopcode)
 	"Define a store-to-memory instruction."
@@ -312,9 +309,6 @@
 		)
 	)
 )
-(define-st-insn stw "" SI 0)
-(define-st-insn stb ".b" QI 1)
-(define-st-insn sth ".h" HI 2)
 
 (define-pmacro (define-arith-insn xname xopcode-reg xopcode-imm)
 	"Define an arithmetic instruction pair."
@@ -345,6 +339,27 @@
 ; todo: fix all opcode values.
 ; Instructions
 
+(define-ld-insn ldw "" SI 70)
+(define-ld-insn ldb ".b" QI 71)
+(define-ld-insn ldh ".h" HI 72)
+
+(define-st-insn stw "" SI 0)
+(define-st-insn stb ".b" QI 1)
+(define-st-insn sth ".h" HI 2)
+
+(define-insn
+	(name callr)
+	(comment "call reg")
+	(syntax "call $rd")
+	(format (+ (f-op 62) rd))
+	(semantics (sequence ()
+		; save return address
+		(set (reg ra) (add (reg pc) 4))
+		; jump
+		(set pc rd)
+		))
+)
+
 (define-insn
 	(name calli)
 	(comment "call immediate")
@@ -359,16 +374,11 @@
 )
 
 (define-insn
-	(name callr)
-	(comment "call reg")
-	(syntax "call $rd")
-	(format (+ (f-op 62) rd))
-	(semantics (sequence ()
-		; save return address
-		(set (reg ra) (add (reg pc) 4))
-		; jump
-		(set pc rd)
-		))
+	(name syscall)
+	(comment "syscall")
+	(syntax "syscall $imm")
+	(format (+ (f-op 59) imm))
+;	(semantics )
 )
 
 (define-jc-insn eq 8)
@@ -475,19 +485,19 @@
 )
 
 (define-insn
-	(name jpi)
-	(comment "jpi")
-	(attrs)
-	(syntax "jp $imm")
-	(format (+ (f-op 6) imm))
-	(semantics (set pc imm))
-)
-
-(define-insn
 	(name jpr)
 	(comment "jpr")
 	(attrs)
 	(syntax "jp $rd")
 	(format (+ (f-op 7) rd))
 	(semantics (set pc rd))
+)
+
+(define-insn
+	(name jpi)
+	(comment "jpi")
+	(attrs)
+	(syntax "jp $imm")
+	(format (+ (f-op 6) imm))
+	(semantics (set pc imm))
 )
