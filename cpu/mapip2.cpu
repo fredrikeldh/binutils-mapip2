@@ -25,11 +25,11 @@
 ; which will have 32 64-bit floating-point registers, and opcodes to match.
 
 (define-arch
-	(name mapip)
+	(name mapip2)
 	(comment "Mapip2")
 	(insn-lsb0? #f)
-	(machs mapip)
-	(isas mapip32)
+	(machs mapip2)
+	(isas mapip2-32)
 )
 
 ; IDOC attribute for instruction documentation.
@@ -54,7 +54,7 @@
 
 (define-isa
 	; Name of the ISA.
-	(name mapip32)
+	(name mapip2-32)
 
 	; Base instruction length, in bits.
 	(base-insn-bitsize 8)
@@ -66,17 +66,17 @@
 	; CPU names must be distinct from the architecture name and machine names.
 	; The "b" suffix stands for "base" and is the convention.
 	; The "f" suffix stands for "family" and is the convention.
-	(name mapipbf)
-	(comment "Mapip base family")
-	(endian little)
+	(name mapip2bf)
+	(comment "Mapip2 base family")
+	(endian little)	; apparently irrelevant
 	(word-bitsize 32)
 )
 
 ; Generic machine
 (define-mach
-	(name mapip)
+	(name mapip2)
 	(comment "Generic Mapip2 cpu")
-	(cpu mapipbf)
+	(cpu mapip2bf)
 	(bfd-name "mapip2")
 )
 
@@ -85,10 +85,10 @@
 
 ; Generic OpenRISC model
 (define-model
-	(name mapip-1)
-	(comment "Mapip generic model")
+	(name mapip2-1)
+	(comment "Mapip2 generic model")
 	(attrs)
-	(mach mapip)
+	(mach mapip2)
 
 	; Nothing special about this.
 	(unit u-exec "Execution Unit" () 1 1 () () () ())
@@ -129,88 +129,72 @@
 )
 
 ; Instruction fields
-(define-ifield
-	(name f-op)
-	(comment "f-opcode")
-	(attrs)
-	(word-offset 0)
-	(word-length 8)
-	(start 0)
-	(length 8)
-	(mode UINT)
+(define-pmacro (define-mapip-ifield-attr xname xcomment xattrs xstart xlen)
+	"Define an instruction field with attributes."
+	(define-ifield
+		(name xname)
+		(comment xcomment)
+		xattrs
+		(word-offset xstart)
+		(word-length xlen)
+		(start 0)
+		(length xlen)
+		(mode UINT)
+	)
+)
+(define-pmacro (define-mapip-ifield xname xcomment xstart xlen)
+	"Define an instruction field."
+	(define-mapip-ifield-attr xname xcomment (attrs) xstart xlen)
 )
 
-(define-ifield
-	(name f-r1)
-	(comment "f-reg1")
-	(attrs)
-	(word-offset 0)
-	(word-length 8)
-	(start 0)
-	(length 8)
-	(mode UINT)
-)
+(define-mapip-ifield f-op "f-opcode" 0 8)
 
-(define-ifield
-	(name f-r2)
-	(comment "f-reg2")
-	(attrs)
-	(word-offset 0)
-	(word-length 8)
-	(start 0)
-	(length 8)
-	(mode UINT)
-)
+(define-mapip-ifield f-r1 "f-reg1" 8 8)
+(dnop rd "destination register" () h-gpr f-r1)
 
-(define-ifield
-	(name f-imm)
-	(comment "f-imm")
-	(attrs)
-	(word-offset 0)
-	(word-length 32)
-	(start 0)
-	(length 32)
-	(mode UINT)
-)
+(define-mapip-ifield f-r2 "f-reg2" 16 8)
+(dnop rs "source register" () h-gpr f-r2)
 
-(define-ifield
-	(name f-aaddr)
-	(comment "absolute address")
-	(attrs ABS-ADDR)
-	(word-offset 0)
-	(word-length 32)
-	(start 0)
-	(length 32)
-	(mode UINT)
-)
+(define-mapip-ifield f-imm1 "f-imm after rd" 16 32)
+(dnop simm1 "signed immediate" () h-sint f-imm1)
 
-(define-ifield
-	(name f-raddr)
-	(comment "pc-relative address")
-	(attrs PCREL-ADDR)
-	(word-offset 0)
-	(word-length 32)
-	(start 0)
-	(length 32)
-	(mode UINT)
-)
+(define-mapip-ifield f-imm2 "f-imm after rs" 24 32)
+(dnop simm2 "signed immediate" () h-sint f-imm2)
 
+(define-mapip-ifield f-imm08 "f-imm after opcode" 8 8)
+(dnop imm08 "8-bit immediate" () h-sint f-imm08)
+
+(define-mapip-ifield f-aaddr1 "absolute address after rd" 16 32)
+(dnop aiaddr1 "absolute instruction address 1" (RELAX) h-iaddr f-aaddr1)
+(dnop adaddr1 "absolute data address 1" (RELAX) h-addr f-aaddr1)
+
+(define-mapip-ifield f-aaddr2 "absolute address after rs" 24 32)
+(dnop aiaddr2 "absolute instruction address 2" (RELAX) h-iaddr f-aaddr2)
+(dnop adaddr2 "absolute data address 2" (RELAX) h-addr f-aaddr2)
+
+(define-mapip-ifield-attr f-raddr1 "pc-relative address after rd" (attrs PCREL-ADDR) 16 32)
+(dnop riaddr1 "pc-relative instruction address 1" (RELAX) h-iaddr f-raddr1)
+
+(define-mapip-ifield-attr f-raddr2 "pc-relative address after rs" (attrs PCREL-ADDR) 24 32)
+(dnop riaddr2 "pc-relative instruction address 2" (RELAX) h-iaddr f-raddr2)
 
 ; Instruction operands
 
-(dnop rd "destination register" () h-gpr f-r1)
-(dnop rs "source register" () h-gpr f-r2)
-(dnop simm "signed immediate" () h-sint f-imm)
-(dnop aiaddr "absolute instruction address" (RELAX) h-iaddr f-aaddr)
-(dnop riaddr "pc-relative instruction address" (RELAX) h-iaddr f-raddr)
-(dnop adaddr "absolute data address" (RELAX) h-addr f-aaddr)
-
 (define-operand
-  (name imm)
-  (comment "hash signed immediate")
+  (name imm1)
+  (comment "hash signed immediate 1")
   (attrs)
   (type h-sint)
-  (index f-imm)
+  (index f-imm1)
+  (handlers (parse "mp2imm"))
+)
+
+(define-operand
+  (name imm2)
+  (comment "hash signed immediate 2")
+  (attrs)
+  (type h-sint)
+  (index f-imm2)
   (handlers (parse "mp2imm"))
 )
 
@@ -231,9 +215,9 @@
 		(define-insn
 			(name (.sym xname "i"))
 			(comment (.str xname "i"))
-			(syntax (.str xname " $rd,$imm"))
-			(format (+ (.sym OP_ (.upcase xname) I) rd imm))
-			(semantics (set rd (xrtx rd imm)))
+			(syntax (.str xname " $rd,$imm1"))
+			(format (+ (.sym OP_ (.upcase xname) I) rd imm1))
+			(semantics (set rd (xrtx rd imm1)))
 		)
 	)
 )
@@ -245,34 +229,28 @@
 			(name xname)
 			(comment (.str xname))
 			(attrs)
-			(syntax (.str "ld" xsuffix " $rd,[$rs,$adaddr]"))
-			(format (+ (.sym OP_ (.upcase xname)) rd rs adaddr))
-			(semantics (set rd (mem xmode (add rs adaddr))))
+			(syntax (.str "ld" xsuffix " $rd,[$rs,$adaddr2]"))
+			(format (+ (.sym OP_ (.upcase xname)) rd rs adaddr2))
+			(semantics (set rd (mem xmode (add rs adaddr2))))
 		)
 		(define-normal-macro-insn
 			(.sym xname "0") (.str xname "0") ()
 			(.str "ld" xsuffix " $rd,[$rs]")
-			(emit xname rd rs (adaddr 0))
+			(emit xname rd rs (adaddr2 0))
 		)
 		(define-normal-macro-insn
 			(.sym xname "i") (.str xname "i") ()
-			(.str "ld" xsuffix " $rd,[&$adaddr]")
-			(emit xname rd (rs 0) adaddr)
+			(.str "ld" xsuffix " $rd,[&$adaddr2]")
+			(emit xname rd (rs 0) adaddr2)
 		)
-;  unknown operand: (add adaddr simm)
-;		(define-normal-macro-insn
-;			(.sym xname "i2") (.str xname "i2") ()
-;			"ld $rd,[$adaddr+$simm]"
-;			(emit xname rd (rs 0) (add adaddr simm))
-;		)
 		; temporary instruction until I figure out how do deal with symbol+offset operands.
 		(define-insn
 			(name (.sym xname "i2"))
 			(comment (.str xname "i2"))
 			(attrs)
-			(syntax (.str "ld" xsuffix " $rd,[&$adaddr+$simm]"))
-			(format (+ (.sym OP_ (.upcase xname)) rd rs adaddr simm))
-			(semantics (set rd (mem xmode (add adaddr simm))))
+			(syntax (.str "ld" xsuffix " $rd,[&$adaddr2+$simm2]"))
+			(format (+ (.sym OP_ (.upcase xname)) rd rs adaddr2 simm2))
+			(semantics (set rd (mem xmode (add adaddr2 simm2))))
 		)
 	)
 )
@@ -284,28 +262,36 @@
 			(name xname)
 			(comment (.str xname))
 			(attrs)
-			(syntax (.str "ld" xsuffix " [$rd,$adaddr],$rs"))
-			(format (+ (.sym OP_ (.upcase xname)) rd rs adaddr))
-			(semantics (set (mem xmode (add rs adaddr)) rd))
+			(syntax (.str "ld" xsuffix " [$rd,$adaddr2],$rs"))
+			(format (+ (.sym OP_ (.upcase xname)) rd rs adaddr2))
+			(semantics (set (mem xmode (add rd adaddr2)) rs))
 		)
-		(define-normal-macro-insn
-			(.sym xname "0") (.str xname "0") ()
-			(.str "ld" xsuffix " [$rd],$rs")
-			(emit xname rd rs (adaddr 0))
-		)
-		(define-normal-macro-insn
-			(.sym xname "i") (.str xname "i") ()
-			(.str "ld" xsuffix " [&$adaddr],$rs")
-			(emit xname rd (rs 0) adaddr)
+;		(define-normal-macro-insn
+;			(.sym xname "0") (.str xname "0") ()
+;			(.str "ld" xsuffix " [$rd],$rs")
+;			(emit xname rd rs (adaddr2 0))
+;		)
+;		(define-normal-macro-insn
+;			(.sym xname "i") (.str xname "i") ()
+;			(.str "ld" xsuffix " [&$adaddr2],$rs")
+;			(emit xname (rd 0) rs adaddr2)
+;		)
+		(define-insn
+			(name (.sym xname "i"))
+			(comment (.str xname "i"))
+			(attrs)
+			(syntax (.str "ld" xsuffix " [&$adaddr2],$rs"))
+			(format (+ (.sym OP_ (.upcase xname)) (f-r1 96) rs adaddr2))
+			(semantics (set (mem xmode adaddr2) rs))
 		)
 		; temporary instruction until I figure out how do deal with symbol+offset operands.
 		(define-insn
 			(name (.sym xname "i2"))
 			(comment (.str xname "i2"))
 			(attrs)
-			(syntax (.str "ld" xsuffix " [&$adaddr+$simm],$rs"))
-			(format (+ (.sym OP_ (.upcase xname)) rd rs adaddr simm))
-			(semantics (set rd (mem xmode (add adaddr simm))))
+			(syntax (.str "ld" xsuffix " [&$adaddr2+$simm2],$rs"))
+			(format (+ (.sym OP_ (.upcase xname)) rd rs adaddr2 simm2))
+			(semantics (set (mem xmode (add adaddr2 simm2)) rs))
 		)
 	)
 )
@@ -322,17 +308,18 @@
 	(define-insn
 		(name (.sym jc "_" xcond))
 		(comment (.str jc "_" xcond))
-		(syntax (.str jc " " xcond ",$rd,$rs,[#$imm]"))
-		(format (+ (.sym OP_JC_ (.upcase xcond)) rd rs imm))
-		(semantics (if (xcond rd rs) (set pc imm)))
+		(syntax (.str jc " " xcond ",$rd,$rs,[#$imm2]"))
+		(format (+ (.sym OP_JC_ (.upcase xcond)) rd rs imm2))
+		(semantics (if (xcond rd rs) (set pc imm2)))
 	)
 	; with offset
+	; FIXME: very broken.
 	(define-insn
 		(name (.sym jc "_2" xcond))
 		(comment (.str jc "_2" xcond))
-		(syntax (.str jc " " xcond ",$rd,$rs,$simm,[#$imm]"))
-		(format (+ (.sym OP_JC_ (.upcase xcond)) rd rs aiaddr))
-		(semantics (if (xcond rd rs) (set pc simm)))
+		(syntax (.str jc " " xcond ",$rd,$rs,$simm2,[#$imm2]"))
+		(format (+ (.sym OP_JC_ (.upcase xcond)) rd rs aiaddr2))
+		(semantics (if (xcond rd rs) (set pc simm2)))
 	))
 )
 
@@ -365,21 +352,21 @@
 (define-insn
 	(name calli)
 	(comment "call immediate")
-	(syntax "call &${aiaddr}")
-	(format (+ OP_CALLI aiaddr))
+	(syntax "call &${aiaddr2}")
+	(format (+ OP_CALLI aiaddr2))
 	(semantics (sequence ()
 		; save return address
 		(set (reg ra) (add (reg pc) 4))
 		; jump
-		(set pc aiaddr)
+		(set pc aiaddr2)
 		))
 )
 
 (define-insn
 	(name syscall)
 	(comment "syscall")
-	(syntax "syscall $imm")
-	(format (+ OP_SYSCALL imm))
+	(syntax "syscall $imm08")
+	(format (+ OP_SYSCALL imm08))
 ;	(semantics )
 )
 
@@ -481,9 +468,9 @@
 	(name ldi)
 	(comment "ldi")
 	(attrs)
-	(syntax "ld $rd,$imm")
-	(format (+ OP_LDI rd imm))
-	(semantics (set rd imm))
+	(syntax "ld $rd,$imm1")
+	(format (+ OP_LDI rd imm1))
+	(semantics (set rd imm1))
 )
 
 (define-insn
@@ -499,7 +486,7 @@
 	(name jpi)
 	(comment "jpi")
 	(attrs)
-	(syntax "jp $imm")
-	(format (+ OP_JPI imm))
-	(semantics (set pc imm))
+	(syntax "jp $imm1")
+	(format (+ OP_JPI imm1))
+	(semantics (set pc imm1))
 )

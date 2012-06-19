@@ -108,7 +108,7 @@ void md_begin(void)
 	/* Set the machine number and endian.  */
 	gas_cgen_cpu_desc = mapip2_cgen_cpu_open (CGEN_CPU_OPEN_MACHS, 0,
 		CGEN_CPU_OPEN_ENDIAN,
-		CGEN_ENDIAN_BIG,
+		CGEN_ENDIAN_LITTLE,
 		CGEN_CPU_OPEN_END);
 	mapip2_cgen_init_asm (gas_cgen_cpu_desc);
 
@@ -181,18 +181,27 @@ md_cgen_lookup_reloc (const CGEN_INSN * insn ATTRIBUTE_UNUSED,
 {
 	switch (operand->type)
 	{
-	case MAPIP2_OPERAND_IMM:
-	case MAPIP2_OPERAND_AIADDR:
-	case MAPIP2_OPERAND_RIADDR:
-	case MAPIP2_OPERAND_ADADDR:
-	case MAPIP2_OPERAND_SIMM:
+	case MAPIP2_OPERAND_IMM1:
+	case MAPIP2_OPERAND_IMM2:
+	case MAPIP2_OPERAND_AIADDR1:
+	case MAPIP2_OPERAND_ADADDR1:
+	case MAPIP2_OPERAND_AIADDR2:
+	case MAPIP2_OPERAND_ADADDR2:
+	case MAPIP2_OPERAND_SIMM1:
+	case MAPIP2_OPERAND_SIMM2:
 		fixP->fx_pcrel = 0;
+		return BFD_RELOC_32;
+
+	case MAPIP2_OPERAND_RIADDR1:
+	case MAPIP2_OPERAND_RIADDR2:
+		fixP->fx_pcrel = 1;
 		return BFD_RELOC_32;
 
 	case MAPIP2_OPERAND_PC:
 	case MAPIP2_OPERAND_RD:
 	case MAPIP2_OPERAND_RS:
 	case MAPIP2_OPERAND_MAX:
+	case MAPIP2_OPERAND_IMM08:
 		return BFD_RELOC_NONE;
 	}
 	abort();

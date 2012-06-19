@@ -165,7 +165,7 @@ mapip2_info_to_howto_rela (bfd * abfd ATTRIBUTE_UNUSED,
 #define TARGET_LITTLE_NAME "elf32-mapip2"
 
 #define ELF_ARCH			bfd_arch_mapip2
-#define ELF_MACHINE_CODE		0//EM_MAPIP2
+#define ELF_MACHINE_CODE		EM_MAPIP2
 #define ELF_MAXPAGESIZE			0x1000
 
 #define elf_info_to_howto_rel		NULL
