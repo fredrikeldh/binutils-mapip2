@@ -13,7 +13,7 @@ class CgenTask < FileTask
 		sh "sed -e \"/ -- assembler routines/ r #{CONFIG_TARGET}-asm.in1\" cgen-asm.in"+
 			" | sed -e \"s/@ARCH@/#{CONFIG_TARGET.upcase}/g\" -e \"s/@arch@/#{CONFIG_TARGET}/g\""+
 			" -e \"s/@prefix@/#{CONFIG_TARGET}/\" > #{CONFIG_TARGET}-asm.c"
-		sh "sed -e \"/ -- assembler routines/ r #{CONFIG_TARGET}-dis.in1\" cgen-dis.in"+
+		sh "sed -e \"/ -- disassembler routines/ r #{CONFIG_TARGET}-dis.in1\" cgen-dis.in"+
 			" | sed -e \"s/@ARCH@/#{CONFIG_TARGET.upcase}/g\" -e \"s/@arch@/#{CONFIG_TARGET}/g\""+
 			" -e \"s/@prefix@/#{CONFIG_TARGET}/\" > #{CONFIG_TARGET}-dis.c"
 		sh "rm -f tmp-*"
@@ -45,10 +45,9 @@ work.instance_eval do
 			'opc.h',
 			'opc.c',
 			#'opinst.c',
-			'ibld.h',
 			'ibld.c',
 			'asm.c',
-			'asm.c',
+			'dis.c',
 		]
 		# constructing one task per target file ensures rebuilding
 		# if any of the files are missing or out-of-date.
@@ -71,10 +70,13 @@ work.instance_eval do
 		'cgen-dis.c',
 		'cgen-opc.c',
 		'disassemble.c',
+		'dis-init.c',
+		'dis-buf.c',
 	]
 	@EXTRA_SOURCETASKS = cgenTasks(self, CONFIG_TARGET)
 	@SPECIFIC_CFLAGS = {
 		"#{CONFIG_TARGET}-opc.c" => ' -Wno-old-style-definition',
+		'disassemble.c' => " -DARCH_#{CONFIG_TARGET}",
 	}
 	@NAME = 'opcodes'
 end

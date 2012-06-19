@@ -10,6 +10,7 @@ MAIN_DIRS = intl + [
 'bfd',
 'opcodes',
 'libiberty',
+'binutils',
 'gas',
 'ld',
 ]

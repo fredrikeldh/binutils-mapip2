@@ -68,7 +68,7 @@ static char *target = NULL;
 
 /* Forward declarations.  */
 
-static void display_file (char *);
+static void display_file (const char *);
 static void rprint_number (int, bfd_size_type);
 static void print_sizes (bfd * file);
 
@@ -376,7 +376,7 @@ display_archive (bfd *file)
 }
 
 static void
-display_file (char *filename)
+display_file (const char *filename)
 {
   bfd *file;
 

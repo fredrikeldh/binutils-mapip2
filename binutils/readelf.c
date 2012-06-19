@@ -154,7 +154,7 @@
 #include "safe-ctype.h"
 #include "filenames.h"
 
-char * program_name = "readelf";
+const char * program_name = "readelf";
 static long archive_file_offset;
 static unsigned long archive_file_size;
 static unsigned long dynamic_addr;
@@ -1807,7 +1807,7 @@ get_file_type (unsigned e_type)
     }
 }
 
-static char *
+static const char *
 get_machine_name (unsigned e_machine)
 {
   static char buff[64]; /* XXX */
@@ -4886,7 +4886,7 @@ process_section_headers (FILE * file)
   W (write), A (alloc), X (execute), M (merge), S (strings)\n\
   I (info), L (link order), G (group), T (TLS), E (exclude), x (unknown)\n\
   O (extra OS processing required) o (OS specific), p (processor specific)\n"));
-    }	
+    }
 
   return 1;
 }
@@ -5784,7 +5784,7 @@ ia64_process_unwind (FILE * file)
 
   while (unwcount-- > 0)
     {
-      char * suffix;
+      const char * suffix;
       size_t len, len2;
 
       for (i = unwstart, sec = section_headers + unwstart;
@@ -6425,8 +6425,8 @@ arm_section_get_word (struct arm_unw_aux_info *aux,
 }
 
 static const char *tic6x_unwind_regnames[16] = {
-    "A15", "B15", "B14", "B13", "B12", "B11", "B10", "B3", 
-    "A14", "A13", "A12", "A11", "A10", 
+    "A15", "B15", "B14", "B13", "B12", "B11", "B10", "B3",
+    "A14", "A13", "A12", "A11", "A10",
     "[invalid reg 13]", "[invalid reg 14]", "[invalid reg 15]"};
 
 static void
@@ -6885,7 +6885,7 @@ decode_arm_unwind (struct arm_unw_aux_info *aux,
     }
   else
     {
-      
+
       per_index = (word >> 24) & 0x7f;
       printf (_("  Compact model %d\n"), per_index);
       if (per_index == 0)
@@ -8456,7 +8456,7 @@ process_version_sections (FILE * file)
 			      if (get_data (&evn, file, offset, sizeof (evn), 1,
 					    _("version need")) == NULL)
 				break;
-			      
+
 			      ivn.vn_aux  = BYTE_GET (evn.vn_aux);
 			      ivn.vn_next = BYTE_GET (evn.vn_next);
 
@@ -10523,7 +10523,7 @@ free_debug_section (enum dwarf_section_display_enum debug)
 static int
 display_debug_section (Elf_Internal_Shdr * section, FILE * file)
 {
-  char * name = SECTION_NAME (section);
+  const char * name = SECTION_NAME (section);
   bfd_size_type length;
   int result = 1;
   int i;

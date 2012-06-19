@@ -53,6 +53,7 @@
 #define ARCH_m68hc12
 #define ARCH_m68k
 #define ARCH_m88k
+#define ARCH_mapip2
 #define ARCH_mcore
 #define ARCH_mep
 #define ARCH_microblaze
@@ -254,6 +255,11 @@ disassembler (bfd *abfd)
 #ifdef ARCH_m88k
     case bfd_arch_m88k:
       disassemble = print_insn_m88k;
+      break;
+#endif
+#ifdef ARCH_mapip2
+    case bfd_arch_mapip2:
+      disassemble = print_insn_mapip2;
       break;
 #endif
 #ifdef ARCH_mt

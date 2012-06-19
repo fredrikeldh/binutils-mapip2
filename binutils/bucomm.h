@@ -58,13 +58,13 @@ bfd_vma parse_vma (const char *, const char *);
 
 off_t get_file_size (const char *);
 
-extern char *program_name;
+extern const char *program_name;
 
 /* filemode.c */
 void mode_string (unsigned long, char *);
 
 /* version.c */
-extern void print_version (const char *);
+extern void print_version (const char *) __attribute__((noreturn));
 
 /* rename.c */
 extern void set_times (const char *, const struct stat *);

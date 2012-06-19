@@ -441,7 +441,7 @@ static struct option copy_options[] =
 };
 
 /* IMPORTS */
-extern char *program_name;
+extern const char *program_name;
 
 /* This flag distinguishes between strip and objcopy:
    1 means this is 'strip'; 0 means this is 'objcopy'.
@@ -3112,7 +3112,7 @@ set_pe_subsystem (const char *s)
     }
   v[] =
     {
-      { "native", 0, IMAGE_SUBSYSTEM_NATIVE },  
+      { "native", 0, IMAGE_SUBSYSTEM_NATIVE },
       { "windows", 0, IMAGE_SUBSYSTEM_WINDOWS_GUI },
       { "console", 0, IMAGE_SUBSYSTEM_WINDOWS_CUI },
       { "posix", 0, IMAGE_SUBSYSTEM_POSIX_CUI },
@@ -3439,7 +3439,7 @@ copy_main (int argc, char *argv[])
 	    const char *s;
 	    int len;
 	    char *name;
-	    char *option = NULL;
+	    const char *option = NULL;
 	    bfd_vma val;
 	    enum change_action what = CHANGE_IGNORE;
 
@@ -3776,7 +3776,7 @@ copy_main (int argc, char *argv[])
 	case OPTION_FILE_ALIGNMENT:
 	  pe_file_alignment = parse_vma (optarg, "--file-alignment");
 	  break;
-	
+
 	case OPTION_HEAP:
 	    {
 	      char *end;
@@ -3794,20 +3794,20 @@ copy_main (int argc, char *argv[])
 		}
 	    }
 	  break;
-	
+
 	case OPTION_IMAGE_BASE:
 	  pe_image_base = parse_vma (optarg, "--image-base");
 	  break;
-	
+
 	case OPTION_SECTION_ALIGNMENT:
 	  pe_section_alignment = parse_vma (optarg,
 					    "--section-alignment");
 	  break;
-	
+
 	case OPTION_SUBSYSTEM:
 	  set_pe_subsystem (optarg);
 	  break;
-	
+
 	case OPTION_STACK:
 	    {
 	      char *end;
@@ -3825,7 +3825,7 @@ copy_main (int argc, char *argv[])
 		}
 	    }
 	  break;
-	
+
 	case 0:
 	  /* We've been given a long option.  */
 	  break;

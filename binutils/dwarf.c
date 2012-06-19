@@ -569,7 +569,7 @@ process_abbrev_section (unsigned char *start, unsigned char *end)
   return NULL;
 }
 
-static char *
+static const char *
 get_TAG_name (unsigned long tag)
 {
   switch (tag)
@@ -658,7 +658,7 @@ get_TAG_name (unsigned long tag)
     }
 }
 
-static char *
+static const char *
 get_FORM_name (unsigned long form)
 {
   switch (form)
@@ -1801,7 +1801,7 @@ read_and_display_attr_value (unsigned long attribute,
   return data;
 }
 
-static char *
+static const char *
 get_AT_name (unsigned long attribute)
 {
   switch (attribute)
@@ -3761,7 +3761,7 @@ display_debug_macro (struct dwarf_section *section,
 	}
 
       printf ("\n");
-    }	
+    }
 
   return 1;
 }
@@ -4440,7 +4440,7 @@ typedef struct Frame_Chunk
   /* DW_CFA_{undefined,same_value,offset,register,unreferenced}  */
   short int *col_type;
   int *col_offset;
-  char *augmentation;
+  const char *augmentation;
   unsigned int code_factor;
   int data_factor;
   unsigned long pc_begin;

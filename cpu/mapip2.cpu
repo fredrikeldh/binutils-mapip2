@@ -26,8 +26,8 @@
 
 (define-arch
 	(name mapip)
-	(comment "Mapip")
-	(insn-lsb0? #t)
+	(comment "Mapip2")
+	(insn-lsb0? #f)
 	(machs mapip)
 	(isas mapip32)
 )
@@ -75,9 +75,9 @@
 ; Generic machine
 (define-mach
 	(name mapip)
-	(comment "Generic Mapip cpu")
+	(comment "Generic Mapip2 cpu")
 	(cpu mapipbf)
-	(bfd-name "mapip")
+	(bfd-name "mapip2")
 )
 
 

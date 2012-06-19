@@ -45,7 +45,7 @@ work.instance_eval do
 		'index.c',
 		'rindex.c',
 		'insque.c',
-		'make-temp-file.c',
+		#'make-temp-file.c',
 		'strtod.c',
 		'strtol.c',
 		'strtoul.c',

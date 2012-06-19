@@ -680,7 +680,7 @@ parse_stab_string (void *dhandle, struct stab_handle *info, int stabtype,
 		   int desc ATTRIBUTE_UNUSED, bfd_vma value, const char *string)
 {
   const char *p;
-  char *name;
+  const char *name;
   int type;
   debug_type dtype;
   bfd_boolean synonym;
