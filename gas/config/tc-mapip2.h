@@ -9,7 +9,7 @@
 extern unsigned long mapip2_machine;
 #define TARGET_MACH (mapip2_machine)
 
-#define TARGET_FORMAT		"elf32-mapip2"
+#define TARGET_FORMAT "elf32-mapip2"
 #define TARGET_BYTES_BIG_ENDIAN	0
 
 extern const char mapip2_comment_chars [];
@@ -26,12 +26,12 @@ extern const char mapip2_comment_chars [];
 /* Values passed to md_apply_fix don't include the symbol value.  */
 #define MD_APPLY_SYM_VALUE(FIX) 0
 
-#define md_apply_fix gas_cgen_md_apply_fix
+#define md_apply_fix mapip2_md_apply_fix
 
 extern bfd_boolean mapip2_fix_adjustable (struct fix *);
 #define tc_fix_adjustable(FIX) mapip2_fix_adjustable (FIX)
 
-#define tc_gen_reloc gas_cgen_tc_gen_reloc
+#define tc_gen_reloc mapip2_tc_gen_reloc
 
 /* Call md_pcrel_from_section(), not md_pcrel_from().  */
 extern long md_pcrel_from_section (struct fix *, segT);

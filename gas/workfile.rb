@@ -17,8 +17,9 @@ work.instance_eval do
 	@IGNORED_FILES = [
 		'debug.c',
 		'itbl-ops.c',
+		'cgen.c',
 	]
-	@EXTRA_CFLAGS << ' -DHAVE_CONFIG_H=1 -DLOCALEDIR -DUSING_CGEN=1'
+	@EXTRA_CFLAGS << ' -DHAVE_CONFIG_H=1 -DLOCALEDIR'
 	@SPECIFIC_CFLAGS = {
 		'cgen.c' => ' -Wno-old-style-definition',
 		#'itbl-ops.c' => ' -Wno-nested-externs',

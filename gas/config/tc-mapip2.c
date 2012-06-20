@@ -2,28 +2,65 @@
 #include "struc-symbol.h"
 #include "safe-ctype.h"
 #include "subsegs.h"
-#include "opcodes/mapip2-desc.h"
-#include "opcodes/mapip2-opc.h"
-#include "cgen.h"
+//#include "opcodes/mapip2-desc.h"
+#include "opcodes/mapip2-gen-opcodes.h"
 
-typedef struct mapip2_insn
-{
-  const CGEN_INSN *	insn;
-  const CGEN_INSN *	orig_insn;
-  CGEN_FIELDS		fields;
-#if CGEN_INT_INSN_P
-  CGEN_INSN_INT         buffer [1];
-#define INSN_VALUE(buf) (*(buf))
-#else
-  unsigned char         buffer [CGEN_MAX_INSN_SIZE];
-#define INSN_VALUE(buf) (buf)
-#endif
-  char *		addr;
-  fragS *		frag;
-  int                   num_fixups;
-  fixS *                fixups [GAS_CGEN_MAX_FIXUPS];
-  int                   indices [MAX_OPERAND_INSTANCES];
+//******************************************************************************
+// operands and opcodes
+//******************************************************************************
+
+typedef enum mapip2_operand {
+	RD,	// register, destination
+	RS,	// register, source
+	IMM,	// immediate
+	IMM8,	// 8-bit immediate
+	ADADDR,	// absolute data address
+	AIADDR,	// absolute instruction address
+	RIADDR,	// relative instruction address
+	END,
+} mapip2_operand;
+
+#define MAX_SYNTAX_ELEMENTS 4
+
+typedef struct mapip2_insn {
+	int opcode;
+	const char* mnemonic;
+	mapip2_operand operands[MAX_SYNTAX_ELEMENTS];
 } mapip2_insn;
+
+typedef struct mapip2_parse_node {
+	mapip2_operand operand;
+	const struct mapip2_parse_node* children;
+	int nc_op;	// number of children if children != NULL, opcode otherwise.
+} mapip2_parse_node;
+
+typedef struct mapip2_mnemonic {
+	const char* mnemonic;
+	const mapip2_parse_node* children;
+	int nc_op;	// number of children if children != NULL, opcode otherwise.
+} mapip2_mnemonic;
+
+#if 0	// sketch
+static const mapip2_parse_node add_rd_[] = {
+	{ RS, NULL, OP_ADD },
+	{ IMM, NULL, OP_ADDI },
+};
+
+static const mapip2_parse_node add_[] = {
+	{ RD, add_rd_, ARRAYSIZE(add_rd_) },
+};
+
+static const mapip2_mnemonic add = {
+	"add", add_, ARRAYSIZE(add_)
+};
+
+static const mapip2_mnemonic ret = {
+	"ret", NULL, OP_RET
+};
+#endif
+
+#define _MAPIP2_DESC_H
+#include "../opcodes/mapip2-gen-desc.h"
 
 //******************************************************************************
 // special characters
@@ -103,17 +140,6 @@ void md_show_usage(FILE* stream)
 
 void md_begin(void)
 {
-	/* Initialize the `cgen' interface.  */
-
-	/* Set the machine number and endian.  */
-	gas_cgen_cpu_desc = mapip2_cgen_cpu_open (CGEN_CPU_OPEN_MACHS, 0,
-		CGEN_CPU_OPEN_ENDIAN,
-		CGEN_ENDIAN_LITTLE,
-		CGEN_CPU_OPEN_END);
-	mapip2_cgen_init_asm (gas_cgen_cpu_desc);
-
-	/* This is a callback from cgen to gas to parse operands.  */
-	cgen_set_parse_operand_fn (gas_cgen_cpu_desc, gas_cgen_parse_operand);
 }
 
 void md_number_to_chars(char* buf, valueT val, int n)
@@ -147,29 +173,47 @@ char* md_atof(int type, char* litP, int* sizeP)
 	return ieee_md_atof(type, litP, sizeP, TRUE);
 }
 
-void md_assemble (char * str)
+// returns zero on failure, non-zero on success.
+static int try_assemble(const char* str, const mapip2_parse_node* children, int nc_op)
 {
-	mapip2_insn insn;
-	char* errmsg;
-
-	/* Initialize GAS's cgen interface for a new instruction.  */
-	gas_cgen_init_parse();
-
-	insn.insn = mapip2_cgen_assemble_insn(
-		gas_cgen_cpu_desc, str, &insn.fields, insn.buffer, &errmsg);
-
-	if (!insn.insn)
-	{
-		as_bad("%s", errmsg);
-		return;
-	}
-
-	/* Doesn't really matter what we pass for RELAX_P here.  */
-	gas_cgen_finish_insn (insn.insn, insn.buffer,
-		CGEN_FIELDS_BITSIZE(& insn.fields), 1, NULL);
+	return 0;
 }
 
+/* Hard to tell what this is supposed to do.
+* I'm guessing one can use frag_more() to get a pointer to the output buffer, then write to it.
+* Presumably it will be flushed when this function returns.
+*/
+void md_assemble(char* str)
+{
+	fprintf(stderr, "md_assemble(%s)\n", str);
+	//char buf[16];	// more than enough to contain any mapip2 instruction.
+	for(size_t i=0; i<ARRAY_SIZE(mapip2_mnemonics); i++) {
+		const mapip2_mnemonic* m = &mapip2_mnemonics[i];
+		int mLen = strlen(m->mnemonic);
+		// we rely on the rest of the assembler to make sure there are no linebreaks in str.
+		if(strncmp(str, m->mnemonic, mLen) == 0 && (ISSPACE(str[mLen]) || str[mLen] == 0)) {
+			int pos = mLen+1;
+			while(ISSPACE(str[pos]))
+				pos++;
+			if(!try_assemble(str + pos, m->children, m->nc_op)) {
+				as_bad (_("Illegal instruction form."));
+			}
+			return;
+		}
+	}
+	as_fatal (_("Unknown instruction."));
+}
 
+void mapip2_md_apply_fix(fixS* f, valueT* v, segT s) {
+//#error impl
+}
+
+arelent* mapip2_tc_gen_reloc(asection* a, fixS* f) {
+//#error impl
+	return NULL;	// no relocs yet; no instructions either, so that works out. :)
+}
+
+#if 0
 /* Return the bfd reloc type for OPERAND of INSN at fixup FIXP.
    Returns BFD_RELOC_NONE if no reloc type can be found.
    *FIXP may be modified if desired.  */
@@ -181,31 +225,26 @@ md_cgen_lookup_reloc (const CGEN_INSN * insn ATTRIBUTE_UNUSED,
 {
 	switch (operand->type)
 	{
-	case MAPIP2_OPERAND_IMM1:
-	case MAPIP2_OPERAND_IMM2:
-	case MAPIP2_OPERAND_AIADDR1:
-	case MAPIP2_OPERAND_ADADDR1:
-	case MAPIP2_OPERAND_AIADDR2:
-	case MAPIP2_OPERAND_ADADDR2:
-	case MAPIP2_OPERAND_SIMM1:
-	case MAPIP2_OPERAND_SIMM2:
+	case MAPIP2_OPERAND_IMM:
+	case MAPIP2_OPERAND_AIADDR:
+	case MAPIP2_OPERAND_ADADDR:
+	case MAPIP2_OPERAND_SIMM:
 		fixP->fx_pcrel = 0;
 		return BFD_RELOC_32;
 
-	case MAPIP2_OPERAND_RIADDR1:
-	case MAPIP2_OPERAND_RIADDR2:
+	case MAPIP2_OPERAND_RIADDR:
 		fixP->fx_pcrel = 1;
 		return BFD_RELOC_32;
 
 	case MAPIP2_OPERAND_PC:
 	case MAPIP2_OPERAND_RD:
 	case MAPIP2_OPERAND_RS:
-	case MAPIP2_OPERAND_MAX:
 	case MAPIP2_OPERAND_IMM08:
 		return BFD_RELOC_NONE;
 	}
 	abort();
 }
+#endif
 
 /* *fragP has been relaxed to its final size, and now needs to have
    the bytes inside it modified to conform to the new size.
@@ -301,7 +340,7 @@ md_estimate_size_before_relax (fragS * fragP, segT segment)
 			all further handling to md_convert_frag.  */
 		fragP->fr_subtype = 2;
 
-		{
+#if 0//		{
 			const CGEN_INSN * insn;
 			int i;
 
@@ -322,7 +361,7 @@ md_estimate_size_before_relax (fragS * fragP, segT segment)
 
 			fragP->fr_cgen.insn = insn;
 			return 2;
-		}
+#endif//		}
 	}
 
 	return md_relax_table[fragP->fr_subtype].rlx_length;
