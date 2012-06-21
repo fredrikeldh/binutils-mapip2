@@ -4,6 +4,7 @@
 #include "subsegs.h"
 //#include "opcodes/mapip2-desc.h"
 #include "opcodes/mapip2-gen-opcodes.h"
+#include <errno.h>
 
 //******************************************************************************
 // operands and opcodes
@@ -173,10 +174,159 @@ char* md_atof(int type, char* litP, int* sizeP)
 	return ieee_md_atof(type, litP, sizeP, TRUE);
 }
 
+/***********************************************************************/
+/* md_assemble and friends */
+/***********************************************************************/
+
+static int isOperandEnd(char c) {
+	return c == 0 || c == ',';
+}
+
+typedef struct mapip2_data {
+	char* buf;
+	// offset from start of instruction bytecode to any symbol reference,
+	// as expressed by a fixup.
+	// there is max one symbol ref per instruction.
+	int fixOffset;
+	char* str;
+	const mapip2_parse_node* children;
+	int nc_op;
+} mapip2_data;
+
 // returns zero on failure, non-zero on success.
-static int try_assemble(const char* str, const mapip2_parse_node* children, int nc_op)
-{
+typedef int (*parseFunc)(mapip2_data* data);
+
+static const mapip2_parse_node* findOperandNode(const mapip2_parse_node* children, int nc, mapip2_operand op) {
+	gas_assert(children);
+	gas_assert(nc > 0);
+	for(int i=0; i<nc; i++) {
+		if(children[i].operand == op)
+			return &children[i];
+	}
 	return 0;
+}
+
+static int parseImm(mapip2_data* data) {
+	const char* str = data->str;
+	int base = 10;
+	if(*str == '0') {	// octal or hex
+		str++;
+		base = 8;
+		if(*str == 'x') {	// hex
+			str++;
+			base = 16;
+		}
+	}
+	errno = 0;
+	char* endptr;
+	int i = strtol(str, &endptr, base);
+	if(errno != 0) {
+		fprintf(stderr, "Could not parse immediate: %s\n", strerror(errno));
+		return 0;
+	}
+	*(int*)(data->buf + data->fixOffset) = i;
+	return 1;
+}
+
+static int parseSymbol(mapip2_data* data) {
+	char* str = data->str;
+	const char* start = str;
+	// _ and alpha are valid start chars.
+	if(!(*str == '_' || ISALPHA(*str)))
+		return 0;
+	str++;
+	// , or NULL may end a symbol.
+	while(!isOperandEnd(*str)) {
+		// _ and alnum are valid chars.
+		if(!(*str == '_' || ISALNUM(*str)))
+			return 0;
+		str++;
+	}
+	if(*str == ',') {
+		// at this point, we need to be destructive.
+		*str = 0;
+		str++;
+	}
+	data->str = str;
+
+	// we need to set up a relocation entry.
+	fix_new(frag_now, frag_now_fix() + data->fixOffset, 4, symbol_find_or_make(start), 0, FALSE, BFD_RELOC_32);
+
+	return 1;
+}
+
+static int parseRegister(mapip2_data* data) {
+	char* str = data->str;
+	for(size_t i=0; i<ARRAY_SIZE(mapip2_register_names); i++) {
+		const char* n = mapip2_register_names[i];
+		if(strncmp(data->str, n, strlen(n)) == 0) {
+			str += strlen(n);
+			if(!isOperandEnd(*str))
+				return 0;
+			if(*str == ',')
+				str++;
+			data->str = str;
+
+			*data->buf = (char)i;
+			return 1;
+		}
+	}
+	return 0;
+}
+
+// We support many varieties:
+// [reg], [imm], [reg,imm]
+// where imm is one of:
+// &sym, &sym+constant, constant
+// They all result in reg + immediate.
+static int parseAddr(mapip2_data* data) {
+}
+
+// attempts to parse an instruction's operands.
+// store the result in buf.
+// returns zero on failure, non-zero on success.
+static int try_assemble(mapip2_data* data)
+{
+	char* buf = data->buf;
+	char* str = data->str;
+	const mapip2_parse_node* children = data->children;
+	int nc_op = data->nc_op;
+	// if there are no children left, we must be at the end of the instruction.
+	if(!children) {
+		if(*str == 0) {
+			buf[0] = nc_op;
+			return 1;
+		}
+		fprintf(stderr, "Too many operands: %s\n", str);
+		return 0;
+	}
+	// otherwise, find a node to match the present operand.
+	const mapip2_parse_node* node;
+	parseFunc func;
+	if(*str == '#') {	// immediate (0x hex, 0 octal, or decimal)
+		node = findOperandNode(children, nc_op, IMM);
+		func = parseImm;
+	} else if(*str == '[') {	// data address
+		node = findOperandNode(children, nc_op, ADADDR);
+		func = parseAddr;
+	} else if(*str == '&') {	// symbol (can be imm or instruction address)
+		func = parseSymbol;
+		node = findOperandNode(children, nc_op, AIADDR);
+		if(!node)
+			node = findOperandNode(children, nc_op, IMM);
+	} else if(parseRegister(data)) {
+		return 1;
+	} else {
+		fprintf(stderr, "Invalid operand: %s\n", str);
+		return 0;
+	}
+	if(!node) {
+		fprintf(stderr, "Disallowed operand for this mnemonic: %s\n", str);
+		return 0;
+	}
+	// and continue parsing.
+	data->str++;
+	return func(data);
 }
 
 /* Hard to tell what this is supposed to do.
@@ -186,7 +336,7 @@ static int try_assemble(const char* str, const mapip2_parse_node* children, int 
 void md_assemble(char* str)
 {
 	fprintf(stderr, "md_assemble(%s)\n", str);
-	//char buf[16];	// more than enough to contain any mapip2 instruction.
+	char buf[16];	// more than enough to contain any mapip2 instruction.
 	for(size_t i=0; i<ARRAY_SIZE(mapip2_mnemonics); i++) {
 		const mapip2_mnemonic* m = &mapip2_mnemonics[i];
 		int mLen = strlen(m->mnemonic);
@@ -195,7 +345,7 @@ void md_assemble(char* str)
 			int pos = mLen+1;
 			while(ISSPACE(str[pos]))
 				pos++;
-			if(!try_assemble(str + pos, m->children, m->nc_op)) {
+			if(!try_assemble(buf, str + pos, m->children, m->nc_op)) {
 				as_bad (_("Illegal instruction form."));
 			}
 			return;
