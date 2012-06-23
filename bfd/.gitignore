@@ -1,7 +1,7 @@
 /bfd-in3.h
-/bfd.h
-/bfd_stdint.h
-/bfdver.h
+#/bfd.h
+#/bfd_stdint.h
+#/bfdver.h
 /elf32-ia64.c
 /elf32-target.h
 /elf64-ia64.c
@@ -12,7 +12,7 @@
 /pepigen.c
 /pex64igen.c
 /stmp-bfd-h
-/targmatch.h
+#/targmatch.h
 
 /doc/aoutx.texi
 /doc/archive.texi

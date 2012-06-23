@@ -33,6 +33,7 @@ work.instance_eval do
 		'dis-init.c',
 		'dis-buf.c',
 		"#{CONFIG_TARGET}-dis.c",
+		"#{CONFIG_TARGET}-desc.c",
 	]
 	#@EXTRA_SOURCETASKS = cgenTasks(self, CONFIG_TARGET)
 	@SPECIFIC_CFLAGS = {

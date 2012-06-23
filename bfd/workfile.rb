@@ -25,6 +25,7 @@ work.instance_eval do
 		"#{CONFIG_TARGET}.c",
 		"cpu-#{CONFIG_TARGET}.c",
 		'archive.c',
+		'archive64.c',
 		'archures.c',
 		'bfd.c',
 		'bfdio.c',
@@ -72,6 +73,8 @@ work.instance_eval do
 		'targets.c' => " \"-DSELECT_VECS=&#{CONFIG_TARGET}_vec\" -DHAVE_#{CONFIG_TARGET}_vec",
 		'dwarf2.c' => ' -DDEBUGDIR=\"./debug\"',
 		'bfd.c' => ' -Wno-missing-format-attribute',
+		'archive.c' => ' -Wno-nested-externs',
+		'plugin.c' => ' -Wno-missing-format-attribute -DBINDIR=\"\" -Wno-vla',
 	}
 	@NAME = 'bfd'
 end

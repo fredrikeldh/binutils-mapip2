@@ -45,9 +45,9 @@ extern int errno;
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
-#ifdef HAVE_SYS_WAIT_H
+//#ifdef HAVE_SYS_WAIT_H
 #include <sys/wait.h>
-#endif
+//#endif
 #ifdef HAVE_GETRUSAGE
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -76,7 +76,7 @@ __attribute__ ((mode (SI)));
 typedef __char_ptr32 *__char_ptr_char_ptr32
 __attribute__ ((mode (SI)));
 
-/* Return a 32 bit pointer to an array of 32 bit pointers 
+/* Return a 32 bit pointer to an array of 32 bit pointers
    given a 64 bit pointer to an array of 64 bit pointers.  */
 
 static __char_ptr_char_ptr32

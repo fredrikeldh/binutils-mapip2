@@ -176,8 +176,8 @@ static int print_radix = 16;
 static char other_format[] = "%02x";
 static char desc_format[] = "%04x";
 
-static char *target = NULL;
-static char *plugin_target = NULL;
+static const char *target = NULL;
+static const char *plugin_target = NULL;
 
 /* Used to cache the line numbers for a BFD.  */
 static bfd *lineno_cache_bfd;

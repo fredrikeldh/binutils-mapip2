@@ -28,6 +28,7 @@ class BBEW < BinutilsExeWork
 		]
 		@LIBRARIES = [
 			'z',
+			'dl',
 		]
 		if(HOST == :win32)
 			@LIBRARIES << 'intl'
