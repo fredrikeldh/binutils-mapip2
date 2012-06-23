@@ -142,18 +142,18 @@ typedef struct mapip2_data {
 // returns zero on failure, non-zero on success.
 typedef int (*parseFunc)(mapip2_data* data);
 
-#define DEBUG_LEVEL 2
+#define DEBUG_LEVEL 1
 
 // operand parse assert
 #define OP_ASSERT(c) if(*data->str != (c)) { fprintf(stderr, "Expected %c at %s on line %i\n", c, data->str, __LINE__);\
 	as_bad (_("Illegal operand form.")); return 0; }
 
-#define DUMP if(DEBUG_LEVEL > 2) fprintf(stderr, "%s(%s)\n", __FUNCTION__, data->str)
+#define DUMP if(DEBUG_LEVEL >= 3) fprintf(stderr, "%s(%s)\n", __FUNCTION__, data->str)
 
 #define INSN_LEN(a) if(data->length < (a)) data->length = a
 
 static void setConstant(mapip2_data* data, int c) {
-	gas_assert(data->fixOffset >= 2);
+	gas_assert(data->fixOffset >= 1);
 	*(int*)&data->buf[data->fixOffset] = c;
 	INSN_LEN(data->fixOffset + 4);
 }
@@ -175,7 +175,7 @@ static const mapip2_parse_node* findOperandNode(const mapip2_parse_node* childre
 
 static int parseConstant(mapip2_data* data) {
 	DUMP;
-	if(!ISDIGIT(*data->str))
+	if(!ISDIGIT(*data->str) && *data->str != '-')
 		return 0;
 	char* str = data->str;
 	int base = 10;
@@ -246,20 +246,25 @@ static int parseImm(mapip2_data* data) {
 	return parseConstant(data);
 }
 
+static int parseImmAllowRawSymbol(mapip2_data* data) {
+	int res = parseImm(data);
+	if(res)
+		return res;
+	return parseSymbol(data);
+}
+
 static int parseRegister(mapip2_data* data) {
 	DUMP;
 	char* str = data->str;
+	// find end of operand
+	while(!isOperandEnd(*str))
+		str++;
+	int len = str - data->str;
 	for(size_t i=0; i<mapip2_register_name_count; i++) {
 		const char* n = mapip2_register_names[i];
-		//fprintf(stderr, "test(%zi, %s)\n", strlen(n), n);
-		if(strncmp(data->str, n, strlen(n)) == 0) {
-			str += strlen(n);
-			if(!isOperandEnd(*str)) {
-				fprintf(stderr, "!isOperandEnd(%s)\n", str);
-				return 0;
-			}
+		//fprintf(stderr, "test(%zi, %s)\n", len, n);
+		if(strncmp(data->str, n, len) == 0) {
 			data->str = str;
-
 			setRegister(data, (char)i);
 			return 1;
 		}
@@ -268,7 +273,7 @@ static int parseRegister(mapip2_data* data) {
 }
 
 // We support many varieties:
-// [reg], [imm], [reg,imm]
+// [reg], [imm], [reg,imm], [reg,sym] (without &)
 // where imm is one of:
 // &sym, &sym+constant, constant
 // They all result in reg + immediate.
@@ -289,7 +294,7 @@ static int parseAddr(mapip2_data* data) {
 	}
 	OP_ASSERT(',');
 	data->str++;
-	if(!parseImm(data))
+	if(!parseImmAllowRawSymbol(data))
 		return 0;
 	OP_ASSERT(']');
 	data->str++;
@@ -337,13 +342,16 @@ static int try_assemble(mapip2_data* data)
 		func = parseSymbol;
 		node = findOperandNode(children, nc_op, AIADDR);
 		if(!node)
+			node = findOperandNode(children, nc_op, RIADDR);
+		if(!node)
 			node = findOperandNode(children, nc_op, IMM);
 	} else if(ISDIGIT(*str)) {	// syscall number
+		data->str--;
 		func = parseConstant;
 		node = findOperandNode(children, nc_op, IMM8);
 	} else if(parseRegister(data)) {	// register
 		func = NULL;
-		if(DEBUG_LEVEL > 2)
+		if(DEBUG_LEVEL >= 3)
 			fprintf(stderr, "Found register. matching operand %i(%s)\n",
 				data->regOffset, data->regOffset == 2 ? "RD" : "RS");
 		node = findOperandNode(children, nc_op, data->regOffset == 2 ? RD : RS);
@@ -376,7 +384,7 @@ static int try_assemble(mapip2_data* data)
 */
 void md_assemble(char* str)
 {
-	if(DEBUG_LEVEL > 1)
+	if(DEBUG_LEVEL >= 2)
 		fprintf(stderr, "md_assemble(%s)\n", str);
 	char buf[16];	// more than enough to contain any mapip2 instruction.
 	for(size_t i=0; i<mapip2_mnemonic_count; i++) {
@@ -389,9 +397,11 @@ void md_assemble(char* str)
 				pos++;
 			mapip2_data data = { buf, 0, 0, 1, str + pos, m->children, m->nc_op, 1 };
 			if(!try_assemble(&data)) {
+				fprintf(stderr, "insn: %s\n", str);
+				fprintf(stderr, "error: %s\n", data.str);
 				as_fatal (_("Illegal instruction form."));
 			}
-			if(DEBUG_LEVEL > 1)
+			if(DEBUG_LEVEL >= 2)
 				fprintf(stderr, "length: %i\n", data.length);
 			gas_assert(*data.str == 0);
 			gas_assert(data.length > 0);

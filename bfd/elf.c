@@ -3267,7 +3267,7 @@ elf_map_symbols (bfd *abfd)
   asection *asect;
   asymbol **new_syms;
 
-#ifdef DEBUG
+#if 0//def DEBUG
   fprintf (stderr, "elf_map_symbols\n");
   fflush (stderr);
 #endif
