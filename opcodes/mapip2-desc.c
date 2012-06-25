@@ -25,6 +25,8 @@ static const mapip2_mnemonic ret = {
 #define _MAPIP2_DESC_H
 #include "mapip2-gen-desc.h"
 
+const size_t mapip2_insn_count = ARRAY_SIZE(mapip2_insns);
+
 const size_t mapip2_mnemonic_count = ARRAY_SIZE(mapip2_mnemonics);
 
 const size_t mapip2_register_name_count = ARRAY_SIZE(mapip2_register_names);

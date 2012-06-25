@@ -122,7 +122,7 @@ char* md_atof(int type, char* litP, int* sizeP)
 /***********************************************************************/
 
 static int isOperandEnd(char c) {
-	return c == 0 || c == ',' || c == ']';
+	return c == 0 || c == ',' || c == ']' || c == '+';
 }
 
 typedef struct mapip2_data {
@@ -137,6 +137,8 @@ typedef struct mapip2_data {
 	const mapip2_parse_node* children;
 	int nc_op;
 	int level;
+	const char* symbol;
+	char* symbolEnd;
 } mapip2_data;
 
 // returns zero on failure, non-zero on success.
@@ -158,6 +160,13 @@ static void setConstant(mapip2_data* data, int c) {
 	INSN_LEN(data->fixOffset + 4);
 }
 
+static void setConstant8(mapip2_data* data, int c) {
+	gas_assert(data->fixOffset >= 1);
+	gas_assert(c >= 0 && c < 0xff);
+	data->buf[data->fixOffset] = c;
+	INSN_LEN(data->fixOffset + 1);
+}
+
 static void setRegister(mapip2_data* data, char c) {
 	data->buf[data->regOffset++] = c;
 	INSN_LEN(data->regOffset);
@@ -173,7 +182,7 @@ static const mapip2_parse_node* findOperandNode(const mapip2_parse_node* childre
 	return 0;
 }
 
-static int parseConstant(mapip2_data* data) {
+static int parseConstantBase(mapip2_data* data, int* res) {
 	DUMP;
 	if(!ISDIGIT(*data->str) && *data->str != '-')
 		return 0;
@@ -189,13 +198,28 @@ static int parseConstant(mapip2_data* data) {
 	}
 	errno = 0;
 	char* endptr;
-	int i = strtol(str, &endptr, base);
+	*res = strtol(str, &endptr, base);
 	if(errno != 0) {
 		fprintf(stderr, "Could not parse immediate: %s\n", strerror(errno));
 		return 0;
 	}
-	setConstant(data, i);
 	data->str = endptr;
+	return 1;
+}
+
+static int parseConstant(mapip2_data* data) {
+	int i;
+	if(!parseConstantBase(data, &i))
+		return 0;
+	setConstant(data, i);
+	return 1;
+}
+
+static int parseConstant8(mapip2_data* data) {
+	int i;
+	if(!parseConstantBase(data, &i))
+		return 0;
+	setConstant8(data, i);
 	return 1;
 }
 
@@ -209,21 +233,18 @@ static int parseSymbol(mapip2_data* data) {
 	str++;
 	// , or NULL may end a symbol.
 	while(!isOperandEnd(*str)) {
-		// _ and alnum are valid chars.
-		if(!(*str == '_' || ISALNUM(*str)))
+		// _ . and alnum are valid chars.
+		if(!(*str == '_' || *str == '.' || ISALNUM(*str)))
 			return 0;
 		str++;
 	}
-	if(*str == ',') {
-		// at this point, we need to be destructive.
-		*str = 0;
-		str++;
-	}
+	// at this point, we need to be destructive.
 	data->str = str;
 
 	// we need to set up a relocation entry.
 	gas_assert(data->fixOffset >= 1);
-	fix_new(frag_now, frag_now_fix() + data->fixOffset, 4, symbol_find_or_make(start), 0, FALSE, BFD_RELOC_32);
+	data->symbol = start;
+	data->symbolEnd = str;
 	INSN_LEN(data->fixOffset + 4);
 
 	return 1;
@@ -241,6 +262,7 @@ static int parseImm(mapip2_data* data) {
 		if(*data->str == ']' || *data->str == 0)
 			return 1;
 		OP_ASSERT('+');
+		data->str++;
 	}
 	// constant
 	return parseConstant(data);
@@ -250,7 +272,11 @@ static int parseImmAllowRawSymbol(mapip2_data* data) {
 	int res = parseImm(data);
 	if(res)
 		return res;
-	return parseSymbol(data);
+	char c = *data->str;
+	if(c == 'L' || c == '_')	// a symbol must start with either L or _.
+		return parseSymbol(data);
+	else
+		return 0;
 }
 
 static int parseRegister(mapip2_data* data) {
@@ -339,7 +365,8 @@ static int try_assemble(mapip2_data* data)
 		data->fixOffset = 3;
 		func = parseAddr;
 	} else if(*str == '&') {	// symbol (can be imm or instruction address)
-		func = parseSymbol;
+		data->str--;
+		func = parseImm;
 		node = findOperandNode(children, nc_op, AIADDR);
 		if(!node)
 			node = findOperandNode(children, nc_op, RIADDR);
@@ -347,7 +374,7 @@ static int try_assemble(mapip2_data* data)
 			node = findOperandNode(children, nc_op, IMM);
 	} else if(ISDIGIT(*str)) {	// syscall number
 		data->str--;
-		func = parseConstant;
+		func = parseConstant8;
 		node = findOperandNode(children, nc_op, IMM8);
 	} else if(parseRegister(data)) {	// register
 		func = NULL;
@@ -392,10 +419,10 @@ void md_assemble(char* str)
 		int mLen = strlen(m->mnemonic);
 		// we rely on the rest of the assembler to make sure there are no linebreaks in str.
 		if(strncmp(str, m->mnemonic, mLen) == 0 && (ISSPACE(str[mLen]) || str[mLen] == 0)) {
-			int pos = mLen+1;
+			int pos = mLen;
 			while(ISSPACE(str[pos]))
 				pos++;
-			mapip2_data data = { buf, 0, 0, 1, str + pos, m->children, m->nc_op, 1 };
+			mapip2_data data = { buf, 0, 0, 1, str + pos, m->children, m->nc_op, 1, NULL, NULL };
 			if(!try_assemble(&data)) {
 				fprintf(stderr, "insn: %s\n", str);
 				fprintf(stderr, "error: %s\n", data.str);
@@ -407,19 +434,65 @@ void md_assemble(char* str)
 			gas_assert(data.length > 0);
 			char* fm = frag_more(data.length);
 			memcpy(fm, buf, data.length);
+			// fix_new must not be called before frag_more, lest we write outside the frag.
+			if(data.symbol) {
+				// number to be added to the symbol value.
+				int addition = *(int*)(buf + data.length - 4);
+				*data.symbolEnd = 0;
+				fix_new(frag_now, frag_now_fix() - 4, 4, symbol_find_or_make(data.symbol),
+					addition, FALSE, BFD_RELOC_32);
+			}
 			return;
 		}
 	}
 	as_fatal (_("Unknown instruction."));
 }
 
-void mapip2_md_apply_fix(fixS* f, valueT* v, segT s) {
-//#error impl
+void mapip2_md_apply_fix(fixS* fixp, valueT* v, segT s) {
+#if 0	// doesn't seem to be needed.
+	as_bad_where (fixp->fx_file, fixp->fx_line,
+		_("mapip2_md_apply_fix"));
+#endif
 }
 
-arelent* mapip2_tc_gen_reloc(asection* a, fixS* f) {
-//#error impl
-	return NULL;	// no relocs yet; no instructions either, so that works out. :)
+arelent* mapip2_tc_gen_reloc(asection* a, fixS* fixp) {
+	arelent *rel;
+	bfd_reloc_code_real_type r_type;
+
+	if (fixp->fx_addsy && fixp->fx_subsy)
+	{
+		if ((S_GET_SEGMENT (fixp->fx_addsy) != S_GET_SEGMENT (fixp->fx_subsy))
+			|| S_GET_SEGMENT (fixp->fx_addsy) == undefined_section)
+		{
+			as_bad_where (fixp->fx_file, fixp->fx_line,
+				_("Difference of symbols in different sections is not supported"));
+			return NULL;
+		}
+	}
+
+	rel = xmalloc (sizeof (arelent));
+	rel->sym_ptr_ptr = xmalloc (sizeof (asymbol *));
+	*rel->sym_ptr_ptr = symbol_get_bfdsym (fixp->fx_addsy);
+	rel->address = fixp->fx_frag->fr_address + fixp->fx_where;
+	rel->addend = fixp->fx_offset;
+
+	r_type = fixp->fx_r_type;
+
+#if DEBUG
+	fprintf (stderr, "%s\n", bfd_get_reloc_code_name (r_type));
+	fflush (stderr);
+#endif
+
+	rel->howto = bfd_reloc_type_lookup (stdoutput, r_type);
+	if (rel->howto == NULL)
+	{
+		as_bad_where (fixp->fx_file, fixp->fx_line,
+			_("Cannot represent relocation type %s"),
+		bfd_get_reloc_code_name (r_type));
+		return NULL;
+	}
+
+	return rel;
 }
 
 #if 0

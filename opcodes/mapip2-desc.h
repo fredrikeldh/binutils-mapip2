@@ -31,6 +31,9 @@ typedef struct mapip2_mnemonic {
 	int nc_op;	// number of children if children != NULL, opcode otherwise.
 } mapip2_mnemonic;
 
+extern const mapip2_insn mapip2_insns[];
+extern const size_t mapip2_insn_count;
+
 extern const mapip2_mnemonic mapip2_mnemonics[];
 extern const size_t mapip2_mnemonic_count;
 
