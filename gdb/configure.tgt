@@ -266,8 +266,8 @@ iq2000-*-*)
 	gdb_sim=../sim/iq2000/libsim.a
 	;;
 
-lm32-*-*)		
-	gdb_target_obs="lm32-tdep.o" 
+lm32-*-*)
+	gdb_target_obs="lm32-tdep.o"
 	gdb_sim=../sim/lm32/libsim.a
 	;;
 
@@ -325,6 +325,12 @@ m68*-*-openbsd*)
 m88*-*-openbsd*)
 	# Target: OpenBSD/m88k
 	gdb_target_obs="m88k-tdep.o corelow.o"
+	;;
+
+mapip2-*-*)
+	# Target: MoSync mapip2
+	gdb_target_obs="mapip2-tdep.o"
+	# No sim needed. Target uses MoRE.
 	;;
 
 mep-*-*)
@@ -559,7 +565,7 @@ tic6x-*-*linux)
 	;;
 
 tic6x-*-*)
-	# Target: TI C6X 
+	# Target: TI C6X
 	gdb_target_obs="tic6x-tdep.o"
 	;;
 
