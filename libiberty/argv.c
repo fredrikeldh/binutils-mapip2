@@ -66,16 +66,16 @@ dupargv (char **argv)
 {
   int argc;
   char **copy;
-  
+
   if (argv == NULL)
     return NULL;
-  
+
   /* the vector */
   for (argc = 0; argv[argc] != NULL; argc++);
   copy = (char **) malloc ((argc + 1) * sizeof (char *));
   if (copy == NULL)
     return NULL;
-  
+
   /* the strings */
   for (argc = 0; argv[argc] != NULL; argc++)
     {
@@ -468,11 +468,11 @@ expandargv (int *argcp, char ***argvp)
       while (file_argv[file_argc])
 	++file_argc;
       /* Now, insert FILE_ARGV into ARGV.  The "+1" below handles the
-	 NULL terminator at the end of ARGV.  */ 
-      *argvp = ((char **) 
-		xrealloc (*argvp, 
+	 NULL terminator at the end of ARGV.  */
+      *argvp = ((char **)
+		xrealloc (*argvp,
 			  (*argcp + file_argc + 1) * sizeof (char *)));
-      memmove (*argvp + i + file_argc, *argvp + i + 1, 
+      memmove (*argvp + i + file_argc, *argvp + i + 1,
 	       (*argcp - i) * sizeof (char *));
       memcpy (*argvp + i, file_argv, file_argc * sizeof (char *));
       /* The original option has been replaced by all the new
@@ -492,6 +492,29 @@ expandargv (int *argcp, char ***argvp)
     }
 }
 
+/*
+
+@deftypefn Extension int countargv (char **@var{argv})
+
+Return the number of elements in @var{argv}.
+Returns zero if @var{argv} is NULL.
+
+@end deftypefn
+
+*/
+
+int
+countargv (char **argv)
+{
+  int argc;
+
+  if (argv == NULL)
+    return 0;
+  for (argc = 0; argv[argc] != NULL; argc++)
+    continue;
+  return argc;
+}
+
 #ifdef MAIN
 
 /* Simple little test driver. */
@@ -505,7 +528,7 @@ static const char *const tests[] =
   "arg 'Jack said \\'hi\\'' has single quotes",
   "arg 'Jack said \\\"hi\\\"' has double quotes",
   "a b c d e f g h i j k l m n o p q r s t u v w x y z 1 2 3 4 5 6 7 8 9",
-  
+
   /* This should be expanded into only one argument.  */
   "trailing-whitespace ",
 

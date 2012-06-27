@@ -819,7 +819,13 @@ enum dwarf_call_frame_info
   };
 
 #define DW_CIE_ID	  0xffffffff
-#define DW64_CIE_ID	  0xffffffffffffffffULL
+
+#ifdef CC_HAS_LONG_LONG
+#define DW64_CIE_ID 0xffffffffffffffffULL
+#else
+#define DW64_CIE_ID ~0
+#endif
+
 #define DW_CIE_VERSION	  1
 
 #define DW_CFA_extended   0
