@@ -82,7 +82,7 @@
 /* The O_BINARY flag is defined in fcntl.h on some non-Posix platforms.
    It is used as an access modifier in calls to open(), where it acts
    similarly to the "b" character in fopen()'s MODE argument.  On Posix
-   platforms it should be a no-op, so it is defined as 0 here.  This 
+   platforms it should be a no-op, so it is defined as 0 here.  This
    ensures that the symbol may be used freely elsewhere in gdb.  */
 
 #ifndef O_BINARY
@@ -347,7 +347,7 @@ extern struct cleanup *
   make_cleanup_ui_out_redirect_pop (struct ui_out *uiout);
 
 struct section_addr_info;
-extern struct cleanup *(make_cleanup_free_section_addr_info 
+extern struct cleanup *(make_cleanup_free_section_addr_info
                         (struct section_addr_info *));
 
 extern struct cleanup *make_cleanup_close (int fd);
@@ -639,11 +639,11 @@ extern void print_address_symbolic (struct gdbarch *, CORE_ADDR,
 
 extern int build_address_symbolic (struct gdbarch *,
 				   CORE_ADDR addr,
-				   int do_demangle, 
-				   char **name, 
-				   int *offset, 
-				   char **filename, 
-				   int *line, 	
+				   int do_demangle,
+				   char **name,
+				   int *offset,
+				   char **filename,
+				   int *line,
 				   int *unmapped);
 
 extern void print_address (struct gdbarch *, CORE_ADDR, struct ui_file *);
@@ -858,7 +858,7 @@ enum val_prettyprint
 
 extern int longest_to_int (LONGEST);
 
-/* Assorted functions we can declare, now that const and volatile are 
+/* Assorted functions we can declare, now that const and volatile are
    defined.  */
 
 extern char *savestring (const char *, size_t);
@@ -945,6 +945,7 @@ enum gdb_osabi
   GDB_OSABI_DICOS,
   GDB_OSABI_DARWIN,
   GDB_OSABI_SYMBIAN,
+  GDB_OSABI_MOSYNC,
 
   GDB_OSABI_INVALID		/* keep this last */
 };
@@ -1071,9 +1072,9 @@ extern int (*deprecated_ui_loop_hook) (int signo);
 extern void (*deprecated_init_ui_hook) (char *argv0);
 extern void (*deprecated_command_loop_hook) (void);
 extern void (*deprecated_show_load_progress) (const char *section,
-					      unsigned long section_sent, 
-					      unsigned long section_size, 
-					      unsigned long total_sent, 
+					      unsigned long section_sent,
+					      unsigned long section_size,
+					      unsigned long total_sent,
 					      unsigned long total_size);
 extern void (*deprecated_print_frame_info_listing_hook) (struct symtab * s,
 							 int line,

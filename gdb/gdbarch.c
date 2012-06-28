@@ -11,12 +11,12 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
-  
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-  
+
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
@@ -37,7 +37,7 @@
 #include "arch-utils.h"
 
 #include "gdbcmd.h"
-#include "inferior.h" 
+#include "inferior.h"
 #include "symcat.h"
 
 #include "floatformat.h"
@@ -4305,6 +4305,10 @@ gdbarch_find_by_info (struct gdbarch_info info)
        rego = rego->next)
     if (rego->bfd_architecture == info.bfd_arch_info->arch)
       break;
+    else
+      if (gdbarch_debug)
+	fprintf_unfiltered (gdb_stdlog, "gdbarch_find_by_info: "
+			    "%i != %i\n", rego->bfd_architecture, info.bfd_arch_info->arch);
   if (rego == NULL)
     {
       if (gdbarch_debug)
@@ -4360,7 +4364,7 @@ gdbarch_find_by_info (struct gdbarch_info info)
 			"New architecture %s (%s) selected\n",
 			host_address_to_string (new_gdbarch),
 			new_gdbarch->bfd_arch_info->printable_name);
-  
+
   /* Insert the new architecture into the front of the architecture
      list (keep the list sorted Most Recently Used).  */
   {
@@ -4368,7 +4372,7 @@ gdbarch_find_by_info (struct gdbarch_info info)
     this->next = rego->arches;
     this->gdbarch = new_gdbarch;
     rego->arches = this;
-  }    
+  }
 
   /* Check that the newly installed architecture is valid.  Plug in
      any post init values.  */

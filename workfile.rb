@@ -10,10 +10,10 @@ MAIN_DIRS = intl + [
 'bfd',
 'opcodes',
 'libiberty',
-'gdb',
 'binutils',
 'gas',
 'ld',
+'gdb',
 ]
 
 target :default do
