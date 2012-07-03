@@ -360,6 +360,10 @@ static int try_assemble(mapip2_data* data)
 	if(*str == '#') {	// immediate (0x hex, 0 octal, or decimal)
 		node = findOperandNode(children, nc_op, IMM);
 		func = parseConstant;
+		if(!node) {
+			node = findOperandNode(children, nc_op, IMM8);
+			func = parseConstant8;
+		}
 	} else if(*str == '[') {	// data address
 		node = findOperandNode(children, nc_op, ADADDR);
 		data->fixOffset = 3;
