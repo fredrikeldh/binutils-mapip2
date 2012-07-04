@@ -102,9 +102,9 @@ mapip2_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)
 	set_gdbarch_ptr_bit (gdbarch, 32);
 
 	/* Register info */
-	set_gdbarch_num_regs (gdbarch, 32);
+	set_gdbarch_num_regs (gdbarch, 33);
 	set_gdbarch_sp_regnum (gdbarch, 1);
-	//set_gdbarch_pc_regnum (gdbarch, 33);
+	set_gdbarch_pc_regnum (gdbarch, 32);
 	//set_gdbarch_fp0_regnum (gdbarch, ALPHA_FP0_REGNUM);
 
 	set_gdbarch_register_name (gdbarch, mapip2_register_name);
