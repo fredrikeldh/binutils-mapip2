@@ -31,7 +31,7 @@ LIBDECNUMBERDIR=../../libdecnumber
 # set the target and compiler flags
 #---------------------------------------------------------------------------------
 
-target=mapip2
+target=mapip2-unknown-elf
 progpref=mapip2-
 
 export CFLAGS='-O2 -pipe'

@@ -3,6 +3,7 @@
 #include "gdbtypes.h"
 #include "dis-asm.h"
 #include "arch-utils.h"
+#include "frame.h"
 #include "../opcodes/mapip2-desc.h"
 #include "../opcodes/mapip2-gen-opcodes.h"
 
@@ -69,6 +70,12 @@ mapip2_skip_prologue (struct gdbarch *gdbarch, CORE_ADDR pc)
 	return pc;
 }
 
+static int MAPIP2_PC_REGNUM = 32;
+static CORE_ADDR mapip2_unwind_pc (struct gdbarch *gdbarch, struct frame_info *next_frame)
+{
+  return frame_unwind_register_unsigned (next_frame, MAPIP2_PC_REGNUM);
+}
+
 
 /* Initialize the current architecture based on INFO.  If possible, re-use an
    architecture from ARCHES, which is a list of architectures already created
@@ -82,7 +89,7 @@ mapip2_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)
 {
 	struct gdbarch *gdbarch;
 
-	fprintf(stderr, "mapip2_init_abi\n");
+	fprintf(stderr, "mapip2_gdbarch_init\n");
 
 	/* Find a candidate among extant architectures.  */
 	arches = gdbarch_list_lookup_by_info (arches, &info);
@@ -104,7 +111,7 @@ mapip2_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)
 	/* Register info */
 	set_gdbarch_num_regs (gdbarch, 33);
 	set_gdbarch_sp_regnum (gdbarch, 1);
-	set_gdbarch_pc_regnum (gdbarch, 32);
+	set_gdbarch_pc_regnum (gdbarch, MAPIP2_PC_REGNUM);
 	//set_gdbarch_fp0_regnum (gdbarch, ALPHA_FP0_REGNUM);
 
 	set_gdbarch_register_name (gdbarch, mapip2_register_name);
@@ -136,7 +143,7 @@ mapip2_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)
 	//set_gdbarch_dummy_id (gdbarch, alpha_dummy_id);
 
 	/* Return the unwound PC value.  */
-	//set_gdbarch_unwind_pc (gdbarch, alpha_unwind_pc);
+	set_gdbarch_unwind_pc (gdbarch, mapip2_unwind_pc);
 
 	set_gdbarch_inner_than (gdbarch, core_addr_lessthan);
 	//set_gdbarch_skip_trampoline_code (gdbarch, find_solib_trampoline_target);
@@ -149,7 +156,7 @@ mapip2_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)
 	//set_gdbarch_software_single_step (gdbarch, alpha_deal_with_atomic_sequence);
 
 	/* Hook in ABI-specific overrides, if they have been registered.  */
-	//gdbarch_init_osabi (info, gdbarch);
+	gdbarch_init_osabi (info, gdbarch);
 
 	/* Now that we have tuned the configuration, set a few final things
 	based on what the OS ABI has told us.  */
