@@ -4,6 +4,10 @@
 #include "dis-asm.h"
 #include "arch-utils.h"
 #include "frame.h"
+#include "frame-unwind.h"
+#include "gdb_assert.h"
+#include "regcache.h"
+#include "target.h"
 #include "../opcodes/mapip2-desc.h"
 #include "../opcodes/mapip2-gen-opcodes.h"
 
@@ -70,11 +74,201 @@ mapip2_skip_prologue (struct gdbarch *gdbarch, CORE_ADDR pc)
 	return pc;
 }
 
-static int MAPIP2_PC_REGNUM = 32;
+static const int MAPIP2_PC_REGNUM = 32;
+#define MAPIP2_REGCOUNT 33
 static CORE_ADDR mapip2_unwind_pc (struct gdbarch *gdbarch, struct frame_info *next_frame)
 {
   return frame_unwind_register_unsigned (next_frame, MAPIP2_PC_REGNUM);
 }
+
+/* *************************************************************************/
+/* mapip2_frame_unwind and friends */
+/* *************************************************************************/
+
+// this is also the size of data memory.
+// todo: read from program file header.
+static const uint32_t sStackTop = 16*1024*1024;
+
+struct mapip2_frame_cache {
+	uint32_t rootRegs[MAPIP2_REGCOUNT];
+	uint32_t stackOffset;	// equal to root stack pointer.
+	char* stackData;
+};
+
+static uint32_t mapip2_frame_get_stack_register(uint32_t fp,
+	const struct mapip2_frame_cache* cache, int regnum)
+{
+	uint32_t value;
+	printf("mapip2_frame_get_stack_register(0x%x, 0x%x, 0x%x, %i)\n",
+		fp, cache->stackOffset, sStackTop, regnum);
+
+	gdb_assert(regnum < MAPIP2_REGCOUNT);
+	if(regnum == REG_ra || regnum == MAPIP2_PC_REGNUM) {
+		fp -= 4;
+	} else if(regnum == REG_fp) {
+		fp -= 8;
+	}
+	printf("effective address: 0x%x\n", fp);
+
+	gdb_assert(fp >= cache->stackOffset);
+	gdb_assert(fp < sStackTop);
+	gdb_assert((fp & 3) == 0);
+	fp -= cache->stackOffset;
+
+	// fp points to the address above the PUSHed registers.
+	value = *(uint32_t*)(cache->stackData + fp);
+	printf("value: 0x%x\n", value);
+	return value;
+}
+
+static uint32_t mapip2_frame_get_this_register(struct frame_info* this_frame,
+	const struct mapip2_frame_cache* cache, int regnum)
+{
+	enum frame_type type;
+	struct frame_info* next_frame;
+	gdb_assert(this_frame != NULL);
+	type = get_frame_type(this_frame);
+	gdb_assert(regnum < MAPIP2_REGCOUNT);
+#if 0
+	if(type == SENTINEL_FRAME) {
+		return cache->rootRegs[regnum];
+	} else {
+		uint32_t fp;
+		gdb_assert(type == NORMAL_FRAME);
+		// get next frame's FP, which will point to our registers.
+		// SENTINEL is the last frame.
+		next_frame = get_next_frame(this_frame);
+		fp = mapip2_frame_get_this_register(next_frame, cache, REG_fp);
+		return mapip2_frame_get_stack_register(fp, cache, regnum);
+	}
+#else
+	gdb_assert(type == NORMAL_FRAME);
+	next_frame = get_next_frame(this_frame);
+	if(next_frame == NULL) {	// last frame
+		return cache->rootRegs[regnum];
+	} else {
+		uint32_t fp;
+		// get next frame's FP, which will point to our registers.
+		fp = mapip2_frame_get_this_register(next_frame, cache, REG_fp);
+		return mapip2_frame_get_stack_register(fp, cache, regnum);
+	}
+#endif
+}
+
+static uint32_t mapip2_frame_get_prev_register(struct frame_info* this_frame,
+	const struct mapip2_frame_cache* cache, int regnum)
+{
+	uint32_t fp;
+	gdb_assert(regnum < MAPIP2_REGCOUNT);
+	// the previous frame is never going to be a sentinel frame, so we can assume it's normal.
+	fp = mapip2_frame_get_this_register(this_frame, cache, REG_fp);
+	return mapip2_frame_get_stack_register(fp, cache, regnum);
+}
+
+/* *************************************************************************/
+/* mapip2_frame_cache */
+/* *************************************************************************/
+
+// make sur *this_cache points to a valid cache. return it.
+// create a new cache if needed.
+static struct mapip2_frame_cache*
+mapip2_frame_cache (struct frame_info* this_frame, void** this_cache)
+{
+	struct gdbarch* gdbarch = get_frame_arch (this_frame);
+	struct mapip2_frame_cache* cache;
+	struct regcache* regcache;
+	uint32_t stackSize;
+	int i;
+
+	if ((*this_cache) != NULL) {
+		return (*this_cache);
+	}
+	cache = FRAME_OBSTACK_ZALLOC (struct mapip2_frame_cache);
+	(*this_cache) = cache;
+
+	// retrieve entire stack from target.
+	// start with the registers.
+  regcache = get_current_regcache();
+	target_fetch_registers(regcache, -1);
+	for(i=0; i<MAPIP2_REGCOUNT; i++) {
+		enum register_status status = regcache_raw_read(regcache, i, (gdb_byte*)&cache->rootRegs[i]);
+		gdb_assert(status == REG_VALID);
+	}
+	// then we'll know how big the stack is.
+	cache->stackOffset = cache->rootRegs[REG_sp];
+	stackSize = sStackTop - cache->stackOffset;
+	cache->stackData = malloc(stackSize);	// freed by mapip2_frame_dealloc_cache()
+	gdb_assert(cache->stackData);
+	get_target_memory(&current_target, cache->stackOffset, cache->stackData, stackSize);
+
+	// done.
+	return (*this_cache);
+}
+
+void mapip2_frame_dealloc_cache(struct frame_info* this_frame, void* this_cache)
+{
+	struct mapip2_frame_cache* cache = (struct mapip2_frame_cache*) this_cache;
+	if(cache->stackData)
+		free(cache->stackData);
+}
+
+/* *************************************************************************/
+/* mapip2_frame_unwind proper */
+/* *************************************************************************/
+
+enum unwind_stop_reason
+mapip2_frame_unwind_stop_reason(struct frame_info *this_frame,
+	void **this_cache)
+{
+	struct mapip2_frame_cache* cache = mapip2_frame_cache(this_frame, this_cache);
+	CORE_ADDR fp = mapip2_frame_get_this_register(this_frame, cache, REG_fp);
+	if(fp == 0)
+		return UNWIND_OUTERMOST;
+	return UNWIND_NO_REASON;
+}
+
+void mapip2_frame_this_id(struct frame_info *this_frame,
+	void **this_prologue_cache,
+	struct frame_id *this_id)
+{
+	struct mapip2_frame_cache* cache = mapip2_frame_cache(this_frame, this_prologue_cache);
+	*this_id = frame_id_build(
+		mapip2_frame_get_this_register(this_frame, cache, REG_fp),
+		get_frame_func(this_frame));
+}
+
+struct value* mapip2_frame_prev_register(struct frame_info *this_frame,
+	void **this_prologue_cache,
+	int regnum)
+{
+	struct mapip2_frame_cache* cache = mapip2_frame_cache(this_frame, this_prologue_cache);
+	if(regnum == REG_ra || regnum == REG_fp || regnum == MAPIP2_PC_REGNUM)
+		return frame_unwind_got_constant(this_frame, regnum,
+			mapip2_frame_get_prev_register(this_frame, cache, regnum));
+
+	// not strictly accurate, but it should suffice.
+	return frame_unwind_got_optimized(this_frame, regnum);
+}
+
+struct frame_unwind mapip2_frame_unwind =
+{
+	NORMAL_FRAME,
+	mapip2_frame_unwind_stop_reason,
+	mapip2_frame_this_id,
+	mapip2_frame_prev_register,
+	NULL,
+	default_frame_sniffer,
+	mapip2_frame_dealloc_cache,
+	NULL,
+	/*enum frame_type type;
+	frame_unwind_stop_reason_ftype *stop_reason;
+	frame_this_id_ftype *this_id;
+	frame_prev_register_ftype *prev_register;
+	const struct frame_data *unwind_data;
+	frame_sniffer_ftype *sniffer;
+	frame_dealloc_cache_ftype *dealloc_cache;
+	frame_prev_arch_ftype *prev_arch;*/
+};
 
 
 /* Initialize the current architecture based on INFO.  If possible, re-use an
@@ -109,7 +303,7 @@ mapip2_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)
 	set_gdbarch_ptr_bit (gdbarch, 32);
 
 	/* Register info */
-	set_gdbarch_num_regs (gdbarch, 33);
+	set_gdbarch_num_regs (gdbarch, MAPIP2_REGCOUNT);
 	set_gdbarch_sp_regnum (gdbarch, 1);
 	set_gdbarch_pc_regnum (gdbarch, MAPIP2_PC_REGNUM);
 	//set_gdbarch_fp0_regnum (gdbarch, ALPHA_FP0_REGNUM);
@@ -161,8 +355,7 @@ mapip2_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)
 	/* Now that we have tuned the configuration, set a few final things
 	based on what the OS ABI has told us.  */
 
-	//frame_unwind_append_unwinder (gdbarch, &alpha_sigtramp_frame_unwind);
-	//frame_unwind_append_unwinder (gdbarch, &alpha_heuristic_frame_unwind);
+	frame_unwind_prepend_unwinder (gdbarch, &mapip2_frame_unwind);
 
 	//frame_base_set_default (gdbarch, &alpha_heuristic_frame_base);
 
