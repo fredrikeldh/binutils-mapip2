@@ -122,7 +122,7 @@ char* md_atof(int type, char* litP, int* sizeP)
 /***********************************************************************/
 
 static int isOperandEnd(char c) {
-	return c == 0 || c == ',' || c == ']' || c == '+';
+	return c == 0 || c == ',' || c == ']' || c == '+' || c == '-';
 }
 
 typedef struct mapip2_data {
@@ -261,8 +261,11 @@ static int parseImm(mapip2_data* data) {
 		// &sym alone
 		if(*data->str == ']' || *data->str == 0)
 			return 1;
-		OP_ASSERT('+');
-		data->str++;
+		// allow &sym - constant
+		if(*data->str != '-') {
+			OP_ASSERT('+');
+			data->str++;
+		}
 	}
 	// constant
 	return parseConstant(data);
