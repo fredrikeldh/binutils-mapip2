@@ -160,6 +160,12 @@ static void setConstant(mapip2_data* data, int c) {
 	INSN_LEN(data->fixOffset + 4);
 }
 
+static void setConstantLong(mapip2_data* data, long long c) {
+	gas_assert(data->fixOffset >= 1);
+	*(long long*)&data->buf[data->fixOffset] = c;
+	INSN_LEN(data->fixOffset + 8);
+}
+
 static void setConstant8(mapip2_data* data, int c) {
 	gas_assert(data->fixOffset >= 1);
 	gas_assert(c >= 0 && c < 0xff);
@@ -182,7 +188,9 @@ static const mapip2_parse_node* findOperandNode(const mapip2_parse_node* childre
 	return 0;
 }
 
-static int parseConstantBase(mapip2_data* data, int* res) {
+typedef void (*strtolFunc)(const char* str, char** endptr, int base, void* res);
+
+static int parseConstantBase(mapip2_data* data, void* res, strtolFunc stf) {
 	DUMP;
 	if(!ISDIGIT(*data->str) && *data->str != '-')
 		return 0;
@@ -198,7 +206,7 @@ static int parseConstantBase(mapip2_data* data, int* res) {
 	}
 	errno = 0;
 	char* endptr;
-	*res = strtol(str, &endptr, base);
+	stf(str, &endptr, base, res);
 	if(errno != 0) {
 		fprintf(stderr, "Could not parse immediate: %s\n", strerror(errno));
 		return 0;
@@ -207,17 +215,55 @@ static int parseConstantBase(mapip2_data* data, int* res) {
 	return 1;
 }
 
+static void strtolInt(const char* str, char** endptr, int base, void* res)
+{
+	*(int*)res = strtol(str, endptr, base);
+}
+
+static void strtolLong(const char* str, char** endptr, int base, void* res)
+{
+	*(long long*)res = strtoll(str, endptr, base);
+}
+
+static int parseConstantBaseInt(mapip2_data* data, int* res) {
+	if(data->str[0] == '0' && isOperandEnd(data->str[1]))
+	{
+		data->str++;
+		*res = 0;
+		return 1;
+	}
+	return parseConstantBase(data, res, strtolInt);
+}
+
+static int parseConstantBaseLong(mapip2_data* data, long long* res) {
+	if(data->str[0] == '0' && isOperandEnd(data->str[1]))
+	{
+		data->str++;
+		*res = 0;
+		return 1;
+	}
+	return parseConstantBase(data, res, strtolLong);
+}
+
 static int parseConstant(mapip2_data* data) {
 	int i;
-	if(!parseConstantBase(data, &i))
+	if(!parseConstantBaseInt(data, &i))
 		return 0;
 	setConstant(data, i);
 	return 1;
 }
 
+static int parseConstantDouble(mapip2_data* data) {
+	long long ll;
+	if(!parseConstantBaseLong(data, &ll))
+		return 0;
+	setConstantLong(data, ll);
+	return 1;
+}
+
 static int parseConstant8(mapip2_data* data) {
 	int i;
-	if(!parseConstantBase(data, &i))
+	if(!parseConstantBaseInt(data, &i))
 		return 0;
 	setConstant8(data, i);
 	return 1;
@@ -384,9 +430,11 @@ static int try_assemble(mapip2_data* data)
 		func = parseConstant;
 		if(!node) {
 			node = findOperandNode(children, nc_op, FIMMS);
+			func = parseConstant;
 		}
 		if(!node) {
 			node = findOperandNode(children, nc_op, FIMMD);
+			func = parseConstantDouble;
 		}
 		if(!node) {
 			node = findOperandNode(children, nc_op, IMM8);
