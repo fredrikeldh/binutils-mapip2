@@ -8,6 +8,10 @@ typedef enum mapip2_operand {
 	ADADDR,	// absolute data address
 	AIADDR,	// absolute instruction address
 	RIADDR,	// relative instruction address
+	FRD,	// float register, destination
+	FRS,	// float resister, source
+	FIMMS,	// float immediate
+	FIMMD,	// double immediate
 	END,
 } mapip2_operand;
 
@@ -39,3 +43,6 @@ extern const size_t mapip2_mnemonic_count;
 
 extern const char* const mapip2_register_names[];
 extern const size_t mapip2_register_name_count;
+
+extern const char* const mapip2_float_register_names[];
+extern const size_t mapip2_float_register_name_count;

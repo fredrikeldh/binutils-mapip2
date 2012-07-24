@@ -301,6 +301,25 @@ static int parseRegister(mapip2_data* data) {
 	return 0;
 }
 
+static int parseFloatRegister(mapip2_data* data) {
+	DUMP;
+	char* str = data->str;
+	// find end of operand
+	while(!isOperandEnd(*str))
+		str++;
+	int len = str - data->str;
+	for(size_t i=0; i<mapip2_float_register_name_count; i++) {
+		const char* n = mapip2_float_register_names[i];
+		//fprintf(stderr, "test(%zi, %s)\n", len, n);
+		if(strncmp(data->str, n, len) == 0) {
+			data->str = str;
+			setRegister(data, (char)i);
+			return 1;
+		}
+	}
+	return 0;
+}
+
 // We support many varieties:
 // [reg], [imm], [reg,imm], [reg,sym] (without &)
 // where imm is one of:
@@ -364,6 +383,12 @@ static int try_assemble(mapip2_data* data)
 		node = findOperandNode(children, nc_op, IMM);
 		func = parseConstant;
 		if(!node) {
+			node = findOperandNode(children, nc_op, FIMMS);
+		}
+		if(!node) {
+			node = findOperandNode(children, nc_op, FIMMD);
+		}
+		if(!node) {
 			node = findOperandNode(children, nc_op, IMM8);
 			func = parseConstant8;
 		}
@@ -389,6 +414,12 @@ static int try_assemble(mapip2_data* data)
 			fprintf(stderr, "Found register. matching operand %i(%s)\n",
 				data->regOffset, data->regOffset == 2 ? "RD" : "RS");
 		node = findOperandNode(children, nc_op, data->regOffset == 2 ? RD : RS);
+	} else if(parseFloatRegister(data)) {	// float register
+		func = NULL;
+		if(DEBUG_LEVEL >= 3)
+			fprintf(stderr, "Found register. matching operand %i(%s)\n",
+				data->regOffset, data->regOffset == 2 ? "FRD" : "FRS");
+		node = findOperandNode(children, nc_op, data->regOffset == 2 ? FRD : FRS);
 	} else {
 		fprintf(stderr, "Invalid operand: %s\n", str);
 		return 0;
