@@ -220,9 +220,9 @@ static void strtolInt(const char* str, char** endptr, int base, void* res)
 	*(int*)res = strtol(str, endptr, base);
 }
 
-static void strtolLong(const char* str, char** endptr, int base, void* res)
+static void strtolULong(const char* str, char** endptr, int base, void* res)
 {
-	*(long long*)res = strtoll(str, endptr, base);
+	*(unsigned long long*)res = strtoull(str, endptr, base);
 }
 
 static int parseConstantBaseInt(mapip2_data* data, int* res) {
@@ -235,14 +235,14 @@ static int parseConstantBaseInt(mapip2_data* data, int* res) {
 	return parseConstantBase(data, res, strtolInt);
 }
 
-static int parseConstantBaseLong(mapip2_data* data, long long* res) {
+static int parseConstantBaseLong(mapip2_data* data, unsigned long long* res) {
 	if(data->str[0] == '0' && isOperandEnd(data->str[1]))
 	{
 		data->str++;
 		*res = 0;
 		return 1;
 	}
-	return parseConstantBase(data, res, strtolLong);
+	return parseConstantBase(data, res, strtolULong);
 }
 
 static int parseConstant(mapip2_data* data) {
@@ -254,10 +254,10 @@ static int parseConstant(mapip2_data* data) {
 }
 
 static int parseConstantDouble(mapip2_data* data) {
-	long long ll;
-	if(!parseConstantBaseLong(data, &ll))
+	unsigned long long ull;
+	if(!parseConstantBaseLong(data, &ull))
 		return 0;
-	setConstantLong(data, ll);
+	setConstantLong(data, ull);
 	return 1;
 }
 
