@@ -168,7 +168,7 @@ static void setConstantLong(mapip2_data* data, long long c) {
 
 static void setConstant8(mapip2_data* data, int c) {
 	gas_assert(data->fixOffset >= 1);
-	gas_assert(c >= 0 && c < 0xff);
+	gas_assert(c >= -128 && c < 0xff);
 	data->buf[data->fixOffset] = c;
 	INSN_LEN(data->fixOffset + 1);
 }
