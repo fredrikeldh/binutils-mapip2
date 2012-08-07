@@ -391,6 +391,7 @@ chain_frchains_together_1 (segT section, struct frchain *frchp)
 {
   fragS dummy, *prev_frag = &dummy;
   fixS fix_dummy, *prev_fix = &fix_dummy;
+	dummy.fr_type = 0;
 
   for (; frchp; frchp = frchp->frch_next)
     {

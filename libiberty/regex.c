@@ -8090,7 +8090,7 @@ regerror (int errcode, const regex_t *preg ATTRIBUTE_UNUSED,
     {
       if (msg_size > errbuf_size)
         {
-#if defined HAVE_MEMPCPY || defined _LIBC
+#if !defined(WIN32) && (defined HAVE_MEMPCPY || defined _LIBC)
 	  *((char *) mempcpy (errbuf, msg, errbuf_size - 1)) = '\0';
 #else
           memcpy (errbuf, msg, errbuf_size - 1);

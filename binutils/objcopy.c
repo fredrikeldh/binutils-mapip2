@@ -4026,7 +4026,7 @@ main (int argc, char *argv[])
       if (i > 4 && FILENAME_CMP (program_name + i - 4, ".exe") == 0)
 	{
 	  i -= 4;
-	  program_name[i] = '\0';
+	  argv[0][i] = '\0';
 	}
 #endif
       is_strip = (i >= 5 && FILENAME_CMP (program_name + i - 5, "strip") == 0);

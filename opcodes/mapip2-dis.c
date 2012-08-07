@@ -2,6 +2,7 @@
 #include "sysdep.h"
 #include "dis-asm.h"
 #include "mapip2-desc.h"
+#include <stdint.h>
 
 static const mapip2_insn* get_mapip2_opcode_info(bfd_byte opcode) {
 	if(opcode < mapip2_insn_count)

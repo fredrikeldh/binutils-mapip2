@@ -217,7 +217,7 @@ static int parseConstantBase(mapip2_data* data, void* res, strtolFunc stf) {
 
 static void strtolInt(const char* str, char** endptr, int base, void* res)
 {
-	*(int*)res = strtol(str, endptr, base);
+	*(int*)res = strtoul(str, endptr, base);
 }
 
 static void strtolULong(const char* str, char** endptr, int base, void* res)

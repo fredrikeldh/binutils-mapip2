@@ -14,7 +14,7 @@ work.instance_eval do
 		'strndup.c',
 		'strncpy.c',
 		'stpncpy.c',
-		'stpcpy.c',
+		#'stpcpy.c',
 		'clock.c',
 		'copysign.c',
 		'strncasecmp.c',
@@ -52,7 +52,7 @@ work.instance_eval do
 		'putenv.c',
 		'setenv.c',
 		'random.c',
-		'mkstemps.c',
+		#'mkstemps.c',
 		'rename.c',
 		'snprintf.c',
 		'vfprintf.c',
@@ -74,10 +74,13 @@ work.instance_eval do
 		'cp-demangle.c' => ' -Wno-shadow -Wno-vla',
 		'floatformat.c' => ' -Wno-shadow -Wno-float-equal',
 		'lrealpath.c' => ' -Wno-shadow',
+		'md5.c' => ' -Wno-strict-aliasing',
+		'mkstemps.c' => ' -Wno-missing-prototypes -Wno-missing-declarations',
 		'physmem.c' => ' -Wno-undef',
 		'obstack.c' => ' -Wno-undef',
 		'regex.c' => ' -DHAVE_BTOWC=1 -DHAVE_UINTPTR_T=1'+
 			' -Wno-missing-prototypes -Wno-missing-declarations -Wno-undef -Wno-type-limits -Wno-shadow',
+		'stpcpy.c' => ' -Wno-missing-prototypes -Wno-missing-declarations',
 		'vasprintf.c' => ' -Wno-missing-format-attribute',
 	}
 	@NAME = 'libiberty'

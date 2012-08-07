@@ -467,7 +467,7 @@ static int num_error_names = 0;
 static int sys_nerr;
 static const char **sys_errlist;
 
-#else
+#elif !defined(WIN32)
 
 extern int sys_nerr;
 extern char *sys_errlist[];

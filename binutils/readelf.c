@@ -3261,7 +3261,7 @@ request_dump_byname (const char * section, dump_type type)
   dump_sects_byname = new_request;
 }
 
-static inline void
+static void
 request_dump (dump_type type)
 {
   int section;
