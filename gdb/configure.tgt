@@ -327,7 +327,7 @@ m88*-*-openbsd*)
 	gdb_target_obs="m88k-tdep.o corelow.o"
 	;;
 
-mapip2-*-elf)
+mapip2-*-elf | mapip2-*-*)
 	# Target: MoSync mapip2
 	gdb_target_obs="mapip2-tdep.o"
 	# No sim needed. Target uses MoRE.

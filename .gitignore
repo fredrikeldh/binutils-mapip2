@@ -40,8 +40,9 @@ lost+found
 *.sum
 
 build
-#configure
-#Makefile.in
 config.rb
+config.in
 /cpu/mapip2-opcodes.inc
 /opcodes/mapip2-gen-*
+configure
+Makefile.in

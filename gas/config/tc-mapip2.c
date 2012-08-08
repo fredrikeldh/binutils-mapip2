@@ -181,7 +181,8 @@ static void setRegister(mapip2_data* data, char c) {
 static const mapip2_parse_node* findOperandNode(const mapip2_parse_node* children, int nc, mapip2_operand op) {
 	gas_assert(children);
 	gas_assert(nc > 0);
-	for(int i=0; i<nc; i++) {
+	int i;
+	for(i=0; i<nc; i++) {
 		if(children[i].operand == op)
 			return &children[i];
 	}
@@ -336,7 +337,8 @@ static int parseRegister(mapip2_data* data) {
 	while(!isOperandEnd(*str))
 		str++;
 	int len = str - data->str;
-	for(size_t i=0; i<mapip2_register_name_count; i++) {
+	size_t i;
+	for(i=0; i<mapip2_register_name_count; i++) {
 		const char* n = mapip2_register_names[i];
 		//fprintf(stderr, "test(%zi, %s)\n", len, n);
 		if(strncmp(data->str, n, len) == 0) {
@@ -355,7 +357,8 @@ static int parseFloatRegister(mapip2_data* data) {
 	while(!isOperandEnd(*str))
 		str++;
 	int len = str - data->str;
-	for(size_t i=0; i<mapip2_float_register_name_count; i++) {
+	size_t i;
+	for(i=0; i<mapip2_float_register_name_count; i++) {
 		const char* n = mapip2_float_register_names[i];
 		//fprintf(stderr, "test(%zi, %s)\n", len, n);
 		if(strncmp(data->str, n, len) == 0) {
@@ -501,7 +504,8 @@ void md_assemble(char* str)
 	if(DEBUG_LEVEL >= 2)
 		fprintf(stderr, "md_assemble(%s)\n", str);
 	char buf[16];	// more than enough to contain any mapip2 instruction.
-	for(size_t i=0; i<mapip2_mnemonic_count; i++) {
+	size_t i;
+	for(i=0; i<mapip2_mnemonic_count; i++) {
 		const mapip2_mnemonic* m = &mapip2_mnemonics[i];
 		int mLen = strlen(m->mnemonic);
 		// we rely on the rest of the assembler to make sure there are no linebreaks in str.
@@ -535,14 +539,14 @@ void md_assemble(char* str)
 	as_fatal (_("Unknown instruction."));
 }
 
-void mapip2_md_apply_fix(fixS* fixp, valueT* v, segT s) {
+void mapip2_md_apply_fix(fixS* fixp ATTRIBUTE_UNUSED, valueT* v ATTRIBUTE_UNUSED, segT s ATTRIBUTE_UNUSED) {
 #if 0	// doesn't seem to be needed.
 	as_bad_where (fixp->fx_file, fixp->fx_line,
 		_("mapip2_md_apply_fix"));
 #endif
 }
 
-arelent* mapip2_tc_gen_reloc(asection* a, fixS* fixp) {
+arelent* mapip2_tc_gen_reloc(asection* a ATTRIBUTE_UNUSED, fixS* fixp) {
 	arelent *rel;
 	bfd_reloc_code_real_type r_type;
 

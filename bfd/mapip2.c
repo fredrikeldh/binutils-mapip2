@@ -129,7 +129,8 @@ static reloc_howto_type*
 mapip2_reloc_type_lookup (bfd * abfd ATTRIBUTE_UNUSED,
 	bfd_reloc_code_real_type code)
 {
-	for(size_t i=0; i<ARRAY_SIZE(elf_mapip_howto_table); i++) {
+	size_t i;
+	for(i=0; i<ARRAY_SIZE(elf_mapip_howto_table); i++) {
 		reloc_howto_type* howto = &elf_mapip_howto_table[i];
 		if(code == howto->type)
 			return howto;
@@ -141,7 +142,8 @@ static reloc_howto_type *
 mapip2_reloc_name_lookup (bfd *abfd ATTRIBUTE_UNUSED,
 	const char *r_name)
 {
-	for(size_t i=0; i<ARRAY_SIZE(elf_mapip_howto_table); i++) {
+	size_t i;
+	for(i=0; i<ARRAY_SIZE(elf_mapip_howto_table); i++) {
 		reloc_howto_type* howto = &elf_mapip_howto_table[i];
 		if(strcasecmp (howto->name, r_name) == 0)
 			return howto;

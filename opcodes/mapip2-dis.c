@@ -117,7 +117,8 @@ int print_insn_mapip2(bfd_vma addr, disassemble_info* info) {
 		return 1;
 	}
 	pf(stream, "%s", insn->mnemonic);
-	for(int i=0; i<MAX_SYNTAX_ELEMENTS; i++) {
+	int i;
+	for(i=0; i<MAX_SYNTAX_ELEMENTS; i++) {
 		mapip2_operand op = insn->operands[i];
 		if(op == END)
 			break;

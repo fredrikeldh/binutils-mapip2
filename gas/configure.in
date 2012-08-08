@@ -323,7 +323,7 @@ changequote([,])dnl
 	;;
 
       mapip2)
-	using_cgen=yes
+	using_cgen=no
 	;;
 
       mep)

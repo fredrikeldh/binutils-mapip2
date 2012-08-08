@@ -231,6 +231,7 @@ ALL_EMULATION_SOURCES = \
 	eelf32ltsmipn32.c \
 	eelf32ltsmipn32_fbsd.c \
 	eelf32m32c.c \
+	eelf32mapip2.c \
 	eelf32mb_linux.c \
 	eelf32mcore.c \
 	eelf32mep.c \
@@ -1022,8 +1023,8 @@ eelf32lm32.c: $(srcdir)/emulparams/elf32lm32.sh \
 	${GENSCRIPTS} elf32lm32 "$(tdir_elf32lm32)"
 eelf32lm32fd.c: $(srcdir)/emulparams/elf32lm32fd.sh \
   $(srcdir)/emulparams/elf32lm32.sh $(ELF_DEPS) \
-  $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS} 
-	${GENSCRIPTS} elf32lm32fd "$(tdir_elf32lm32fd)" 
+  $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
+	${GENSCRIPTS} elf32lm32fd "$(tdir_elf32lm32fd)"
 eelf32lmip.c: $(srcdir)/emulparams/elf32lmip.sh \
   $(srcdir)/emulparams/elf32bmip.sh $(ELF_DEPS) \
   $(srcdir)/emultempl/mipself.em $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
@@ -1075,6 +1076,9 @@ eelf32m32c.c: $(srcdir)/emulparams/elf32m32c.sh \
   $(ELF_DEPS) $(srcdir)/emultempl/needrelax.em \
   $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
 	${GENSCRIPTS} elf32m32c "$(tdir_m32c)"
+eelf32mapip2.c: $(srcdir)/emulparams/elf32mapip2.sh \
+  $(srcdir)/emultempl/elf32.em $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
+	${GENSCRIPTS} elf32mapip2 "$(tdir_mapip2)"
 eelf32mb_linux.c: $(srcdir)/emulparams/elf32mb_linux.sh \
   $(srcdir)/emultempl/elf32.em $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
 	${GENSCRIPTS} elf32mb_linux "$(tdir_microblaze)"
@@ -1714,11 +1718,11 @@ eriscix.c: $(srcdir)/emulparams/riscix.sh \
 	${GENSCRIPTS} riscix "$(tdir_riscix)"
 escore3_elf.c: $(srcdir)/emulparams/scoreelf.sh \
   $(ELF_DEPS) $(srcdir)/emultempl/scoreelf.em \
-  $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS} 
-	${GENSCRIPTS} score3_elf "$(tdir_score3_elf)" scoreelf 
+  $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
+	${GENSCRIPTS} score3_elf "$(tdir_score3_elf)" scoreelf
 escore7_elf.c: $(srcdir)/emulparams/scoreelf.sh \
   $(ELF_DEPS) $(srcdir)/emultempl/scoreelf.em \
-  $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS} 
+  $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
 	${GENSCRIPTS} score7_elf "$(tdir_score7_elf)" scoreelf
 esh.c: $(srcdir)/emulparams/sh.sh \
   $(srcdir)/emultempl/generic.em $(srcdir)/scripttempl/sh.sc ${GEN_DEPENDS}
@@ -2116,7 +2120,7 @@ bootstrap: ld3$(EXEEXT)
 
 # END OF CHECK TARGETS
 
-# 
+#
 # Build a dummy plugin using libtool.
 #
 if ENABLE_PLUGINS

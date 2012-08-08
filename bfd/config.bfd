@@ -855,7 +855,7 @@ case "${targ}" in
     targ_underscore=yes
     ;;
 
-  mapip2*-*)
+  mapip2-*-*)
    targ_defvec=mapip2_vec
    ;;
 
