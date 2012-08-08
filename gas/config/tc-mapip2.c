@@ -292,6 +292,7 @@ static int parseSymbol(mapip2_data* data) {
 	data->symbol = start;
 	data->symbolEnd = str;
 	INSN_LEN(data->fixOffset + 4);
+	setConstant(data, 0);
 
 	return 1;
 }
