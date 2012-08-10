@@ -125,6 +125,12 @@ static int isOperandEnd(char c) {
 	return c == 0 || c == ',' || c == ']' || c == '+' || c == '-';
 }
 
+typedef struct mapip2_symbol {
+	const char* start;
+	char* end;
+	int offset;
+} mapip2_symbol;
+
 typedef struct mapip2_data {
 	char* buf;
 	int length;	// length of instruction, in bytes.
@@ -137,8 +143,8 @@ typedef struct mapip2_data {
 	const mapip2_parse_node* children;
 	int nc_op;
 	int level;
-	const char* symbol;
-	char* symbolEnd;
+	int nSymbols;
+	mapip2_symbol* symbols;
 } mapip2_data;
 
 // returns zero on failure, non-zero on success.
@@ -290,9 +296,10 @@ static int parseSymbol(mapip2_data* data) {
 
 	// we need to set up a relocation entry.
 	gas_assert(data->fixOffset >= 1);
-	data->symbol = start;
-	data->symbolEnd = str;
-	INSN_LEN(data->fixOffset + 4);
+	data->symbols[data->nSymbols].start = start;
+	data->symbols[data->nSymbols].end = str;
+	data->symbols[data->nSymbols].offset = data->fixOffset;
+	data->nSymbols++;
 	setConstant(data, 0);
 
 	return 1;
@@ -307,7 +314,7 @@ static int parseImm(mapip2_data* data) {
 		if(!parseSymbol(data))
 			return 0;
 		// &sym alone
-		if(*data->str == ']' || *data->str == 0)
+		if(*data->str == ']' || *data->str == ',' || *data->str == 0)
 			return 1;
 		// allow &sym - constant
 		if(*data->str != '-') {
@@ -410,12 +417,6 @@ static int try_assemble(mapip2_data* data)
 	const mapip2_parse_node* children = data->children;
 	int nc_op = data->nc_op;
 
-	switch(data->level) {
-	case 1:
-	case 2: if(data->fixOffset < data->level) data->fixOffset = data->level; break;
-	case 3: data->fixOffset = 3; break;
-	}
-
 	// if there are no children left, we must be at the end of the instruction.
 	if(!children) {
 		if(*str == 0) {
@@ -446,7 +447,6 @@ static int try_assemble(mapip2_data* data)
 		}
 	} else if(*str == '[') {	// data address
 		node = findOperandNode(children, nc_op, ADADDR);
-		data->fixOffset = 3;
 		func = parseAddr;
 	} else if(*str == '&') {	// symbol (can be imm or instruction address)
 		data->str--;
@@ -483,6 +483,7 @@ static int try_assemble(mapip2_data* data)
 	}
 	// and continue parsing.
 	if(func) {
+		data->fixOffset = node->offset;
 		data->str++;
 		if(!func(data))
 			return 0;
@@ -503,7 +504,7 @@ void md_assemble(char* str)
 {
 	if(DEBUG_LEVEL >= 2)
 		fprintf(stderr, "md_assemble(%s)\n", str);
-	char buf[16];	// more than enough to contain any mapip2 instruction.
+	char buf[32];	// more than enough to contain any mapip2 instruction.
 	size_t i;
 	for(i=0; i<mapip2_mnemonic_count; i++) {
 		const mapip2_mnemonic* m = &mapip2_mnemonics[i];
@@ -513,7 +514,8 @@ void md_assemble(char* str)
 			int pos = mLen;
 			while(ISSPACE(str[pos]))
 				pos++;
-			mapip2_data data = { buf, 0, 0, 1, str + pos, m->children, m->nc_op, 1, NULL, NULL };
+			mapip2_symbol symbols[8];
+			mapip2_data data = { buf, 0, 0, 1, str + pos, m->children, m->nc_op, 1, 0, symbols };
 			if(!try_assemble(&data)) {
 				fprintf(stderr, "insn: %s\n", str);
 				fprintf(stderr, "error: %s\n", data.str);
@@ -526,11 +528,13 @@ void md_assemble(char* str)
 			char* fm = frag_more(data.length);
 			memcpy(fm, buf, data.length);
 			// fix_new must not be called before frag_more, lest we write outside the frag.
-			if(data.symbol) {
+			int j;
+			for(j=0; j<data.nSymbols; j++) {
+				mapip2_symbol* s = &data.symbols[j];
 				// number to be added to the symbol value.
-				int addition = *(int*)(buf + data.length - 4);
-				*data.symbolEnd = 0;
-				fix_new(frag_now, frag_now_fix() - 4, 4, symbol_find_or_make(data.symbol),
+				int addition = *(int*)(buf + s->offset);
+				*s->end = 0;
+				fix_new(frag_now, frag_now_fix() - (data.length - s->offset), 4, symbol_find_or_make(s->start),
 					addition, FALSE, BFD_RELOC_32);
 			}
 			return;

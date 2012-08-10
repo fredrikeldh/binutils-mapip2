@@ -15,7 +15,7 @@ typedef enum mapip2_operand {
 	END,
 } mapip2_operand;
 
-#define MAX_SYNTAX_ELEMENTS 4
+#define MAX_SYNTAX_ELEMENTS 8
 
 typedef struct mapip2_insn {
 	int opcode;
@@ -27,6 +27,7 @@ typedef struct mapip2_parse_node {
 	mapip2_operand operand;
 	const struct mapip2_parse_node* children;
 	int nc_op;	// number of children if children != NULL, opcode otherwise.
+	int offset;
 } mapip2_parse_node;
 
 typedef struct mapip2_mnemonic {

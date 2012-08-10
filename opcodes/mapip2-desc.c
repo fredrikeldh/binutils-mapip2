@@ -5,12 +5,12 @@
 
 #if 0	// sketch
 static const mapip2_parse_node add_rd_[] = {
-	{ RS, NULL, OP_ADD },
-	{ IMM, NULL, OP_ADDI },
+	{ RS, NULL, OP_ADD, 2 },
+	{ IMM, NULL, OP_ADDI, 2 },
 };
 
 static const mapip2_parse_node add_[] = {
-	{ RD, add_rd_, ARRAYSIZE(add_rd_) },
+	{ RD, add_rd_, ARRAYSIZE(add_rd_), 1 },
 };
 
 static const mapip2_mnemonic add = {
