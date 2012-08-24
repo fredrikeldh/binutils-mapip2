@@ -10,3 +10,7 @@ MAXPAGESIZE="CONSTANT (MAXPAGESIZE)"
 ENTRY=crt0_startup
 EMBEDDED=yes
 NOP=0x00
+
+DATA_ADDR=0x100
+# moves .rodata from after .text to after .data
+WRITABLE_RODATA=
