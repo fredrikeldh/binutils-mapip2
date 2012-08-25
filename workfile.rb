@@ -13,7 +13,7 @@ MAIN_DIRS = intl + [
 'binutils',
 'gas',
 'ld',
-'gdb',
+#'gdb',
 ]
 
 target :default do
