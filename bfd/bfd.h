@@ -93,10 +93,10 @@ typedef BFD_HOST_64_BIT bfd_int64_t;
 typedef BFD_HOST_U_64_BIT bfd_uint64_t;
 #endif
 #else	/* assume 64-bit */
-#define BFD_ARCH_SIZE 64
+#define BFD_ARCH_SIZE 32
 
 /* The word size of the default bfd target.  */
-#define BFD_DEFAULT_TARGET_SIZE 64
+#define BFD_DEFAULT_TARGET_SIZE 32
 
 #define BFD_HOST_64BIT_LONG 1
 #define BFD_HOST_64BIT_LONG_LONG 0
