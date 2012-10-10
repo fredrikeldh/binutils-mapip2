@@ -60,7 +60,7 @@ struct list *list ;
 %token SAVE
 %token OPEN
 
-%type <list> modulelist 
+%type <list> modulelist
 %type <list> modulename
 %type <name> optional_filename
 %%
@@ -79,8 +79,8 @@ command_line:
 	;
 
 command:
-		open_command	
-	|	create_command	
+		open_command
+	|	create_command
 	| 	verbose_command
 	|	directory_command
 	|	addlib_command
@@ -103,11 +103,11 @@ extract_command:
 		{ ar_extract($2); }
 	;
 
-replace_command:	
+replace_command:
 		REPLACE modulename
 		{ ar_replace($2); }
 	;
-	
+
 clear_command:
 		CLEAR
 		{ ar_clear(); }
@@ -122,12 +122,12 @@ addmod_command:
 		{ ar_addmod($2); }
 	;
 
-list_command:	
+list_command:
 		LIST
 		{ ar_list(); }
 	;
 
-save_command:	
+save_command:
 		SAVE
 		{ ar_save(); }
 	;
@@ -135,12 +135,12 @@ save_command:
 
 
 open_command:
-		OPEN FILENAME 
+		OPEN FILENAME
 		{ ar_open($2,0); }
 	;
 
 create_command:
-		CREATE FILENAME 
+		CREATE FILENAME
 		{ ar_open($2,1); }
 	;
 
@@ -163,7 +163,7 @@ optional_filename:
 	;
 
 modulelist:
-	'(' modulename ')' 
+	'(' modulename ')'
 		{ $$ = $2; }
 	|
 		{ $$ = 0; }
@@ -172,33 +172,33 @@ modulelist:
 modulename:
 		modulename optcomma FILENAME
 		{ 	struct list *n  = (struct list *) malloc(sizeof(struct list));
-			n->next = $1; 
+			n->next = $1;
 			n->name = $3;
 			$$ = n;
 		 }
 	|	{ $$ = 0; }
 	;
-	
+
 
 optcomma:
 		','
 	|
 	;
-	
-		
+
+
 verbose_command:
-	VERBOSE 
+	VERBOSE
 		{ verbose = !verbose; }
 	;
 
 
 %%
 
+extern int linenumber;
+
 static int
 yyerror (const char *x ATTRIBUTE_UNUSED)
 {
-  extern int linenumber;
-
   printf (_("Syntax error in archive script, line %d\n"), linenumber + 1);
   return 0;
 }

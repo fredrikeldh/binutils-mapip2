@@ -19,7 +19,9 @@ class BBEW < BinutilsExeWork
 			'rename.c' => ' -DHAVE_GOOD_UTIME_H=1',
 			'objdump.c' => ' -DOBJDUMP_PRIVATE_VECTORS=""',
 			'cxxfilt.c' => ' -DTARGET_PREPENDS_UNDERSCORE=1',
-			'bucomm.c' => " -DTARGET=\\\"#{CONFIG_TARGET}-unknown-elf\\\""
+			'bucomm.c' => " -DTARGET=\\\"#{CONFIG_TARGET}-unknown-elf\\\"",
+			'arsup.c' => ' -Wno-nested-externs',
+			'binemul.c' => ' -Dbin_dummy_emulation=bin_vanilla_emulation',
 		}
 		@LOCAL_LIBS = [
 			'bfd',
@@ -46,8 +48,32 @@ BULIBS = ['bucomm.c','version.c','filemode.c']
 
 ELFLIBS = ['elfcomm.c']
 
+ar = BBEW.new('ar', BULIBS +
+	[
+		'ar.c',
+		'arsup.c',
+		'binemul.c',
+		'emul_vanilla.c',
+		'rename.c',
+		'maybe-ranlib.c',
+	])
+ar.instance_eval do
+	y = YaccTask.new(self, 'arparse.y')
+	y.instance_eval do
+		def execute
+			sh "bison -y -o #{@dst} #{@src} --defines"
+		end
+	end
+	f = FlexTask.new(self, 'arlex.l')
+	f.prerequisites << y
+	@EXTRA_SOURCETASKS = [
+		y,
+		f,
+	]
+end
 
 works = [
+	ar,
 	BBEW.new('objdump', ['objdump.c','dwarf.c','prdbg.c'] + DEBUG_SRCS + BULIBS + ELFLIBS),
 	BBEW.new('size', ['size.c'] + BULIBS),
 	BBEW.new('objcopy', ['objcopy.c','not-strip.c','rename.c'] + WRITE_DEBUG_SRCS + BULIBS),
