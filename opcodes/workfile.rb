@@ -16,7 +16,7 @@ end
 
 work = BinutilsLibWork.new
 work.instance_eval do
-	@PREREQUISITES = [
+	@PREREQUISITES += [
 		GenOpcodesTask.new(self, 'binutils/desc', 'mapip2-gen-desc.h'),
 		GenOpcodesTask.new(self, 'ccore', 'mapip2-gen-opcodes.h'),
 	]

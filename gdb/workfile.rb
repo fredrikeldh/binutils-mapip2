@@ -17,7 +17,7 @@ end
 
 work = BinutilsExeWork.new
 work.instance_eval do
-	@PREREQUISITES = [
+	@PREREQUISITES += [
 		SimpleGenFileTask.new(self, 'observer.h', './observer.sh h doc/observer.texi observer.h',
 			['observer.sh', 'doc/observer.texi']),
 		SimpleGenFileTask.new(self, 'observer.inc', './observer.sh inc doc/observer.texi observer.inc',

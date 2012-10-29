@@ -83,7 +83,7 @@ work.instance_eval do
 		YaccTask.new(self, 'ldgram.y'),
 		GenScriptsTask.new(self, CONFIG_TARGET),
 	]
-	@PREREQUISITES = [
+	@PREREQUISITES += [
 		FlexTask.new(self, 'ldlex.l'),
 		LdEmulListTask.new(self, [CONFIG_TARGET])
 	]

@@ -18,9 +18,7 @@ end
 work = BinutilsLibWork.new
 work.instance_eval do
 	@SOURCES = []
-	@PREREQUISITES = [
-		XXTask.new(self, 'elf32-target.h', 'elfxx-target.h', 'NN', '32'),
-	]
+	@PREREQUISITES << XXTask.new(self, 'elf32-target.h', 'elfxx-target.h', 'NN', '32')
 	@EXTRA_SOURCEFILES = [
 		"#{CONFIG_TARGET}.c",
 		"cpu-#{CONFIG_TARGET}.c",
