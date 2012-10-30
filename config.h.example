@@ -392,3 +392,4 @@
 #define HAVE_WCHAR_H 1
 #define HAVE_DECL_ENVIRON 1
 #define HAVE_DECL_STRERROR 1
+#define HAVE_GETCWD 1

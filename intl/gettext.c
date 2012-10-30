@@ -48,7 +48,9 @@
 # define DCGETTEXT libintl_dcgettext
 #endif
 
+#ifndef LC_MESSAGES
 # define LC_MESSAGES 1729
+#endif
 
 extern char *libintl_gettext (const char *__msgid);
 extern char *libintl_dcgettext (const char *__domainname, const char *__msgid,
