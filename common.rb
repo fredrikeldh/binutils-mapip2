@@ -51,6 +51,10 @@ module BinutilsModule
 			' -Wno-declaration-after-statement'+
 			' -DARCH_SIZE=32'+
 			''
+		if(HOST == :darwin)
+			@EXTRA_INCLUDES << '/opt/local/include'
+			@EXTRA_CFLAGS << ' -Wno-unreachable-code'
+		end
 	end
 end
 

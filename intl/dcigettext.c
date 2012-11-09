@@ -153,7 +153,7 @@ char *getcwd ();
 # ifndef HAVE_STPCPY
 static char *stpcpy PARAMS ((char *dest, const char *src));
 # endif
-# ifndef HAVE_MEMPCPY
+# if !HAVE_MEMPCPY
 static void *mempcpy PARAMS ((void *dest, const void *src, size_t n));
 # endif
 #endif

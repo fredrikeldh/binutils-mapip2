@@ -225,7 +225,7 @@ read_alias_file (fname, fname_len)
   static const char aliasfile[] = "/locale.alias";
 
   full_fname = (char *) alloca (fname_len + sizeof aliasfile);
-#ifdef HAVE_MEMPCPY
+#if HAVE_MEMPCPY
   mempcpy (mempcpy (full_fname, fname, fname_len),
 	   aliasfile, sizeof aliasfile);
 #else

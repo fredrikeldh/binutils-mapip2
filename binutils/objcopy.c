@@ -468,6 +468,8 @@ static bfd_boolean write_debugging_info (bfd *, void *, long *, asymbol ***);
 static const char *lookup_sym_redefinition (const char *);
 
 static void
+copy_usage (FILE *stream, int status) __attribute((noreturn));
+static void
 copy_usage (FILE *stream, int exit_status)
 {
   fprintf (stream, _("Usage: %s [option(s)] in-file [out-file]\n"), program_name);
@@ -577,6 +579,8 @@ copy_usage (FILE *stream, int exit_status)
   exit (exit_status);
 }
 
+static void
+strip_usage (FILE *stream, int status) __attribute((noreturn));
 static void
 strip_usage (FILE *stream, int exit_status)
 {

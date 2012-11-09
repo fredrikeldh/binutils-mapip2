@@ -196,6 +196,8 @@ static const struct objdump_private_desc * const objdump_private_vectors[] =
   };
 
 static void
+usage (FILE *stream, int status) __attribute((noreturn));
+static void
 usage (FILE *stream, int status)
 {
   fprintf (stream, _("Usage: %s <option(s)> <file(s)>\n"), program_name);

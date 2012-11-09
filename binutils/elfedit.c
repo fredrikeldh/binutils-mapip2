@@ -632,6 +632,8 @@ static struct option options[] =
 };
 
 static void
+usage (FILE *stream, int exit_status) __attribute((noreturn));
+static void
 usage (FILE *stream, int exit_status)
 {
   fprintf (stream, _("Usage: %s <option(s)> elffile(s)\n"),

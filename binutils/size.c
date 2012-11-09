@@ -73,6 +73,8 @@ static void rprint_number (int, bfd_size_type);
 static void print_sizes (bfd * file);
 
 static void
+usage (FILE *stream, int status) __attribute((noreturn));
+static void
 usage (FILE *stream, int status)
 {
   fprintf (stream, _("Usage: %s [option(s)] [file(s)]\n"), program_name);

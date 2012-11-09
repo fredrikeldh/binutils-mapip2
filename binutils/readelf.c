@@ -3146,6 +3146,8 @@ static struct option options[] =
 };
 
 static void
+usage (FILE * stream) __attribute((noreturn));
+static void
 usage (FILE * stream)
 {
   fprintf (stream, _("Usage: readelf <option(s)> elf-file(s)\n"));

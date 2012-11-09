@@ -61,7 +61,7 @@ static void print_descr (bfd * abfd);
 static void write_archive (bfd *);
 static int  ranlib_only (const char *archname);
 static int  ranlib_touch (const char *archname);
-static void usage (int);
+static void usage (int) __attribute((noreturn));
 
 /** Globals and flags.  */
 

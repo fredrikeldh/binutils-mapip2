@@ -57,6 +57,7 @@ work.instance_eval do
 		'snprintf.c',
 		'vfprintf.c',
 		'vsprintf.c',
+		'vsnprintf.c',
 		'vfork.c',
 		'waitpid.c',
 		'_doprnt.c',
@@ -71,7 +72,7 @@ work.instance_eval do
 		'simple-object-mach-o.c' => ' -Wno-shadow',
 		'simple-object-coff.c' => ' -Wno-shadow',
 		'simple-object-elf.c' => ' -Wno-shadow',
-		'cp-demangle.c' => ' -Wno-shadow -Wno-vla',
+		'cp-demangle.c' => ' -Wno-shadow',
 		'floatformat.c' => ' -Wno-shadow -Wno-float-equal',
 		'lrealpath.c' => ' -Wno-shadow',
 		'md5.c' => ' -Wno-strict-aliasing',
@@ -79,10 +80,16 @@ work.instance_eval do
 		'physmem.c' => ' -Wno-undef',
 		'obstack.c' => ' -Wno-undef',
 		'regex.c' => ' -DHAVE_BTOWC=1 -DHAVE_UINTPTR_T=1'+
-			' -Wno-missing-prototypes -Wno-missing-declarations -Wno-undef -Wno-type-limits -Wno-shadow',
+			' -Wno-missing-prototypes -Wno-missing-declarations -Wno-undef -Wno-shadow',
 		'stpcpy.c' => ' -Wno-missing-prototypes -Wno-missing-declarations',
 		'vasprintf.c' => ' -Wno-missing-format-attribute',
 	}
+	def setup
+		set_defaults
+		@SPECIFIC_CFLAGS['cp-demangle.c'] << ' -Wno-vla' if(@GCC_V4_SUB >= 3)
+		@SPECIFIC_CFLAGS['regex.c'] << ' -Wno-type-limits' if(@GCC_V4_SUB >= 3)
+		super
+	end
 	@NAME = 'libiberty'
 end
 

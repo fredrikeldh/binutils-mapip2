@@ -67,7 +67,7 @@ static struct option long_options[] =
   {0, no_argument, 0, 0}
 };
 
-static void usage (FILE *, int);
+static void usage (FILE *, int) __attribute((noreturn));
 static void slurp_symtab (bfd *);
 static void find_address_in_section (bfd *, asection *, void *);
 static void find_offset_in_section (bfd *, asection *);

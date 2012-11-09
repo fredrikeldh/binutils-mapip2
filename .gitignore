@@ -46,3 +46,5 @@ config.in
 /opcodes/mapip2-gen-*
 configure
 Makefile.in
+
+.DS_Store

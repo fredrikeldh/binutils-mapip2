@@ -124,4 +124,8 @@ work.instance_eval do
 end
 
 work.invoke
-sh "cp -vur ldscripts/ #{CONFIG_INSTALLDIR}"
+if(HOST == :darwin)
+	sh "rsync -rv ldscripts #{CONFIG_INSTALLDIR}/"
+else
+	sh "cp -ruv ldscripts #{CONFIG_INSTALLDIR}/"
+end

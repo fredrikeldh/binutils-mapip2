@@ -131,7 +131,7 @@ static void strings_a_section (bfd *, asection *, void *);
 static bfd_boolean strings_object_file (const char *);
 static bfd_boolean strings_file (char *file);
 static void print_strings (const char *, FILE *, file_ptr, int, int, char *);
-static void usage (FILE *, int);
+static void usage (FILE *, int) __attribute((noreturn));
 static long get_char (FILE *, file_ptr *, int *, char **);
 
 int main (int, char **);
@@ -310,12 +310,12 @@ strings_a_section (bfd *abfd, asection *sect, void *arg)
   bfd_size_type *filesizep;
   bfd_size_type sectsize;
   void *mem;
-     
+
   if ((sect->flags & DATA_FLAGS) != DATA_FLAGS)
     return;
 
   sectsize = bfd_get_section_size (sect);
-     
+
   if (sectsize <= 0)
     return;
 
@@ -326,7 +326,7 @@ strings_a_section (bfd *abfd, asection *sect, void *arg)
   if (*filesizep == 0)
     {
       struct stat st;
-      
+
       if (bfd_stat (abfd, &st))
 	return;
 

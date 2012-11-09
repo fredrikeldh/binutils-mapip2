@@ -77,7 +77,7 @@ union fooround {long x; double d;};
    jump to the handler pointed to by `obstack_alloc_failed_handler'.
    This variable by default points to the internal function
    `print_and_abort'.  */
-static void print_and_abort (void);
+static void print_and_abort (void) __attribute((noreturn));
 void (*obstack_alloc_failed_handler) (void) = print_and_abort;
 
 /* Exit value used when `print_and_abort' is used.  */

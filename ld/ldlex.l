@@ -37,6 +37,8 @@
 #include "ldmain.h"
 #include "libiberty.h"
 
+static void yy_fatal_error(yyconst char msg[]) __attribute((noreturn));
+
 /* The type of top-level parser input.
    yylex and yyparse (indirectly) both check this.  */
 input_type parser_input;

@@ -220,6 +220,8 @@ static struct option long_options[] =
 /* Some error-reporting functions.  */
 
 static void
+usage (FILE *stream, int exit_status) __attribute((noreturn));
+static void
 usage (FILE *stream, int status)
 {
   fprintf (stream, _("Usage: %s [option(s)] [file(s)]\n"), program_name);

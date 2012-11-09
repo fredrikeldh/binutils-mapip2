@@ -89,6 +89,8 @@ print_demangler_list (FILE *stream)
 }
 
 static void
+usage (FILE *stream, int exit_status) __attribute((noreturn));
+static void
 usage (FILE *stream, int status)
 {
   fprintf (stream, "\
