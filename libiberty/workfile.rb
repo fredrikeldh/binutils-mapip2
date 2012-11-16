@@ -83,6 +83,8 @@ work.instance_eval do
 			' -Wno-missing-prototypes -Wno-missing-declarations -Wno-undef -Wno-shadow',
 		'stpcpy.c' => ' -Wno-missing-prototypes -Wno-missing-declarations',
 		'vasprintf.c' => ' -Wno-missing-format-attribute',
+		'vprintf.c' => ' -Wno-missing-format-attribute',
+		'asprintf.c' => ' -Wno-missing-format-attribute',
 	}
 	def setup
 		set_defaults
