@@ -105,7 +105,7 @@ work.instance_eval do
 	@EXTRA_CFLAGS << ' -DTESTING=0'
 	@EXTRA_CFLAGS << ' -Wno-nested-externs'
 	@SPECIFIC_CFLAGS = {
-		'ldlex-wrapper.c' => ' -Wno-shadow',
+		'ldlex-wrapper.c' => ' -Wno-shadow -Wno-sign-compare',
 		'ldmain.c' => " -DDEFAULT_EMULATION=\\\"elf32#{CONFIG_TARGET}\\\""
 	}
 	@LOCAL_LIBS = [

@@ -22,6 +22,7 @@ class BBEW < BinutilsExeWork
 			'bucomm.c' => " -DTARGET=\\\"#{CONFIG_TARGET}-unknown-elf\\\"",
 			'arsup.c' => ' -Wno-nested-externs',
 			'binemul.c' => ' -Dbin_dummy_emulation=bin_vanilla_emulation',
+			'arlex.c' => ' -Wno-sign-compare',
 		}
 		@LOCAL_LIBS = [
 			'bfd',
