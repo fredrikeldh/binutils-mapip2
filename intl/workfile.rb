@@ -2,8 +2,7 @@
 
 require File.expand_path('../common.rb')
 
-work = BinutilsLibWork.new
-work.instance_eval do
+BinutilsLibWork.new do
 	@SOURCES = ['.']
 	@IGNORED_FILES = [
 	]
@@ -22,4 +21,4 @@ work.instance_eval do
 	@NAME = 'intl'
 end
 
-work.invoke
+Works.run

@@ -3,30 +3,29 @@
 require File.expand_path('../common.rb')
 
 class SimpleGenFileTask < FileTask
-	def initialize(work, name, cmd, prereqs = [])
-		super(work, name)
+	def initialize(name, cmd, prereqs = [])
 		@cmd = cmd
-		prereqs.each do |p|
-			@prerequisites << FileTask.new(work, p)
+		@prerequisites = prereqs.collect do |p|
+			FileTask.new(work, p)
 		end
+		super(name)
 	end
-	def execute
+	def fileExecute
 		sh @cmd
 	end
 end
 
-work = BinutilsExeWork.new
-work.instance_eval do
-	@PREREQUISITES += [
-		SimpleGenFileTask.new(self, 'observer.h', './observer.sh h doc/observer.texi observer.h',
+BinutilsExeWork.new  do
+	@REQUIREMENTS = [
+		SimpleGenFileTask.new('observer.h', './observer.sh h doc/observer.texi observer.h',
 			['observer.sh', 'doc/observer.texi']),
-		SimpleGenFileTask.new(self, 'observer.inc', './observer.sh inc doc/observer.texi observer.inc',
+		SimpleGenFileTask.new('observer.inc', './observer.sh inc doc/observer.texi observer.inc',
 			['observer.sh', 'doc/observer.texi']),
 		#SimpleGenFileTask.new(self, 'jit-reader.h', './config.status jit-reader.in',
 			#['config.status', 'jit-reader.in']),
 	]
 	@SOURCES = ['cli', 'mi']
-	@EXTRA_SOURCEFILES = [
+	@SOURCE_FILES = [
 		'ada-exp.c',
 		'ada-lang.c',
 		'ada-typeprint.c',
@@ -160,10 +159,10 @@ work.instance_eval do
 		'features/traceframe-info.dtd',
 	]
 
-	@EXTRA_SOURCETASKS = [
+	@SOURCE_TASKS = [
 		#YaccTask.new(self, 'deffilep.y'),
 		#YaccTask.new(self, 'ldgram.y'),
-		SimpleGenFileTask.new(self, 'build/xml-builtin.c',
+		SimpleGenFileTask.new('build/xml-builtin.c',
 			"bash -x features/feature_to_c.sh build/xml-builtin.c #{xmlfiles.join(' ')}",
 			['features/feature_to_c.sh'] + xmlfiles),
 	]
@@ -172,12 +171,12 @@ work.instance_eval do
 	@EXTRA_INCLUDES << '../bfd'
 	@EXTRA_INCLUDES << '../opcodes'
 	if(HOST == :win32)
-		@EXTRA_SOURCEFILES += Dir['windows-*.c']
-		@EXTRA_SOURCEFILES += Dir['*-windows-*.c']
-		@EXTRA_SOURCEFILES << 'ser-mingw.c'
+		@SOURCE_FILES += Dir['windows-*.c']
+		@SOURCE_FILES += Dir['*-windows-*.c']
+		@SOURCE_FILES << 'ser-mingw.c'
 	elsif(HOST == :linux)
-		@EXTRA_SOURCEFILES << 'posix-hdep.c'
-		@EXTRA_SOURCEFILES << 'ser-unix.c'
+		@SOURCE_FILES << 'posix-hdep.c'
+		@SOURCE_FILES << 'ser-unix.c'
 		#@EXTRA_SOURCEFILES += Dir['linux-*.c']
 		#@EXTRA_SOURCEFILES += Dir['*-linux.c']
 	end
@@ -230,9 +229,7 @@ work.instance_eval do
 	@NAME = 'gdb'
 end
 
-#work.invoke
-
-class AutomakeWork < Work
+class AutomakeWork < Task
 	include GccVersion
 	def gccVersionClass; AutomakeWork; end
 	def gcc; "gcc"; end
@@ -242,23 +239,20 @@ class AutomakeWork < Work
 	end
 end
 
-work = AutomakeWork.new
-work.instance_eval do
+AutomakeWork.new do
 	set_defaults
 	@bdir = '../build/release/'
 	@prerequisites = [
-		SimpleGenFileTask.new(self, @bdir+'gdb/Makefile', './configure-linux-release.sh',
+		SimpleGenFileTask.new(@bdir+'gdb/Makefile', './configure-linux-release.sh',
 			['configure-linux-release.sh']),
 		copy('bfd/libbfd.a', 'bfd.a'),
 		copy('opcodes/libopcodes.a', 'opcodes.a'),
 		copy('libiberty/libiberty.a', 'libiberty.a'),
 		#copy('readline/libreadline.a', '/usr/lib/libreadline.a'),
 	]
-	def setup
-	end
 end
 
-work.invoke
+Works.run
 
 sh 'cd ../build/release/libdecnumber && make'
 sh 'cd ../build/release/gdb && make'

@@ -4,16 +4,10 @@ require File.expand_path('../common.rb')
 
 class BBEW < BinutilsExeWork
 	def initialize(name, sourcefiles)
-		super()
 		@NAME = name
-		@EXTRA_SOURCEFILES = sourcefiles
-		@SOURCES = []
-		@EXTRA_INCLUDES << '.'
-		@EXTRA_INCLUDES << '../bfd'
-		@EXTRA_INCLUDES << '../opcodes'
-		@IGNORED_FILES = [
-		]
-		@EXTRA_CFLAGS << ' -DHAVE_CONFIG_H=1 -DLOCALEDIR=\"\" -DUSING_CGEN=1 -DHAVE_DECL_FPRINTF=1'
+		@SOURCE_FILES = sourcefiles
+		@EXTRA_INCLUDES = ['.', '../bfd', '../opcodes']
+		@EXTRA_CFLAGS = ' -DHAVE_CONFIG_H=1 -DLOCALEDIR=\"\" -DUSING_CGEN=1 -DHAVE_DECL_FPRINTF=1'
 		@EXTRA_CFLAGS << ' -Wno-missing-format-attribute'
 		@SPECIFIC_CFLAGS = {
 			'rename.c' => ' -DHAVE_GOOD_UTIME_H=1',
@@ -38,6 +32,7 @@ class BBEW < BinutilsExeWork
 		else
 			@LOCAL_LIBS << 'intl'
 		end
+		super()
 	end
 end
 
@@ -49,6 +44,12 @@ BULIBS = ['bucomm.c','version.c','filemode.c']
 
 ELFLIBS = ['elfcomm.c']
 
+class ArParseTask < YaccTask
+	def fileExecute
+		sh "bison -y -o #{@dst} #{@src} --defines"
+	end
+end
+
 ar = BBEW.new('ar', BULIBS +
 	[
 		'ar.c',
@@ -57,34 +58,24 @@ ar = BBEW.new('ar', BULIBS +
 		'emul_vanilla.c',
 		'rename.c',
 		'maybe-ranlib.c',
-	])
-ar.instance_eval do
-	y = YaccTask.new(self, 'arparse.y')
-	y.instance_eval do
-		def execute
-			sh "bison -y -o #{@dst} #{@src} --defines"
-		end
-	end
-	f = FlexTask.new(self, 'arlex.l')
-	f.prerequisites << y
-	@EXTRA_SOURCETASKS = [
+	]) do
+	y = ArParseTask.new('arparse.y')
+	f = FlexTask.new('arlex.l', [y])
+	@SOURCE_TASKS = [
 		y,
 		f,
 	]
 end
 
-works = [
-	ar,
-	BBEW.new('objdump', ['objdump.c','dwarf.c','prdbg.c'] + DEBUG_SRCS + BULIBS + ELFLIBS),
-	BBEW.new('size', ['size.c'] + BULIBS),
-	BBEW.new('objcopy', ['objcopy.c','not-strip.c','rename.c'] + WRITE_DEBUG_SRCS + BULIBS),
-	BBEW.new('strings', ['strings.c'] + BULIBS),
-	BBEW.new('readelf', ['readelf.c','version.c','unwind-ia64.c','dwarf.c'] + ELFLIBS),
-	BBEW.new('elfedit', ['elfedit.c','version.c'] + ELFLIBS),
-	BBEW.new('strip_new', ['objcopy.c','is-strip.c','rename.c'] + WRITE_DEBUG_SRCS + BULIBS),
-	BBEW.new('nm_new', ['nm.c'] + BULIBS),
-	BBEW.new('cxxfilt', ['cxxfilt.c'] + BULIBS),
-	BBEW.new('addr2line', ['addr2line.c'] + BULIBS),
-]
+BBEW.new('objdump', ['objdump.c','dwarf.c','prdbg.c'] + DEBUG_SRCS + BULIBS + ELFLIBS)
+BBEW.new('size', ['size.c'] + BULIBS)
+BBEW.new('objcopy', ['objcopy.c','not-strip.c','rename.c'] + WRITE_DEBUG_SRCS + BULIBS)
+BBEW.new('strings', ['strings.c'] + BULIBS)
+BBEW.new('readelf', ['readelf.c','version.c','unwind-ia64.c','dwarf.c'] + ELFLIBS)
+BBEW.new('elfedit', ['elfedit.c','version.c'] + ELFLIBS)
+BBEW.new('strip_new', ['objcopy.c','is-strip.c','rename.c'] + WRITE_DEBUG_SRCS + BULIBS)
+BBEW.new('nm_new', ['nm.c'] + BULIBS)
+BBEW.new('cxxfilt', ['cxxfilt.c'] + BULIBS)
+BBEW.new('addr2line', ['addr2line.c'] + BULIBS)
 
-works.each do |w| w.invoke end
+Works.run

@@ -2,10 +2,9 @@
 
 require File.expand_path('../common.rb')
 
-work = BinutilsExeWork.new
-work.instance_eval do
+BinutilsExeWork.new do
 	@SOURCES = ['.']
-	@EXTRA_SOURCEFILES = [
+	@SOURCE_FILES = [
 		"config/tc-#{CONFIG_TARGET}.c",
 		'config/atof-ieee.c',
 		'config/obj-elf.c',
@@ -41,4 +40,4 @@ work.instance_eval do
 	@NAME = 'as'
 end
 
-work.invoke
+Works.run

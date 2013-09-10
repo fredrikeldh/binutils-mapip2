@@ -3,23 +3,21 @@
 require File.expand_path('../common.rb')
 
 class XXTask < FileTask
-	def initialize(work, name, src, xx, replacement)
-		super(work, name)
-		@prerequisites = [FileTask.new(work, src)]
+	def initialize(name, src, xx, replacement)
+		@prerequisites = [FileTask.new(src)]
 		@src = src
 		@xx = xx
 		@replacement = replacement
+		super(name)
 	end
-	def execute
+	def fileExecute
 		sh "sed -e s/#{@xx}/#{@replacement}/g < #{@src} > #{@NAME}"
 	end
 end
 
-work = BinutilsLibWork.new
-work.instance_eval do
-	@SOURCES = []
-	@PREREQUISITES << XXTask.new(self, 'elf32-target.h', 'elfxx-target.h', 'NN', '32')
-	@EXTRA_SOURCEFILES = [
+BinutilsLibWork.new do
+	@REQUIREMENTS = [XXTask.new('elf32-target.h', 'elfxx-target.h', 'NN', '32')]
+	@SOURCE_FILES = [
 		"#{CONFIG_TARGET}.c",
 		"cpu-#{CONFIG_TARGET}.c",
 		'archive.c',
@@ -74,12 +72,8 @@ work.instance_eval do
 		'archive.c' => ' -Wno-nested-externs',
 		'plugin.c' => ' -Wno-missing-format-attribute -DBINDIR=\"\"',
  	}
-	def setup
-		set_defaults
-		@SPECIFIC_CFLAGS['plugin.c'] << ' -Wno-vla' if(@GCC_V4_SUB >= 3)
-		super
-	end
+	@SPECIFIC_CFLAGS['plugin.c'] << ' -Wno-vla' if(@GCC_V4_SUB >= 3)
 	@NAME = 'bfd'
 end
 
-work.invoke
+Works.run

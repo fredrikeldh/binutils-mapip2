@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
-require File.expand_path(ENV['MOSYNCDIR']+'/rules/exe.rb')
+require File.expand_path(ENV['MOSYNCDIR']+'/rules/cExe.rb')
+require File.expand_path(ENV['MOSYNCDIR']+'/rules/subdir.rb')
 require File.expand_path('./config.rb')
 
 intl = []
@@ -17,16 +18,11 @@ MAIN_DIRS = intl + [
 ]
 
 target :default do
-	Work.invoke_subdirs(MAIN_DIRS)
-end
-
-target :clean do
-	verbose_rm_rf('build')
-	Work.invoke_subdirs(MAIN_DIRS, 'clean')
+	Works.invoke_subdirs(MAIN_DIRS)
 end
 
 target :run => :default do
 	CONFIG_RUN_FUNCTION()
 end
 
-Targets.invoke
+Works.run

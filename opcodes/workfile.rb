@@ -3,28 +3,26 @@
 require File.expand_path('../common.rb')
 
 class GenOpcodesTask < FileTask
-	def initialize(work, mode, dst)
-		super(work, dst)
+	def initialize(mode, dst)
 		@mode = mode
 		@gen = "#{CONFIG_MOSYNC_SOURCE_DIR}/runtimes/cpp/core/gen-opcodes.rb"
-		prerequisites << FileTask.new(work, @gen)
+		@prerequisites = [FileTask.new(@gen)]
+		super(dst)
 	end
-	def execute
+	def fileExecute
 		sh "ruby #{@gen} #{@mode} #{@NAME}"
 	end
 end
 
-work = BinutilsLibWork.new
-work.instance_eval do
-	@PREREQUISITES += [
-		GenOpcodesTask.new(self, 'binutils/desc', 'mapip2-gen-desc.h'),
-		GenOpcodesTask.new(self, 'ccore', 'mapip2-gen-opcodes.h'),
+BinutilsLibWork.new do
+	@REQUIREMENTS += [
+		GenOpcodesTask.new('binutils/desc', 'mapip2-gen-desc.h'),
+		GenOpcodesTask.new('ccore', 'mapip2-gen-opcodes.h'),
 	]
 
-	@SOURCES = []
 	@EXTRA_INCLUDES << '..'
 	@EXTRA_INCLUDES << '../bfd'
-	@EXTRA_SOURCEFILES = [
+	@SOURCE_FILES = [
 		#'cgen-asm.c',
 		#'cgen-bitset.c',
 		#'cgen-dis.c',
@@ -43,4 +41,4 @@ work.instance_eval do
 	@NAME = 'opcodes'
 end
 
-work.invoke
+Works.run

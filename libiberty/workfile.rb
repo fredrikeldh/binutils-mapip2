@@ -2,8 +2,7 @@
 
 require File.expand_path('../common.rb')
 
-work = BinutilsLibWork.new
-work.instance_eval do
+BinutilsLibWork.new do
 	@SOURCES = ['.']
 	@IGNORED_FILES = [
 		'msdos.c',
@@ -86,13 +85,9 @@ work.instance_eval do
 		'vprintf.c' => ' -Wno-missing-format-attribute',
 		'asprintf.c' => ' -Wno-missing-format-attribute',
 	}
-	def setup
-		set_defaults
-		@SPECIFIC_CFLAGS['cp-demangle.c'] << ' -Wno-vla' if(@GCC_V4_SUB >= 3)
-		@SPECIFIC_CFLAGS['regex.c'] << ' -Wno-type-limits' if(@GCC_V4_SUB >= 3)
-		super
-	end
+	@SPECIFIC_CFLAGS['cp-demangle.c'] << ' -Wno-vla' if(@GCC_V4_SUB >= 3)
+	@SPECIFIC_CFLAGS['regex.c'] << ' -Wno-type-limits' if(@GCC_V4_SUB >= 3)
 	@NAME = 'libiberty'
 end
 
-work.invoke
+Works.run
